@@ -253,7 +253,6 @@ class SessionManager:
         ).strip()
         max_turns_env = os.environ.get("ASSISTANT_MAX_TURNS", "").strip()
         self.max_turns = int(max_turns_env) if max_turns_env else None
-        self.cli_path = os.environ.get("ASSISTANT_CLAUDE_CLI_PATH", "").strip() or None
 
     def _build_system_prompt(self, project_name: str) -> str:
         """Build system prompt with project context injected."""
@@ -334,7 +333,6 @@ class SessionManager:
 
         return ClaudeAgentOptions(
             cwd=str(project_cwd),
-            cli_path=self.cli_path,
             setting_sources=self.DEFAULT_SETTING_SOURCES,
             allowed_tools=self.DEFAULT_ALLOWED_TOOLS,
             max_turns=self.max_turns,
