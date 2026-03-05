@@ -404,7 +404,7 @@ def main():
     args = parser.parse_args()
 
     # 从环境变量读取最大并发数，默认 3
-    max_workers = int(os.environ.get('STORYBOARD_MAX_WORKERS', 3))
+    max_workers = int(os.environ.get('IMAGE_MAX_WORKERS', 3))
 
     try:
         # 检测 content_mode

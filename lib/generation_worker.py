@@ -44,7 +44,7 @@ class GenerationWorker:
         self.lease_name = lease_name
         self.owner_id = f"worker-{uuid.uuid4().hex[:10]}"
 
-        self.image_workers = _read_int_env("STORYBOARD_MAX_WORKERS", 3, minimum=1)
+        self.image_workers = _read_int_env("IMAGE_MAX_WORKERS", 3, minimum=1)
         self.video_workers = _read_int_env("VIDEO_MAX_WORKERS", 2, minimum=1)
         self.lease_ttl = max(1.0, float(TASK_WORKER_LEASE_TTL_SEC))
         self.heartbeat_interval = max(0.5, float(TASK_WORKER_HEARTBEAT_SEC))
@@ -58,7 +58,7 @@ class GenerationWorker:
 
     def reload_limits_from_env(self) -> None:
         """Reload worker concurrency limits from environment variables."""
-        self.image_workers = _read_int_env("STORYBOARD_MAX_WORKERS", 3, minimum=1)
+        self.image_workers = _read_int_env("IMAGE_MAX_WORKERS", 3, minimum=1)
         self.video_workers = _read_int_env("VIDEO_MAX_WORKERS", 2, minimum=1)
 
     async def start(self) -> None:

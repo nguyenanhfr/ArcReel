@@ -23,7 +23,7 @@ function makeConfigResponse(): GetSystemConfigResponse {
         request_gap_seconds: 3.1,
       },
       performance: {
-        storyboard_max_workers: 3,
+        image_max_workers: 3,
         video_max_workers: 2,
       },
       gemini_api_key: {

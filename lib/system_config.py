@@ -157,7 +157,6 @@ class SystemConfigManager:
     _ENV_KEYS = (
         "GEMINI_IMAGE_BACKEND",
         "GEMINI_VIDEO_BACKEND",
-        "GEMINI_BACKEND",
         "GEMINI_API_KEY",
         "ANTHROPIC_API_KEY",
         "ANTHROPIC_BASE_URL",
@@ -172,8 +171,9 @@ class SystemConfigManager:
         "GEMINI_IMAGE_RPM",
         "GEMINI_VIDEO_RPM",
         "GEMINI_REQUEST_GAP",
-        "STORYBOARD_MAX_WORKERS",
+        "IMAGE_MAX_WORKERS",
         "VIDEO_MAX_WORKERS",
+        "VERTEX_GCS_BUCKET",
     )
 
     def __init__(self, project_root: Path):
@@ -221,6 +221,14 @@ class SystemConfigManager:
             if "video_backend" not in overrides:
                 overrides["video_backend"] = legacy_backend.strip()
             overrides.pop("gemini_backend", None)
+            migrated = True
+
+        # Migration: storyboard_max_workers -> image_max_workers
+        legacy_workers = overrides.get("storyboard_max_workers")
+        if legacy_workers is not None:
+            if "image_max_workers" not in overrides:
+                overrides["image_max_workers"] = legacy_workers
+            overrides.pop("storyboard_max_workers", None)
             migrated = True
 
         # Migration: preview model names -> stable 001
@@ -349,15 +357,6 @@ class SystemConfigManager:
         else:
             self._restore_or_unset("GEMINI_VIDEO_BACKEND")
 
-        # Compatibility/default: GEMINI_BACKEND follows effective image backend.
-        effective_image_backend = (
-            (image_backend.strip().lower() if image_backend else None)
-            or (self._baseline_env.get("GEMINI_IMAGE_BACKEND") or "").strip().lower()
-            or (self._baseline_env.get("GEMINI_BACKEND") or "").strip().lower()
-            or "aistudio"
-        )
-        os.environ["GEMINI_BACKEND"] = effective_image_backend
-
         # Secrets
         if "gemini_api_key" in overrides:
             self._set_env("GEMINI_API_KEY", overrides.get("gemini_api_key"))
@@ -405,12 +404,18 @@ class SystemConfigManager:
         else:
             self._restore_or_unset("GEMINI_VIDEO_GENERATE_AUDIO")
 
+        # Vertex GCS bucket
+        if "vertex_gcs_bucket" in overrides:
+            self._set_env("VERTEX_GCS_BUCKET", overrides.get("vertex_gcs_bucket"))
+        else:
+            self._restore_or_unset("VERTEX_GCS_BUCKET")
+
         # Rate limiting / performance
         for override_key, env_key, cast in (
             ("gemini_image_rpm", "GEMINI_IMAGE_RPM", _read_int),
             ("gemini_video_rpm", "GEMINI_VIDEO_RPM", _read_int),
             ("gemini_request_gap", "GEMINI_REQUEST_GAP", _read_float),
-            ("storyboard_max_workers", "STORYBOARD_MAX_WORKERS", _read_int),
+            ("image_max_workers", "IMAGE_MAX_WORKERS", _read_int),
             ("video_max_workers", "VIDEO_MAX_WORKERS", _read_int),
         ):
             if override_key in overrides:

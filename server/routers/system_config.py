@@ -61,11 +61,7 @@ def _mask_secret(value: str) -> str:
 
 
 def _effective_backend(primary: str) -> str:
-    return (
-        (os.environ.get(primary) or "").strip().lower()
-        or (os.environ.get("GEMINI_BACKEND") or "").strip().lower()
-        or "aistudio"
-    )
+    return (os.environ.get(primary) or "").strip().lower() or "aistudio"
 
 
 def _effective_image_backend() -> str:
@@ -276,7 +272,7 @@ def _config_payload(project_root: Path) -> dict[str, Any]:
             "request_gap_seconds": _read_float_env("GEMINI_REQUEST_GAP", 3.1),
         },
         "performance": {
-            "storyboard_max_workers": _read_int_env("STORYBOARD_MAX_WORKERS", 3),
+            "image_max_workers": _read_int_env("IMAGE_MAX_WORKERS", 3),
             "video_max_workers": _read_int_env("VIDEO_MAX_WORKERS", 2),
         },
         "gemini_api_key": _secret_view(overrides, "gemini_api_key", "GEMINI_API_KEY"),
@@ -298,6 +294,9 @@ def _config_payload(project_root: Path) -> dict[str, Any]:
         ),
         "claude_code_subagent_model": _text_view(
             overrides, "claude_code_subagent_model", "CLAUDE_CODE_SUBAGENT_MODEL"
+        ),
+        "vertex_gcs_bucket": _text_view(
+            overrides, "vertex_gcs_bucket", "VERTEX_GCS_BUCKET"
         ),
         "vertex_credentials": _vertex_credentials_status(project_root),
     }
@@ -324,8 +323,9 @@ class SystemConfigPatchRequest(BaseModel):
     gemini_image_rpm: Optional[int] = None
     gemini_video_rpm: Optional[int] = None
     gemini_request_gap: Optional[float] = None
-    storyboard_max_workers: Optional[int] = None
+    image_max_workers: Optional[int] = None
     video_max_workers: Optional[int] = None
+    vertex_gcs_bucket: Optional[str] = None
 
 
 class SystemConnectionTestRequest(BaseModel):
@@ -393,6 +393,9 @@ async def patch_system_config(req: SystemConfigPatchRequest, request: Request):
         if model_key in patch and patch[model_key] not in (None, ""):
             patch[model_key] = str(patch[model_key]).strip()
 
+    if "vertex_gcs_bucket" in patch and patch["vertex_gcs_bucket"] not in (None, ""):
+        patch["vertex_gcs_bucket"] = str(patch["vertex_gcs_bucket"]).strip()
+
     for key, min_value in (
         ("gemini_image_rpm", 0),
         ("gemini_video_rpm", 0),
@@ -405,7 +408,7 @@ async def patch_system_config(req: SystemConfigPatchRequest, request: Request):
         if float(patch["gemini_request_gap"]) < 0:
             raise HTTPException(status_code=400, detail="gemini_request_gap 必须 >= 0")
 
-    for key in ("storyboard_max_workers", "video_max_workers"):
+    for key in ("image_max_workers", "video_max_workers"):
         if key in patch and patch[key] is not None:
             if int(patch[key]) < 1:
                 raise HTTPException(status_code=400, detail=f"{key} 必须 >= 1")

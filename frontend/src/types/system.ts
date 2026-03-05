@@ -24,7 +24,7 @@ export interface SystemRateLimitConfig {
 }
 
 export interface SystemPerformanceConfig {
-  storyboard_max_workers: number;
+  image_max_workers: number;
   video_max_workers: number;
 }
 
@@ -100,6 +100,6 @@ export type SystemConfigPatch = Partial<{
   gemini_image_rpm: number | null;
   gemini_video_rpm: number | null;
   gemini_request_gap: number | null;
-  storyboard_max_workers: number | null;
+  image_max_workers: number | null;
   video_max_workers: number | null;
 }>;

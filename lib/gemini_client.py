@@ -397,21 +397,20 @@ class GeminiClient:
         - AI Studio（默认）：使用 GEMINI_API_KEY
         - Vertex AI：使用 GCP 项目和应用默认凭据
 
-        通过环境变量 GEMINI_BACKEND 切换（或通过参数 backend 显式覆盖）：
-        - GEMINI_BACKEND=aistudio（默认）
-        - GEMINI_BACKEND=vertex
+        通过环境变量切换（或通过参数 backend 显式覆盖）：
+        - GEMINI_IMAGE_BACKEND / GEMINI_VIDEO_BACKEND（由配置页管理）
 
         Args:
             api_key: API 密钥（仅 AI Studio 模式），默认从环境变量 GEMINI_API_KEY 读取
             rate_limiter: 可选的限流器实例
-            backend: 可选的后端覆盖（aistudio/vertex）。None 时读取环境变量 GEMINI_BACKEND。
+            backend: 可选的后端覆盖（aistudio/vertex）。
         """
         from google import genai
         from google.genai import types
 
         self.types = types
         self.rate_limiter = rate_limiter or get_shared_rate_limiter()
-        raw_backend = backend or os.environ.get("GEMINI_BACKEND", "aistudio")
+        raw_backend = backend or "aistudio"
         self.backend = str(raw_backend).strip().lower() or "aistudio"
         self.credentials = None  # 用于 Vertex AI 模式
         self.project_id = None  # 用于 Vertex AI 模式

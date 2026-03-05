@@ -213,52 +213,21 @@ python .claude/skills/generate-video/scripts/generate_video.py \
 ## 环境要求
 
 - Python 3.10+
-- Gemini API 密钥 或 Vertex AI 配置（通过 `.env` 文件设置）
+- Gemini API 密钥 或 Vertex AI 配置（通过 WebUI 配置页设置）
 - ffmpeg（用于视频后期处理）
 
 ## API 后端配置
 
-项目支持两种 Gemini API 后端，通过 `.env` 文件中的 `GEMINI_BACKEND` 变量切换：
+项目支持两种 Gemini API 后端，图片和视频可分别选择不同后端。
+所有 API 相关配置（后端选择、API Key、速率限制、模型选择等）均通过 **WebUI 配置页**（`/settings`）管理，无需手动编辑 `.env` 文件。
 
-### 方式一：AI Studio（默认）
+### AI Studio（默认）
 
-适合个人开发和测试：
+适合个人开发和测试。从 https://aistudio.google.com/apikey 获取 API 密钥，在配置页填入即可。
 
-```bash
-cp .env.example .env
-# 编辑 .env 填入你的 API 密钥：
-# GEMINI_BACKEND=aistudio
-# GEMINI_API_KEY=your-api-key
-```
+### Vertex AI
 
-从 https://aistudio.google.com/apikey 获取 API 密钥。
-
-### 方式二：Vertex AI
-
-适合需要更高配额或企业使用：
-
-```bash
-# 设置 .env 文件
-GEMINI_BACKEND=vertex
-VERTEX_API_KEY=your-vertex-api-key
-```
-
-从 Google Cloud Console 的 Vertex AI 页面获取 API 密钥。
-
-## 速率与并发配置
-
-可以通过 `.env` 文件配置 API 速率限制和并发数，以避免 `429 Resource Exhausted` 错误：
-
-```bash
-# 图片生成每分钟请求数限制 (默认: 15)
-GEMINI_IMAGE_RPM=15
-# 视频生成每分钟请求数限制 (默认: 10)
-GEMINI_VIDEO_RPM=10
-# 两次请求之间的最小间隔（秒）(默认: 3.1)
-GEMINI_REQUEST_GAP=3.1
-# 分镜生成时的最大并发线程数 (默认: 3)
-STORYBOARD_MAX_WORKERS=3
-```
+适合需要更高配额或企业使用。在配置页上传服务账号 JSON 凭证文件，然后切换后端即可。
 
 ## 项目目录结构
 
@@ -428,4 +397,4 @@ projects/{项目名}/
 - 视频生成：`veo-3.1-generate-001`
 - 视频扩展：`veo-3.1-generate-001`（使用 extend 功能）
 
-后端选择优先从 `.env` 文件读取 `GEMINI_BACKEND` 配置（默认为 `aistudio`）。
+后端选择通过 WebUI 配置页管理（图片和视频可分别选择不同后端）。

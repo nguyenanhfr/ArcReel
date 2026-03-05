@@ -17,7 +17,6 @@ def env_guard():
     keys = [
         "GEMINI_IMAGE_BACKEND",
         "GEMINI_VIDEO_BACKEND",
-        "GEMINI_BACKEND",
         "GEMINI_API_KEY",
         "ANTHROPIC_API_KEY",
         "ANTHROPIC_BASE_URL",
@@ -27,8 +26,9 @@ def env_guard():
         "GEMINI_IMAGE_RPM",
         "GEMINI_VIDEO_RPM",
         "GEMINI_REQUEST_GAP",
-        "STORYBOARD_MAX_WORKERS",
+        "IMAGE_MAX_WORKERS",
         "VIDEO_MAX_WORKERS",
+        "VERTEX_GCS_BUCKET",
     ]
     snapshot = {k: os.environ.get(k) for k in keys}
     for k in keys:

@@ -35,7 +35,7 @@ interface DraftState {
   gemini_image_rpm: number;
   gemini_video_rpm: number;
   gemini_request_gap: number;
-  storyboard_max_workers: number;
+  image_max_workers: number;
   video_max_workers: number;
 }
 
@@ -69,7 +69,7 @@ const LIMIT_PATCH_KEYS = [
   "gemini_image_rpm",
   "gemini_video_rpm",
   "gemini_request_gap",
-  "storyboard_max_workers",
+  "image_max_workers",
   "video_max_workers",
 ] as const satisfies readonly (keyof SystemConfigPatch)[];
 
@@ -85,7 +85,7 @@ const LIMIT_DRAFT_KEYS = [
   "gemini_image_rpm",
   "gemini_video_rpm",
   "gemini_request_gap",
-  "storyboard_max_workers",
+  "image_max_workers",
   "video_max_workers",
 ] as const satisfies readonly (keyof DraftState)[];
 
@@ -122,7 +122,7 @@ function buildDraft(data: GetSystemConfigResponse): DraftState {
     gemini_image_rpm: cfg.rate_limit.image_rpm,
     gemini_video_rpm: cfg.rate_limit.video_rpm,
     gemini_request_gap: cfg.rate_limit.request_gap_seconds,
-    storyboard_max_workers: cfg.performance.storyboard_max_workers,
+    image_max_workers: cfg.performance.image_max_workers,
     video_max_workers: cfg.performance.video_max_workers,
   };
 }
@@ -161,8 +161,8 @@ function buildPatch(
   if (draft.gemini_request_gap !== cfg.rate_limit.request_gap_seconds) {
     patch.gemini_request_gap = draft.gemini_request_gap;
   }
-  if (draft.storyboard_max_workers !== cfg.performance.storyboard_max_workers) {
-    patch.storyboard_max_workers = draft.storyboard_max_workers;
+  if (draft.image_max_workers !== cfg.performance.image_max_workers) {
+    patch.image_max_workers = draft.image_max_workers;
   }
   if (draft.video_max_workers !== cfg.performance.video_max_workers) {
     patch.video_max_workers = draft.video_max_workers;
@@ -1192,18 +1192,18 @@ export function SystemConfigPage() {
             </summary>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <label className={cardClassName}>
-                <div className="text-sm font-medium text-gray-100">分镜最大并发</div>
+                <div className="text-sm font-medium text-gray-100">图片最大并发</div>
                 <input
                   type="number"
                   min={1}
-                  value={draft.storyboard_max_workers}
+                  value={draft.image_max_workers}
                   onChange={(e) =>
                     setDraft((s) =>
-                      s ? { ...s, storyboard_max_workers: Number(e.target.value) } : s
+                      s ? { ...s, image_max_workers: Number(e.target.value) } : s
                     )
                   }
                   className={`mt-2 ${inputClassName}`}
-                  name="storyboard_max_workers"
+                  name="image_max_workers"
                   inputMode="numeric"
                 />
               </label>

@@ -57,12 +57,10 @@ class MediaGenerator:
         self._rate_limiter = rate_limiter
         self.image_backend = (
             (os.environ.get("GEMINI_IMAGE_BACKEND") or "").strip().lower()
-            or (os.environ.get("GEMINI_BACKEND") or "").strip().lower()
             or "aistudio"
         )
         self.video_backend = (
             (os.environ.get("GEMINI_VIDEO_BACKEND") or "").strip().lower()
-            or (os.environ.get("GEMINI_BACKEND") or "").strip().lower()
             or "aistudio"
         )
         self._gemini_image: Optional[GeminiClient] = None
