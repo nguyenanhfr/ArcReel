@@ -27,7 +27,7 @@ class ProviderConfig(Base):
     value: Mapped[str] = mapped_column(Text, nullable=False)
     is_secret: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=_utc_now, onupdate=_utc_now
+        DateTime(timezone=True), nullable=False, default=_utc_now, onupdate=_utc_now
     )
 
 
@@ -38,5 +38,5 @@ class SystemSetting(Base):
     key: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     value: Mapped[str] = mapped_column(Text, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=_utc_now, onupdate=_utc_now
+        DateTime(timezone=True), nullable=False, default=_utc_now, onupdate=_utc_now
     )

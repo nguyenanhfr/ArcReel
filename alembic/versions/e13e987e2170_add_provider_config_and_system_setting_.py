@@ -27,7 +27,7 @@ def upgrade() -> None:
     sa.Column('key', sa.String(length=64), nullable=False),
     sa.Column('value', sa.Text(), nullable=False),
     sa.Column('is_secret', sa.Boolean(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('provider', 'key', name='uq_provider_key')
     )
@@ -38,7 +38,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('key', sa.String(length=64), nullable=False),
     sa.Column('value', sa.Text(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('key')
     )
