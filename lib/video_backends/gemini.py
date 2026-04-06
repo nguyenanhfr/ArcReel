@@ -161,7 +161,7 @@ class GeminiVideoBackend:
         while not operation.done:
             elapsed = time.monotonic() - start_time
             if elapsed >= max_wait_time:
-                raise TimeoutError(f"VideoTạo vượt quá thời gian ({max_wait_time}秒）")
+                raise TimeoutError(f"Tạo video vượt quá thời gian ({max_wait_time} giây)")
             await asyncio.sleep(poll_interval)
             try:
                 operation = await self._client.aio.operations.get(operation)

@@ -131,13 +131,13 @@ export function ClueCard({
         </div>
         <PreviewableImageFrame
           src={sheetUrl && !imgError ? sheetUrl : null}
-          alt={`${name} 设计图`}
+          alt={`Bản vẽ thiết kế ${name}`}
         >
           <AspectFrame ratio="16:9">
             {sheetUrl && !imgError ? (
               <img
                 src={sheetUrl}
-                alt={`${name} 设计图`}
+                alt={`Bản vẽ thiết kế ${name}`}
                 className="h-full w-full object-cover"
                 onError={() => setImgError(true)}
               />

@@ -63,7 +63,7 @@ def main():
                 print(f"  SKIP {project_dir.name}/{name} (already exists)")
                 skipped += 1
             else:
-                # 缺失
+                # Thiếu
                 if args.dry_run:
                     print(f"  WOULD CREATE {project_dir.name}/{name} -> {rel_target}")
                 else:

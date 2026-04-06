@@ -19,7 +19,7 @@ _tracker = UsageTracker()
 @router.get("/usage/stats")
 async def get_stats(
     _user: CurrentUser,
-    project_name: str | None = Query(None, description="Dự ánTên（可选）"),
+    project_name: str | None = Query(None, description="Tên Dự án (tùy chọn)"),
     provider: str | None = Query(None, description="Lọc theo nhà cung cấp"),
     start_date: str | None = Query(None, description="Ngày bắt đầu (YYYY-MM-DD)"),
     end_date: str | None = Query(None, description="kết thúcNgày (YYYY-MM-DD)"),

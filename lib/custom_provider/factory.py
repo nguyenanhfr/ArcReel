@@ -32,7 +32,7 @@ def create_custom_backend(
     """Tạo phiên bản Backend đã đóng gói dựa trên cấu hình nhà cung cấp tùy chỉnh.
 
     Args:
-        provider: nhà cung cấp tùy chỉnh ORM 对象
+        provider: nhà cung cấp tùy chỉnh ORM Đối tượng
         model_id: Mã mẫu sẽ sử dụng
         media_type: Loại phương tiện ("text" | "image" | "video")
 

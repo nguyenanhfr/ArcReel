@@ -1,6 +1,6 @@
 /**
  * OpenClaw Phương thức khởi động tích hợp
- * PromptVùng (có thể sao chép, bao gồm URL Skill.md động), hướng dẫn 3 bước,"Nhận mã thông báo API"按钮
+ * PromptVùng (có thể sao chép, bao gồm URL Skill.md động), hướng dẫn 3 bước,"Nhận mã thông báo API"Nút
  */
 import { useCallback, useMemo, useState } from "react";
 import { copyText } from "@/utils/clipboard";
@@ -119,12 +119,12 @@ export function OpenClawModal({ onClose }: OpenClawModalProps) {
                 {copied ? (
                   <>
                     <Check className="h-3 w-3 text-emerald-400" />
-                    已复制
+                    Đã sao chép
                   </>
                 ) : (
                   <>
                     <Copy className="h-3 w-3" />
-                    复制
+                    Sao chép
                   </>
                 )}
               </button>

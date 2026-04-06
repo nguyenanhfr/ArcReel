@@ -46,7 +46,7 @@ export function TabSaveFooter({
             disabled={controlsDisabled}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-sm text-gray-200 transition-colors hover:border-gray-600 hover:bg-gray-800/80 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            撤销
+            Hủy
           </button>
         )}
         <button
@@ -64,7 +64,7 @@ export function TabSaveFooter({
           ) : (
             <Save className="h-4 w-4" />
           )}
-          {saving ? "Lưu中…" : "Lưu"}
+          {saving ? "Đang lưu…" : "Lưu"}
         </button>
       </div>
     </div>

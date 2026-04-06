@@ -467,7 +467,7 @@ export function ApiKeysTab() {
               <tr className="border-b border-gray-800">
                 <th className="py-2.5 pl-4 pr-3 text-xs font-medium text-gray-500">Tên / Tiền tố</th>
                 <th className="hidden px-3 py-2.5 text-xs font-medium text-gray-500 sm:table-cell">
-                  Tạo时间
+                  Thời gian tạo
                 </th>
                 <th className="hidden px-3 py-2.5 text-xs font-medium text-gray-500 md:table-cell">
                   Thời gian hết hạn
@@ -476,7 +476,7 @@ export function ApiKeysTab() {
                   Được sử dụng gần đây
                 </th>
                 <th className="py-2.5 pl-3 pr-4 text-right text-xs font-medium text-gray-500">
-                  操作
+                  Thao tác
                 </th>
               </tr>
             </thead>

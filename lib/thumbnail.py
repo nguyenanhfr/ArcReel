@@ -15,7 +15,7 @@ async def extract_video_thumbnail(
     Sử dụng ffmpeg để trích xuất một khung của Video làm hình thu nhỏ JPEG.
 
     Args:
-        video_path: Video文件路径
+        video_path: VideoĐường dẫn tệp
         thumbnail_path: Đầu raĐường dẫn hình thu nhỏ
 
     Returns:

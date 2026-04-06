@@ -8,9 +8,9 @@ import { useAppStore } from "@/stores/app-store";
 import { useConfigStatusStore } from "@/stores/config-status-store";
 
 const TEXT_MODEL_FIELDS = [
-  ["text_backend_script", "Kịch bản生成"],
+  ["text_backend_script", "Tạo kịch bản"],
   ["text_backend_overview", "Tạo tổng quan"],
-  ["text_backend_style", "Phong cách分析"],
+  ["text_backend_style", "Phân tích phong cách"],
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -88,7 +88,7 @@ export function MediaModelSection() {
             onChange={(v) => setDraft((prev) => ({ ...prev, default_video_backend: v }))}
             allowDefault
             defaultLabel="lựa chọn tự động"
-            defaultHint="自动"
+            defaultHint="Tự động"
           />
         ) : (
           <div className="rounded-lg border border-gray-800 bg-gray-900/60 px-3 py-2 text-sm text-gray-500">
@@ -122,7 +122,7 @@ export function MediaModelSection() {
             onChange={(v) => setDraft((prev) => ({ ...prev, default_image_backend: v }))}
             allowDefault
             defaultLabel="lựa chọn tự động"
-            defaultHint="自动"
+            defaultHint="Tự động"
           />
         ) : (
           <div className="rounded-lg border border-gray-800 bg-gray-900/60 px-3 py-2 text-sm text-gray-500">
@@ -133,7 +133,7 @@ export function MediaModelSection() {
 
       {/* Text backend selectors */}
       <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4">
-        <div className="mb-3 text-sm font-medium text-gray-100">Văn bản模型</div>
+        <div className="mb-3 text-sm font-medium text-gray-100">Mô hình Văn bản</div>
         <p className="mb-3 text-xs text-gray-500">Định cấu hình Văn bản mô hình theo loại tác vụ, để trống để cho biết lựa chọn tự động</p>
 
         {textBackends.length > 0 ? (
@@ -147,7 +147,7 @@ export function MediaModelSection() {
                   providerNames={allProviderNames}
                   onChange={(v) => setDraft((prev) => ({ ...prev, [key]: v }))}
                   allowDefault
-                  defaultHint="自动"
+                  defaultHint="Tự động"
                   aria-label={label}
                 />
               </div>
@@ -169,7 +169,7 @@ export function MediaModelSection() {
             disabled={saving}
             className="rounded-lg bg-indigo-600 px-4 py-2 text-sm text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-indigo-500/60 focus-visible:outline-none"
           >
-            {saving ? "Lưu中…" : "Lưu"}
+            {saving ? "Đang lưu…" : "Lưu"}
           </button>
           <button
             type="button"

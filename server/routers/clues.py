@@ -25,9 +25,9 @@ def get_project_manager() -> ProjectManager:
 
 class CreateClueRequest(BaseModel):
     name: str
-    clue_type: str  # 'prop' 或 'location'
+    clue_type: str  # 'prop' hoặc 'location'
     description: str
-    importance: str | None = "major"  # 'major' 或 'minor'
+    importance: str | None = "major"  # 'major' hoặc 'minor'
 
 
 class UpdateClueRequest(BaseModel):
@@ -49,7 +49,7 @@ async def add_clue(project_name: str, req: CreateClueRequest, _user: CurrentUser
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -65,18 +65,18 @@ async def update_clue(project_name: str, clue_name: str, req: UpdateClueRequest,
         project = manager.load_project(project_name)
 
         if clue_name not in project["clues"]:
-            raise HTTPException(status_code=404, detail=f"Manh mối '{clue_name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Manh mối '{clue_name}' không tồn tại")
 
         clue = project["clues"][clue_name]
         if req.clue_type is not None:
             if req.clue_type not in ["prop", "location"]:
-                raise HTTPException(status_code=400, detail="Manh mốiLoạiPhải là 'prop' 或 'location'")
+                raise HTTPException(status_code=400, detail="Manh mốiLoạiPhải là 'prop' hoặc 'location'")
             clue["type"] = req.clue_type
         if req.description is not None:
             clue["description"] = req.description
         if req.importance is not None:
             if req.importance not in ["major", "minor"]:
-                raise HTTPException(status_code=400, detail="Quan trọngMức độ phải là 'major' 或 'minor'")
+                raise HTTPException(status_code=400, detail="Quan trọngMức độ phải là 'major' hoặc 'minor'")
             clue["importance"] = req.importance
         if req.clue_sheet is not None:
             clue["clue_sheet"] = req.clue_sheet
@@ -85,7 +85,7 @@ async def update_clue(project_name: str, clue_name: str, req: UpdateClueRequest,
             manager.save_project(project_name, project)
         return {"success": True, "clue": clue}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -101,14 +101,14 @@ async def delete_clue(project_name: str, clue_name: str, _user: CurrentUser):
         project = manager.load_project(project_name)
 
         if clue_name not in project["clues"]:
-            raise HTTPException(status_code=404, detail=f"Manh mối '{clue_name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Manh mối '{clue_name}' không tồn tại")
 
         del project["clues"][clue_name]
         with project_change_source("webui"):
             manager.save_project(project_name, project)
         return {"success": True, "message": f"Manh mối '{clue_name}' Đã Xóa"}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:

@@ -64,7 +64,7 @@ class ScriptGenerator:
         Tạo Kịch bản Tập phim bất đồng bộ
 
         Args:
-            episode: Tập phim编号
+            episode: Số hiệu tập phim
             output_path: Đầu raĐường dẫn, mặc định là scripts/episode_{episode}.json
 
         Returns:
@@ -117,7 +117,7 @@ class ScriptGenerator:
         # 6. Bổ sung một số siêu dữ liệu
         script_data = self._add_metadata(script_data, episode)
 
-        # 7. Lưu文件
+        # 7. LưuTài liệu
         if output_path is None:
             output_path = self.project_path / "scripts" / f"episode_{episode}.json"
 
@@ -133,7 +133,7 @@ class ScriptGenerator:
         Xây dựng Prompt (dành cho chế độ dry-run)
 
         Args:
-            episode: Tập phim编号
+            episode: Số hiệu tập phim
 
         Returns:
             Prompt đã xây dựng
@@ -196,7 +196,7 @@ class ScriptGenerator:
 
         Args:
             response_text: API Trả về JSON Văn bản
-            episode: Tập phim编号
+            episode: Số hiệu tập phim
 
         Returns:
             Dữ liệu Kịch bản đã được xác thực từ điển
@@ -217,7 +217,7 @@ class ScriptGenerator:
         except json.JSONDecodeError as e:
             raise ValueError(f"JSON Phân tích thất bại: {e}")
 
-        # Pydantic 验证
+        # Pydantic Xác minh
         try:
             if self.content_mode == "narration":
                 validated = NarrationEpisodeScript.model_validate(data)
@@ -234,8 +234,8 @@ class ScriptGenerator:
         Bổ sung siêu dữ liệu kịch bản
 
         Args:
-            script_data: Kịch bản数据
-            episode: Tập phim编号
+            script_data: Kịch bảnDữ liệu
+            episode: Số hiệu tập phim
 
         Returns:
             Dữ liệu kịch bản sau khi bổ sung siêu dữ liệu
@@ -248,14 +248,14 @@ class ScriptGenerator:
         if "novel" not in script_data:
             script_data["novel"] = {
                 "title": self.project_json.get("title", ""),
-                "chapter": f"Không.{episode}集",
+                "chapter": f"Không.{tập} tập",
             }
         # Loại bỏ source_file đã bị bỏ (AI có thể tưởng tượng)
         novel = script_data.get("novel")
         if isinstance(novel, dict):
             novel.pop("source_file", None)
 
-        # Thêm时间戳
+        # ThêmDấu thời gian
         now = datetime.now().isoformat()
         script_data.setdefault("metadata", {})
         script_data["metadata"]["created_at"] = now

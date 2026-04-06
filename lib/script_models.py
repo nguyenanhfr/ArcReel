@@ -3,7 +3,7 @@ script_models.py - Kịch bảnMô hình dữ liệu
 
 Sử dụng Pydantic để định nghĩa cấu trúc dữ liệu kịch bản, dùng cho:
 1. Gemini API response_schema (Đầu ra có cấu trúc)
-2. Đầu ra验证
+2. Đầu raXác minh
 """
 
 from typing import Literal
@@ -65,10 +65,10 @@ CameraMotion = Literal[
 
 
 class Dialogue(BaseModel):
-    """Đối thoại条目"""
+    """Mục đối thoại"""
 
     speaker: str = Field(description="Người nói Tên")
-    line: str = Field(description="Đối thoại内容")
+    line: str = Field(description="Nội dung đối thoại")
 
 
 class Composition(BaseModel):
@@ -98,8 +98,8 @@ class VideoPrompt(BaseModel):
 class GeneratedAssets(BaseModel):
     """Trạng thái tài nguyên tạo ra (khởi tạo trống)"""
 
-    storyboard_image: str | None = Field(default=None, description="Ảnh phân cảnh路径")
-    video_clip: str | None = Field(default=None, description="VideoĐoạn路径")
+    storyboard_image: str | None = Field(default=None, description="Đường dẫn ảnh phân cảnh")
+    video_clip: str | None = Field(default=None, description="Đường dẫn video đoạn")
     video_uri: str | None = Field(default=None, description="Video URI")
     status: Literal["pending", "storyboard_ready", "completed"] = Field(default="pending", description="Trạng thái tạo")
 
@@ -110,7 +110,7 @@ class GeneratedAssets(BaseModel):
 class NarrationSegment(BaseModel):
     """Đoạn trong chế độ kể chuyện"""
 
-    segment_id: str = Field(description="Đoạn ID，định dạng E{集}S{Số thứ tự} hoặc E{集}S{Số thứ tự}_{Số Thứ Tự Con}")
+    segment_id: str = Field(description="ID đoạn, định dạng E{tập}S{số thứ tự} hoặc E{tập}S{số thứ tự}_{Số thứ tự con}")
     episode: int = Field(description="Thuộc Tập Phim")
     duration_seconds: DurationSeconds = Field(description="ĐoạnThời lượng (giây)")
     segment_break: bool = Field(default=False, description="Có phải là Điểm Chuyển Cảnh")
@@ -134,7 +134,7 @@ class NovelInfo(BaseModel):
 class NarrationEpisodeScript(BaseModel):
     """Kịch bản Tập phim theo chế độ Kể chuyện"""
 
-    episode: int = Field(description="Tập phim编号")
+    episode: int = Field(description="Số hiệu tập phim")
     title: str = Field(description="Tập phimTiêu đề")
     content_mode: Literal["narration"] = Field(default="narration", description="chế độ nội dung")
     duration_seconds: int = Field(default=0, description="Tổng Thời lượng (giây)")
@@ -149,7 +149,7 @@ class NarrationEpisodeScript(BaseModel):
 class DramaScene(BaseModel):
     """Chế độ hoạt hình phimCác Cảnh"""
 
-    scene_id: str = Field(description="Cảnh ID，định dạng E{集}S{Số thứ tự} hoặc E{集}S{Số thứ tự}_{Số Thứ Tự Con}")
+    scene_id: str = Field(description="ID cảnh, định dạng E{tập}S{số thứ tự} hoặc E{tập}S{số thứ tự}_{Số thứ tự con}")
     duration_seconds: DurationSeconds = Field(default=8, description="CảnhThời lượng (giây)")
     segment_break: bool = Field(default=False, description="Có phải là Điểm Chuyển Cảnh")
     scene_type: str = Field(default="Cốt truyện", description="CảnhLoại")
@@ -163,9 +163,9 @@ class DramaScene(BaseModel):
 
 
 class DramaEpisodeScript(BaseModel):
-    """Chế độ hoạt hình phimTập phim脚本"""
+    """Chế độ hoạt hình kịch bản tập phim"""
 
-    episode: int = Field(description="Tập phim编号")
+    episode: int = Field(description="Số hiệu tập phim")
     title: str = Field(description="Tập phimTiêu đề")
     content_mode: Literal["drama"] = Field(default="drama", description="chế độ nội dung")
     duration_seconds: int = Field(default=0, description="Tổng Thời lượng (giây)")

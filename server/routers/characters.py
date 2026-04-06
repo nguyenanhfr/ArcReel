@@ -47,7 +47,7 @@ async def add_character(project_name: str, req: CreateCharacterRequest, _user: C
             )
         return {"success": True, "character": project["characters"][req.name]}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -68,7 +68,7 @@ async def update_character(
         project = manager.load_project(project_name)
 
         if char_name not in project["characters"]:
-            raise HTTPException(status_code=404, detail=f"Nhân vật '{char_name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Nhân vật '{char_name}' không tồn tại")
 
         char = project["characters"][char_name]
         if req.description is not None:
@@ -84,7 +84,7 @@ async def update_character(
             manager.save_project(project_name, project)
         return {"success": True, "character": char}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -100,14 +100,14 @@ async def delete_character(project_name: str, char_name: str, _user: CurrentUser
         project = manager.load_project(project_name)
 
         if char_name not in project["characters"]:
-            raise HTTPException(status_code=404, detail=f"Nhân vật '{char_name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Nhân vật '{char_name}' không tồn tại")
 
         del project["characters"][char_name]
         with project_change_source("webui"):
             manager.save_project(project_name, project)
         return {"success": True, "message": f"Nhân vật '{char_name}' Đã Xóa"}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:

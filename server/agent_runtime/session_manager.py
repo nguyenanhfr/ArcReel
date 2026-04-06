@@ -1456,9 +1456,9 @@ Bạnlà Tác nhân ArcReel, Trợ lý sáng tạo nội dung Video AI chuyên n
             return
 
         # Tất cả các phiên đang chạy → Từ chối
-        raise SessionCapacityError(f"Hiện tại有{len(active)}phiên đang diễn ra, đã đạt giới hạn tối đa, vui lòng đợi Thử lại")
+        raise SessionCapacityError(f"Hiện tại có {len(active)} phiên đang diễn ra, đã đạt giới hạn tối đa, vui lòng đợi Thử lại")
 
-    _PATROL_INTERVAL = 300  # 5 分钟
+    _PATROL_INTERVAL = 300  # 5 Phút
 
     async def _patrol_once(self) -> None:
         """Kiểm tra một lần: dọn sạch tất cả các phiên không chạy đã hết thời gian chờ."""

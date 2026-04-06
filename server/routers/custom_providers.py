@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/custom-providers", tags=["nhà cung cấp tùy chỉnh"])
 
-_CONNECTION_TEST_TIMEOUT = 15  # 秒
+_CONNECTION_TEST_TIMEOUT = 15  # giây
 
 _BACKEND_SETTING_KEYS = (
     "default_video_backend",
@@ -36,7 +36,7 @@ _BACKEND_SETTING_KEYS = (
 )
 
 # ---------------------------------------------------------------------------
-# Pydantic 模型
+# Pydantic mô hình
 # ---------------------------------------------------------------------------
 
 
@@ -265,7 +265,7 @@ async def get_provider(
     repo = CustomProviderRepository(session)
     provider = await repo.get_provider(provider_id)
     if provider is None:
-        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp không tồn tại")
     models = await repo.list_models(provider_id)
     return _provider_to_response(provider, models)
 
@@ -293,7 +293,7 @@ async def update_provider(
 
     provider = await repo.update_provider(provider_id, **kwargs)
     if provider is None:
-        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp không tồn tại")
 
     await session.commit()
     await _invalidate_caches(request)
@@ -319,7 +319,7 @@ async def full_update_provider(
         kwargs["api_key"] = body.api_key
     provider = await repo.update_provider(provider_id, **kwargs)
     if provider is None:
-        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp không tồn tại")
     model_dicts = [m.model_dump() for m in body.models]
     await repo.replace_models(provider_id, model_dicts)
     await session.commit()
@@ -340,7 +340,7 @@ async def delete_provider(
     repo = CustomProviderRepository(session)
     provider = await repo.get_provider(provider_id)
     if provider is None:
-        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp không tồn tại")
     prefix = f"{make_provider_id(provider_id)}/"
     await repo.delete_provider(provider_id)
     # Làm sạch cấu hình backend mặc định toàn cục tham chiếu đến nhà cung cấp này
@@ -376,7 +376,7 @@ async def replace_models(
     repo = CustomProviderRepository(session)
     provider = await repo.get_provider(provider_id)
     if provider is None:
-        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp không tồn tại")
     # Ghi lại Mã mẫu cũ, dùng để làm sạch tham chiếu treo
     old_models = await repo.list_models(provider_id)
     old_model_ids = {m.model_id for m in old_models}
@@ -453,7 +453,7 @@ async def test_connection_by_id(
     repo = CustomProviderRepository(session)
     provider = await repo.get_provider(provider_id)
     if provider is None:
-        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp không tồn tại")
     return await _run_connection_test(provider.api_format, provider.base_url, provider.api_key)
 
 
@@ -503,7 +503,7 @@ def _test_openai(base_url: str, api_key: str) -> ConnectionTestResponse:
     count = sum(1 for _ in models)
     return ConnectionTestResponse(
         success=True,
-        message="kết nối成功",
+        message="Kết nối thành công",
         model_count=count,
     )
 
@@ -521,6 +521,6 @@ def _test_google(base_url: str, api_key: str) -> ConnectionTestResponse:
     count = sum(1 for _ in pager)
     return ConnectionTestResponse(
         success=True,
-        message="kết nối成功",
+        message="Kết nối thành công",
         model_count=count,
     )

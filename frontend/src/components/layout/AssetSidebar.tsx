@@ -224,7 +224,7 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
   // XóaTệp nguồn
   const handleDeleteFile = useCallback(async (filename: string) => {
     if (!projectName) return;
-    if (!confirm(`Hãy chắc chắn rằng bạn muốn Xóa "${filename}" 吗？`)) return;
+    if (!confirm(`Hãy chắc chắn rằng bạn muốn Xóa "${filename}" Không?`)) return;
     try {
       await API.deleteSourceFile(projectName, filename);
       loadSourceFiles();

@@ -55,10 +55,25 @@ function extractChineseFromFile(filepath) {
   for (let i = 0; i < lines.length; i++) {
     const ln = lines[i];
     if (!isChinese(ln)) continue;
-    const matches = ln.match(/[\u4e00-\u9fa5][^\n"'`<>{}]{0,80}/g) || [];
-    for (const m of matches) {
-      const phrase = m.trim().replace(/^[^\u4e00-\u9fa5]+/, '').trim();
-      if (phrase && isChinese(phrase)) found.push(phrase);
+    
+    const phraseRegex = /(?:["'`])([^"'`]*?[\u4e00-\u9fa5]+[^"'`]*?)(?:["'`])|(?:>)([^<]*?[\u4e00-\u9fa5]+[^<]*?)(?:<)|(?:})([^<{}]*?[\u4e00-\u9fa5]+[^<{}]*?)(?:{)/g;
+    let match;
+    let foundInLine = false;
+    
+    while ((match = phraseRegex.exec(ln)) !== null) {
+      let phrase = match[1] || match[2] || match[3];
+      if (phrase && isChinese(phrase.trim())) {
+        found.push(phrase.trim());
+        foundInLine = true;
+      }
+    }
+    
+    if (!foundInLine) {
+        const matches = ln.match(/[\u4e00-\u9fa5][A-Za-z0-9_\s\.\u4e00-\u9fa5]{0,80}/g) || [];
+        for (const m of matches) {
+          const phrase = m.trim();
+          if (phrase && isChinese(phrase)) found.push(phrase);
+        }
     }
   }
   return found;
@@ -76,9 +91,8 @@ async function main() {
   for (const f of files) {
     const hits = extractChineseFromFile(f);
     for (const phrase of hits) {
-      // Check if already covered
-      const inDB = Object.keys(db.phrases).some(k => phrase.includes(k) || k.includes(phrase));
-      if (!inDB) missingSet.add(phrase);
+      // Chỉ chính xác!
+      if (!db.phrases[phrase]) missingSet.add(phrase);
     }
   }
   

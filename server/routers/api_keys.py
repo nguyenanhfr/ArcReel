@@ -133,7 +133,7 @@ async def delete_api_key(
             repo = ApiKeyRepository(session)
             row = await repo.get_by_id(key_id)
             if row is None:
-                raise HTTPException(status_code=404, detail=f"API Key {key_id} 不存在")
+                raise HTTPException(status_code=404, detail=f"API Key {key_id} không tồn tại")
             key_hash = row["key_hash"]
             # Vô hiệu hóa cache trước khi xóa cơ sở dữ liệu: ngay cả khi giao dịch được cam kết rồi sập, cache vẫn Đã Xóa,
             # Sẽ không xuất hiện cửa sổ trễ khi DB đã xóa nhưng cache vẫn còn hiệu lực.
@@ -141,4 +141,4 @@ async def delete_api_key(
             deleted = await repo.delete(key_id)
 
     if not deleted:
-        raise HTTPException(status_code=404, detail=f"API Key {key_id} 不存在")
+        raise HTTPException(status_code=404, detail=f"API Key {key_id} không tồn tại")

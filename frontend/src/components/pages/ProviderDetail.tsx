@@ -11,7 +11,7 @@ import type { ProviderConfigDetail, ProviderField } from "@/types";
 // ---------------------------------------------------------------------------
 
 const STATUS_BADGE_MAP: Record<string, { label: string; cls: string }> = {
-  ready: { label: "已就绪", cls: "bg-green-900/30 text-green-400 border border-green-800/50" },
+  ready: { label: "Đã sẵn sàng", cls: "bg-green-900/30 text-green-400 border border-green-800/50" },
   unconfigured: { label: "Chưa được định cấu hình", cls: "bg-gray-800 text-gray-400 border border-gray-700" },
   error: { label: "bất thường", cls: "bg-red-900/30 text-red-400 border border-red-800/50" },
 };
@@ -76,14 +76,14 @@ function FieldEditor({ field, draft, setDraft }: FieldEditorProps) {
               type={showSecret ? "text" : "password"}
               value={displayValue}
               onChange={(e) => handleChange(e.target.value)}
-              placeholder={field.is_set ? field.value_masked ?? "••••••••••" : (field.placeholder ?? "Đầu vào密钥")}
+              placeholder={field.is_set ? field.value_masked ?? "••••••••••" : (field.placeholder ?? "Nhập khóa")}
               className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 pr-9 text-sm text-gray-100 placeholder-gray-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
             <button
               type="button"
               onClick={() => setShowSecret((v) => !v)}
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded text-gray-500 hover:text-gray-300 focus-visible:ring-2 focus-visible:ring-indigo-500/60 focus-visible:outline-none"
-              aria-label={showSecret ? "隐藏" : "显示"}
+              aria-label={showSecret ? "Ẩn" : "Hiển thị"}
             >
               {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -92,7 +92,7 @@ function FieldEditor({ field, draft, setDraft }: FieldEditorProps) {
             <button
               type="button"
               onClick={handleClear}
-              title="Xóa密钥"
+              title="Xóa khóa"
               className="flex items-center gap-1 rounded-lg border border-gray-700 px-3 py-2 text-xs text-gray-400 hover:border-gray-600 hover:text-gray-200 focus-visible:ring-2 focus-visible:ring-indigo-500/60 focus-visible:outline-none"
             >
               <X className="h-3 w-3" />
@@ -288,7 +288,7 @@ export function ProviderDetail({ providerId, onSaved }: Props) {
                     {saving ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Lưu中…
+                        Đang lưu…
                       </>
                     ) : (
                       "Lưu"

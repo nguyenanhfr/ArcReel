@@ -155,7 +155,7 @@ async def _instructor_fallback(
 ) -> TextGenerationResult:
     """Instructor Hạ cấp: đường dẫn thay thế khi response_format gốc không khả dụng.
 
-    Hàm này không thực hiện Thử lại, lỗi tạm thời sẽ được ném ra cho vòng lặp Thử lại của bên gọi xử lý统一。
+    Hàm này không thực hiện Thử lại, lỗi tạm thời sẽ được ném ra cho vòng lặp Thử lại của bên gọi xử lýThống nhất.
 
     - response_schema Cho lớp Pydantic: sử dụng create_with_completion của instructor
     - response_schema Cho dict: quay lại cuộc gọi thông thường không có đầu ra có cấu trúc

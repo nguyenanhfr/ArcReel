@@ -1,5 +1,5 @@
 """
-Dự ánQuản lý tập tin器
+Dự ánQuản lý tập tinThiết bị
 
 Quản lý cấu trúc thư mục dự án Video, đọc ghi phân cảnh Kịch bản, theo dõi trạng thái.
 """
@@ -85,7 +85,7 @@ class ProjectManager:
         """Suy ra ProjectManager và TênDựÁn từ thư mục làm việc hiện tại.
 
         Giả định cwd là ``projects/{project_name}/`` định dạng。
-        返回 ``(ProjectManager, project_name)`` Bộ ba.
+        Quay lại ``(ProjectManager, project_name)`` Bộ ba.
         """
         cwd = Path.cwd().resolve()
         project_name = cwd.name
@@ -115,13 +115,13 @@ class ProjectManager:
 
     def create_project(self, name: str) -> Path:
         """
-        Tạo新Dự án
+        Tạo Dự án Mới
 
         Args:
             name: Dự ánBiểu tượng (duy nhất toàn cầu, dùng cho URL và Hệ thống tệp)
 
         Returns:
-            Dự án目录路径
+            Dự ánĐường dẫn thư mục
         """
         name = self.normalize_project_name(name)
         project_dir = self.projects_root / name
@@ -175,7 +175,7 @@ class ProjectManager:
                     logger.warning("Không thể sửa liên kết biểu tượng %s của Dự án %s: %s", project_dir.name, name, e)
                     stats["errors"] += 1
             elif not symlink_path.exists() and not symlink_path.is_symlink():
-                # 缺失
+                # Thiếu
                 try:
                     symlink_path.symlink_to(REL_TARGETS[name])
                     stats["created"] += 1
@@ -216,7 +216,7 @@ class ProjectManager:
             raise ValueError(f"Tên Dự án không hợp lệ: '{name}'")
         project_dir = Path(real)
         if not project_dir.exists():
-            raise FileNotFoundError(f"Dự án '{name}' 不存在")
+            raise FileNotFoundError(f"Dự án '{name}' không tồn tại")
         return project_dir
 
     @staticmethod
@@ -464,7 +464,7 @@ class ProjectManager:
         script = self.load_script(project_name, script_filename)
 
         if name not in script["characters"]:
-            raise KeyError(f"Nhân vật '{name}' 不存在")
+            raise KeyError(f"Nhân vật '{name}' không tồn tại")
 
         script["characters"][name]["character_sheet"] = sheet_path
         self.save_script(project_name, script, script_filename)
@@ -478,7 +478,7 @@ class ProjectManager:
         TạoCấu trúc generated_assets chuẩn
 
         Args:
-            content_mode: chế độ nội dung（'narration' 或 'drama'）
+            content_mode: chế độ nội dung（'narration' hoặc 'drama'）
 
         Returns:
             Từ điển generated_assets chuẩn
@@ -497,7 +497,7 @@ class ProjectManager:
         TạoMẫu đối tượng Cảnh chuẩn
 
         Args:
-            scene_id: Cảnh ID（如 "E1S01"）
+            scene_id: Cảnh ID（Như "E1S01"）
             episode: Số tập
             duration_seconds: CảnhThời lượng (giây)
 
@@ -756,7 +756,7 @@ class ProjectManager:
             project_name: Dự ánTên
             script_filename: Kịch bảntên tập tin
             scene_id: Cảnh/Đoạn ID
-            asset_type: Loại tài nguyên ('storyboard_image' 或 'video_clip')
+            asset_type: Loại tài nguyên ('storyboard_image' hoặc 'video_clip')
             asset_path: Đường dẫn tài nguyên
 
         Returns:
@@ -793,7 +793,7 @@ class ProjectManager:
                 self.save_script(project_name, script, script_filename)
                 return script
 
-        raise KeyError(f"Cảnh '{scene_id}' 不存在")
+        raise KeyError(f"Cảnh '{scene_id}' không tồn tại")
 
     def get_pending_scenes(self, project_name: str, script_filename: str, asset_type: str) -> list[dict]:
         """
@@ -882,7 +882,7 @@ class ProjectManager:
             project_name: Dự ánTên
 
         Returns:
-            Dự án元数据 từ điển
+            Dự ánSiêu dữ liệu từ điển
         """
         project_file = self._get_project_file_path(project_name)
 
@@ -894,11 +894,11 @@ class ProjectManager:
 
     def save_project(self, project_name: str, project: dict) -> Path:
         """
-        LưuDự án元数据
+        LưuDự ánSiêu dữ liệu
 
         Args:
             project_name: Dự ánTên
-            project: Dự án元数据 từ điển
+            project: Dự ánSiêu dữ liệu từ điển
 
         Returns:
             LưuĐường dẫn tệp
@@ -971,13 +971,13 @@ class ProjectManager:
         TạoTệp metadata dự án mới
 
         Args:
-            project_name: Dự án标识
+            project_name: Dự ánNhận dạng
             title: Dự ánTiêu đề，Để trống sẽ mặc định sử dụng định danh dự án
             style: Mô tả phong cách hình ảnh tổng thể
-            content_mode: chế độ nội dung ('narration' 或 'drama')
+            content_mode: chế độ nội dung ('narration' hoặc 'drama')
 
         Returns:
-            Dự án元数据 từ điển
+            Dự ánSiêu dữ liệu từ điển
         """
         project_name = self.normalize_project_name(project_name)
         project_title = str(title).strip() if title is not None else ""
@@ -1004,7 +1004,7 @@ class ProjectManager:
 
         Args:
             project_name: Dự ánTên
-            episode: 集数
+            episode: Số tập
             title: Tập phimTiêu đề
             script_file: Kịch bảnĐường dẫn tệp tương đối
 
@@ -1073,7 +1073,7 @@ class ProjectManager:
             name: Tên nhân vật
             description: Nhân vậtMô tả
             voice_style: Phong cách giọng nói
-            character_sheet: Ảnh thiết kế nhân vật路径
+            character_sheet: Ảnh thiết kế nhân vậtĐường dẫn
 
         Returns:
             Metadata dự án đã được cập nhật
@@ -1094,7 +1094,7 @@ class ProjectManager:
         project = self.load_project(project_name)
 
         if name not in project["characters"]:
-            raise KeyError(f"Nhân vật '{name}' 不存在")
+            raise KeyError(f"Nhân vật '{name}' không tồn tại")
 
         project["characters"][name]["character_sheet"] = sheet_path
         self.save_project(project_name, project)
@@ -1107,7 +1107,7 @@ class ProjectManager:
         Args:
             project_name: Dự ánTên
             char_name: Tên nhân vật
-            ref_path: Ảnh tham chiếu相对路径
+            ref_path: Ảnh tham chiếuĐường dẫn tương đối
 
         Returns:
             Dữ liệu dự án đã cập nhật
@@ -1115,7 +1115,7 @@ class ProjectManager:
         project = self.load_project(project_name)
 
         if "characters" not in project or char_name not in project["characters"]:
-            raise KeyError(f"Nhân vật '{char_name}' 不存在")
+            raise KeyError(f"Nhân vật '{char_name}' không tồn tại")
 
         project["characters"][char_name]["reference_image"] = ref_path
         self.save_project(project_name, project)
@@ -1126,7 +1126,7 @@ class ProjectManager:
         project = self.load_project(project_name)
 
         if name not in project["characters"]:
-            raise KeyError(f"Nhân vật '{name}' 不存在")
+            raise KeyError(f"Nhân vật '{name}' không tồn tại")
 
         return project["characters"][name]
 
@@ -1147,7 +1147,7 @@ class ProjectManager:
         project = self.load_project(project_name)
 
         if name not in project["clues"]:
-            raise KeyError(f"Manh mối '{name}' 不存在")
+            raise KeyError(f"Manh mối '{name}' không tồn tại")
 
         project["clues"][name]["clue_sheet"] = sheet_path
         self.save_project(project_name, project)
@@ -1167,7 +1167,7 @@ class ProjectManager:
         project = self.load_project(project_name)
 
         if name not in project["clues"]:
-            raise KeyError(f"Manh mối '{name}' 不存在")
+            raise KeyError(f"Manh mối '{name}' không tồn tại")
 
         return project["clues"][name]
 
@@ -1230,7 +1230,7 @@ class ProjectManager:
             project_name: Dự ánTên
             name: Tên nhân vật
             description: Nhân vậtMô tả
-            voice_style: Phong cách giọng nói（可选）
+            voice_style: Phong cách giọng nói(Tùy chọn)
 
         Returns:
             True Nếu thêm thành công, False nếu đã tồn tại
@@ -1324,7 +1324,7 @@ class ProjectManager:
                 added += 1
                 logger.info("Thêm nhân vật: %s", name)
             else:
-                logger.debug("Nhân vật '%s' Đã tồn tại，跳过", name)
+                logger.debug("Nhân vật '%s' Đã tồn tại, bỏ qua", name)
 
         if added > 0:
             self.save_project(project_name, project)
@@ -1359,7 +1359,7 @@ class ProjectManager:
                 added += 1
                 logger.info("Thêm manh mối: %s", name)
             else:
-                logger.debug("Manh mối '%s' Đã tồn tại，跳过", name)
+                logger.debug("Manh mối '%s' Đã tồn tại, bỏ qua", name)
 
         if added > 0:
             self.save_project(project_name, project)
@@ -1456,7 +1456,7 @@ class ProjectManager:
         from .text_backends.base import TextGenerationRequest, TextTaskType
         from .text_generator import TextGenerator
 
-        # đọcTệp nguồn内容
+        # đọcTệp nguồnNội dung
         source_content = self._read_source_files(project_name)
         if not source_content:
             raise ValueError("source Mục lục trống, không thể tạo tổng quan")

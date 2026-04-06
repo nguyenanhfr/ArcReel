@@ -113,7 +113,7 @@ async def generate_storyboard(
         items, id_field, _, _ = get_storyboard_items(script)
         resolved = find_storyboard_item(items, id_field, segment_id)
         if resolved is None:
-            raise HTTPException(status_code=404, detail=f"Đoạn/Cảnh '{segment_id}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Đoạn/Cảnh '{segment_id}' không tồn tại")
 
         # Xác minh định dạng prompt
         if isinstance(req.prompt, dict):
@@ -124,7 +124,7 @@ async def generate_storyboard(
                 )
             scene_text = str(req.prompt.get("scene", "")).strip()
             if not scene_text:
-                raise HTTPException(status_code=400, detail="prompt.scene 不能为空")
+                raise HTTPException(status_code=400, detail="prompt.scene không được để trống")
         elif not isinstance(req.prompt, str):
             raise HTTPException(status_code=400, detail="prompt Phải là chuỗi hoặc đối tượng")
 
@@ -189,7 +189,7 @@ async def generate_video(project_name: str, segment_id: str, req: GenerateVideoR
                 )
             action_text = str(req.prompt.get("action", "")).strip()
             if not action_text:
-                raise HTTPException(status_code=400, detail="prompt.action 不能为空")
+                raise HTTPException(status_code=400, detail="prompt.action không được để trống")
             dialogue = req.prompt.get("dialogue", [])
             if dialogue is not None and not isinstance(dialogue, list):
                 raise HTTPException(status_code=400, detail="prompt.dialogue Phải là mảng")
@@ -247,7 +247,7 @@ async def generate_character(
 
         # Kiểm tra Nhân vật có tồn tại không
         if char_name not in project.get("characters", {}):
-            raise HTTPException(status_code=404, detail=f"Nhân vật '{char_name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Nhân vật '{char_name}' không tồn tại")
 
         # Vào hàng đợi
         queue = get_generation_queue()
@@ -293,7 +293,7 @@ async def generate_clue(project_name: str, clue_name: str, req: GenerateClueRequ
 
         # Kiểm tra Manh mối có tồn tại không
         if clue_name not in project.get("clues", {}):
-            raise HTTPException(status_code=404, detail=f"Manh mối '{clue_name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Manh mối '{clue_name}' không tồn tại")
 
         # Vào hàng đợi
         queue = get_generation_queue()

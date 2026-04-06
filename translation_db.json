@@ -10754,6 +10754,782 @@
     "迁移Dự án数据Đến project.json": {
       "vi": "Di chuyển dữ liệu dự án sang project.json",
       "context": "auto-bing"
+    },
+    "统一。": {
+      "vi": "Thống nhất.",
+      "context": "auto-bing"
+    },
+    "Dự án编号": {
+      "vi": "Mã dự án",
+      "context": "auto-bing"
+    },
+    "文件": {
+      "vi": "Tài liệu",
+      "context": "auto-bing"
+    },
+    "获取草稿内容": {
+      "vi": "Lấy nội dung bản thảo",
+      "context": "auto-bing"
+    },
+    "草稿内容": {
+      "vi": "Nội dung bản thảo",
+      "context": "auto-bing"
+    },
+    "草稿": {
+      "vi": "Bản thảo",
+      "context": "auto-bing"
+    },
+    "（可选）": {
+      "vi": "(Tùy chọn)",
+      "context": "auto-bing"
+    },
+    "${name} 设计图": {
+      "vi": "Bản vẽ thiết kế ${name}",
+      "context": "auto-bing"
+    },
+    "已提交": {
+      "vi": "Đã nộp",
+      "context": "auto-bing"
+    },
+    "生成任务": {
+      "vi": "Tạo nhiệm vụ",
+      "context": "auto-bing"
+    },
+    "已更新": {
+      "vi": "Đã cập nhật",
+      "context": "auto-bing"
+    },
+    "Phiên bản v${selectedInfo.version} 预览": {
+      "vi": "Phiên bản v${selectedInfo.version} xem trước",
+      "context": "auto-bing"
+    },
+    "Hiện tại会话": {
+      "vi": "Hiện tại phiên hội thoại",
+      "context": "auto-bing"
+    },
+    "子任务": {
+      "vi": "Tiểu nhiệm vụ",
+      "context": "auto-bing"
+    },
+    "Hoàn thành任务": {
+      "vi": "Hoàn thành nhiệm vụ",
+      "context": "auto-bing"
+    },
+    "继续": {
+      "vi": "Tiếp tục",
+      "context": "auto-bing"
+    },
+    "吗？": {
+      "vi": "Không?",
+      "context": "auto-bing"
+    },
+    "返回": {
+      "vi": "Quay lại",
+      "context": "auto-bing"
+    },
+    "Thông báo hội thoại: ${workspaceNotifications.length} 条": {
+      "vi": "Thông báo hội thoại: ${workspaceNotifications.length} mục",
+      "context": "auto-bing"
+    },
+    "Đóng提示": {
+      "vi": "Đóng gợi ý",
+      "context": "auto-bing"
+    },
+    "Haiku 模型": {
+      "vi": "Mô hình Haiku",
+      "context": "auto-bing"
+    },
+    "Sonnet 模型": {
+      "vi": "Mô hình Sonnet",
+      "context": "auto-bing"
+    },
+    "Opus 模型": {
+      "vi": "Mô hình Opus",
+      "context": "auto-bing"
+    },
+    "时间": {
+      "vi": "Thời gian",
+      "context": "auto-bing"
+    },
+    "操作": {
+      "vi": "Thao tác",
+      "context": "auto-bing"
+    },
+    "3D 动画": {
+      "vi": "Hoạt hình 3D",
+      "context": "auto-bing"
+    },
+    "说书": {
+      "vi": "Kể chuyện",
+      "context": "auto-bing"
+    },
+    "画面": {
+      "vi": "Hình ảnh",
+      "context": "auto-bing"
+    },
+    "动画": {
+      "vi": "Hoạt hình",
+      "context": "auto-bing"
+    },
+    "Phong cáchẢnh tham chiếu预览": {
+      "vi": "Phong cách Ảnh tham chiếu Xem trước",
+      "context": "auto-bing"
+    },
+    "中...": {
+      "vi": "Trung...",
+      "context": "auto-bing"
+    },
+    "确认": {
+      "vi": "Xác nhận",
+      "context": "auto-bing"
+    },
+    "Base URL（可选）": {
+      "vi": "URL cơ sở (tùy chọn)",
+      "context": "auto-bing"
+    },
+    "密钥": {
+      "vi": "Khóa",
+      "context": "auto-bing"
+    },
+    "按钮": {
+      "vi": "Nút",
+      "context": "auto-bing"
+    },
+    "已复制": {
+      "vi": "Đã sao chép",
+      "context": "auto-bing"
+    },
+    "复制": {
+      "vi": "Sao chép",
+      "context": "auto-bing"
+    },
+    "Video模型": {
+      "vi": "Mô hình Video",
+      "context": "auto-bing"
+    },
+    "Ảnh模型": {
+      "vi": "Mô hình Ảnh",
+      "context": "auto-bing"
+    },
+    "Văn bản模型": {
+      "vi": "Mô hình Văn bản",
+      "context": "auto-bing"
+    },
+    "Kịch bản生成": {
+      "vi": "Tạo kịch bản",
+      "context": "auto-bing"
+    },
+    "Phong cách分析": {
+      "vi": "Phân tích phong cách",
+      "context": "auto-bing"
+    },
+    "Lưu中…": {
+      "vi": "Đang lưu…",
+      "context": "auto-bing"
+    },
+    "集": {
+      "vi": "Tập hợp",
+      "context": "auto-bing"
+    },
+    "Nhập khẩu, tự động sửa chữa ${autoFixedCount} 项": {
+      "vi": "Nhập khẩu, tự động sửa ${autoFixedCount} mục",
+      "context": "auto-bing"
+    },
+    "Hệ thống配置": {
+      "vi": "Cấu hình hệ thống",
+      "context": "auto-bing"
+    },
+    "已就绪": {
+      "vi": "Đã sẵn sàng",
+      "context": "auto-bing"
+    },
+    "Đầu vào密钥": {
+      "vi": "Nhập khóa",
+      "context": "auto-bing"
+    },
+    "隐藏": {
+      "vi": "Ẩn",
+      "context": "auto-bing"
+    },
+    "显示": {
+      "vi": "Hiển thị",
+      "context": "auto-bing"
+    },
+    "Xóa密钥": {
+      "vi": "Xóa khóa",
+      "context": "auto-bing"
+    },
+    "中": {
+      "vi": "Trung",
+      "context": "auto-bing"
+    },
+    "Tạo时间": {
+      "vi": "Thời gian tạo",
+      "context": "auto-bing"
+    },
+    "默认": {
+      "vi": "Mặc định",
+      "context": "auto-bing"
+    },
+    "/秒": {
+      "vi": "/giây",
+      "context": "auto-bing"
+    },
+    "Xóa模型": {
+      "vi": "Xóa mô hình",
+      "context": "auto-bing"
+    },
+    "自动": {
+      "vi": "Tự động",
+      "context": "auto-bing"
+    },
+    "全部": {
+      "vi": "Tất cả",
+      "context": "auto-bing"
+    },
+    "Loại: Văn bản生成": {
+      "vi": "Loại: Tạo văn bản",
+      "context": "auto-bing"
+    },
+    "智能体": {
+      "vi": "Tác nhân",
+      "context": "auto-bing"
+    },
+    "API 管理": {
+      "vi": "Quản lý API",
+      "context": "auto-bing"
+    },
+    "撤销": {
+      "vi": "Hủy",
+      "context": "auto-bing"
+    },
+    "排队": {
+      "vi": "Xếp hàng",
+      "context": "auto-bing"
+    },
+    "运行": {
+      "vi": "Chạy",
+      "context": "auto-bing"
+    },
+    "生成": {
+      "vi": "Tạo",
+      "context": "auto-bing"
+    },
+    "流": {
+      "vi": "Dòng",
+      "context": "auto-bing"
+    },
+    "内容": {
+      "vi": "Nội dung",
+      "context": "auto-bing"
+    },
+    "…等": {
+      "vi": "…v.v",
+      "context": "auto-bing"
+    },
+    "${change.label}已更新": {
+      "vi": "${change.label} đã được cập nhật",
+      "context": "auto-bing"
+    },
+    "Hiện tại有{len(active)}phiên đang diễn ra, đã đạt giới hạn tối đa, vui lòng đợi Thử lại": {
+      "vi": "Hiện tại có {len(active)} phiên đang diễn ra, đã đạt giới hạn tối đa, vui lòng đợi Thử lại",
+      "context": "auto-bing"
+    },
+    "分钟": {
+      "vi": "Phút",
+      "context": "auto-bing"
+    },
+    "配置": {
+      "vi": "Cấu hình",
+      "context": "auto-bing"
+    },
+    "认证": {
+      "vi": "Xác nhận",
+      "context": "auto-bing"
+    },
+    "Dự án管理": {
+      "vi": "Quản lý dự án",
+      "context": "auto-bing"
+    },
+    "Nhân vật管理": {
+      "vi": "Quản lý nhân vật",
+      "context": "auto-bing"
+    },
+    "Manh mối管理": {
+      "vi": "Quản lý manh mối",
+      "context": "auto-bing"
+    },
+    "Trợ lý会话": {
+      "vi": "Phiên trợ lý",
+      "context": "auto-bing"
+    },
+    "API Key 管理": {
+      "vi": "Quản lý API Key",
+      "context": "auto-bing"
+    },
+    "费用估算": {
+      "vi": "Ước tính chi phí",
+      "context": "auto-bing"
+    },
+    "已过期": {
+      "vi": "Hết hạn",
+      "context": "auto-bing"
+    },
+    "路径": {
+      "vi": "Đường dẫn",
+      "context": "auto-bing"
+    },
+    "秒": {
+      "vi": "giây",
+      "context": "auto-bing"
+    },
+    "为": {
+      "vi": "để",
+      "context": "auto-bing"
+    },
+    "不存在": {
+      "vi": "không tồn tại",
+      "context": "auto-bing"
+    },
+    "会话": {
+      "vi": "phiên",
+      "context": "auto-bing"
+    },
+    "不符": {
+      "vi": "không phù hợp",
+      "context": "auto-bing"
+    },
+    "API Key {key_id} 不存在": {
+      "vi": "API Key {key_id} không tồn tại",
+      "context": "auto-bing"
+    },
+    "answers 不能为空": {
+      "vi": "answers không được để trống",
+      "context": "auto-bing"
+    },
+    "或": {
+      "vi": "hoặc",
+      "context": "auto-bing"
+    },
+    "Ước tính chi phí thất bại，请稍后Thử lại": {
+      "vi": "Ước tính chi phí thất bại, vui lòng thử lại sau",
+      "context": "auto-bing"
+    },
+    "模型": {
+      "vi": "mô hình",
+      "context": "auto-bing"
+    },
+    "nhà cung cấp不存在": {
+      "vi": "nhà cung cấp không tồn tại",
+      "context": "auto-bing"
+    },
+    "kết nối成功": {
+      "vi": "Kết nối thành công",
+      "context": "auto-bing"
+    },
+    "路由": {
+      "vi": "Định tuyến",
+      "context": "auto-bing"
+    },
+    "Xóa source 文件": {
+      "vi": "Xóa tệp nguồn",
+      "context": "auto-bing"
+    },
+    "Đoạn拆分": {
+      "vi": "Phân tách đoạn",
+      "context": "auto-bing"
+    },
+    "Không. {episode} 集{label_prefix}": {
+      "vi": "Số. {episode} Tập {label_prefix}",
+      "context": "auto-bing"
+    },
+    "Xóa草稿文件": {
+      "vi": "Xóa tệp nháp",
+      "context": "auto-bing"
+    },
+    "手动Ch": {
+      "vi": "Thủ công Ch",
+      "context": "auto-bing"
+    },
+    "prompt.scene 不能为空": {
+      "vi": "prompt.scene không được để trống",
+      "context": "auto-bing"
+    },
+    "prompt.action 不能为空": {
+      "vi": "prompt.action không được để trống",
+      "context": "auto-bing"
+    },
+    "下载 token": {
+      "vi": "Tải token",
+      "context": "auto-bing"
+    },
+    "Xuất bản nháp Jianying thất bại，请稍后Thử lại": {
+      "vi": "Xuất bản nháp Jianying thất bại, vui lòng thử lại sau",
+      "context": "auto-bing"
+    },
+    "加载Dự án": {
+      "vi": "Tải Dự án",
+      "context": "auto-bing"
+    },
+    "Tạo新Dự án": {
+      "vi": "Tạo Dự án Mới",
+      "context": "auto-bing"
+    },
+    "元数据": {
+      "vi": "Siêu dữ liệu",
+      "context": "auto-bing"
+    },
+    "Kịch bản不存在": {
+      "vi": "Kịch bản không tồn tại",
+      "context": "auto-bing"
+    },
+    "Ảnh最大并发": {
+      "vi": "Số lượng ảnh tối đa đồng thời",
+      "context": "auto-bing"
+    },
+    "Video最大并发": {
+      "vi": "Số lượng video tối đa đồng thời",
+      "context": "auto-bing"
+    },
+    "Vertex 凭证": {
+      "vi": "Chứng chỉ Vertex",
+      "context": "auto-bing"
+    },
+    "{key} 应在 {min_val}-{max_val} 之间": {
+      "vi": "{key} nên nằm trong khoảng {min_val}-{max_val}",
+      "context": "auto-bing"
+    },
+    "任务": {
+      "vi": "Nhiệm vụ",
+      "context": "auto-bing"
+    },
+    "Dự ánTên（可选）": {
+      "vi": "Tên Dự án (tùy chọn)",
+      "context": "auto-bing"
+    },
+    "校验": {
+      "vi": "Xác minh",
+      "context": "auto-bing"
+    },
+    "nhà cung cấp tùy chỉnh {provider_name} 不存在": {
+      "vi": "Nhà cung cấp tùy chỉnh {provider_name} không tồn tại",
+      "context": "auto-bing"
+    },
+    "nhà cung cấp tùy chỉnh {provider_name} Không có mặc định {media_type} 模型": {
+      "vi": "Nhà cung cấp tùy chỉnh {provider_name} không có mô hình {media_type} mặc định",
+      "context": "auto-bing"
+    },
+    "Nhân vật「{}」设计图": {
+      "vi": "Bản thiết kế nhân vật 「{}」",
+      "context": "auto-bing"
+    },
+    "Manh mối「{}」设计图": {
+      "vi": "Bản thiết kế manh mối 「{}」",
+      "context": "auto-bing"
+    },
+    "{safe_title}_Không.{episode}集": {
+      "vi": "{safe_title}_Tập.{episode}",
+      "context": "auto-bing"
+    },
+    "无法解析 {self.project_manager.PROJECT_FILE}: {project_path}": {
+      "vi": "Không thể phân tích {self.project_manager.PROJECT_FILE}: {project_path}",
+      "context": "auto-bing"
+    },
+    "{location}: 从 {resolved_raw} Khôi phục Hiện tại tập tin {canonical_rel}": {
+      "vi": "{location}: Khôi phục tệp hiện tại {canonical_rel} từ {resolved_raw}",
+      "context": "auto-bing"
+    },
+    "{location}: 从 {version_rel} Khôi phục Hiện tại tập tin {canonical_rel}": {
+      "vi": "{location}: Khôi phục hiện tại tập tin {canonical_rel} từ {version_rel}",
+      "context": "auto-bing"
+    },
+    "无法解析 {label}: {": {
+      "vi": "Không thể phân tích {label}: {",
+      "context": "auto-bing"
+    },
+    "]} 集": {
+      "vi": "]} tập hợp",
+      "context": "auto-bing"
+    },
+    "（默认": {
+      "vi": "(Mặc định",
+      "context": "auto-bing"
+    },
+    "生成费用表.md": {
+      "vi": "Tạo bảng chi phí.md",
+      "context": "auto-bing"
+    },
+    "映射": {
+      "vi": "Bản đồ",
+      "context": "auto-bing"
+    },
+    "不支持": {
+      "vi": "Không hỗ trợ",
+      "context": "auto-bing"
+    },
+    "对象": {
+      "vi": "Đối tượng",
+      "context": "auto-bing"
+    },
+    "从": {
+      "vi": "Từ",
+      "context": "auto-bing"
+    },
+    "{prefix}: segment_id định dạng错误": {
+      "vi": "{prefix}: định dạng segment_id không hợp lệ",
+      "context": "auto-bing"
+    },
+    "{prefix}: scene_id định dạng错误": {
+      "vi": "{prefix}: định dạng scene_id không đúng",
+      "context": "auto-bing"
+    },
+    "发现未识别的附加文件/目录: {child.name}": {
+      "vi": "Phát hiện tệp/thư mục bổ sung không nhận dạng được: {child.name}",
+      "context": "auto-bing"
+    },
+    "验证 {project_name}/scripts/{episode_file}:": {
+      "vi": "Xác minh {project_name}/scripts/{episode_file}:",
+      "context": "auto-bing"
+    },
+    "验证 {project_name}/project.json:": {
+      "vi": "Xác minh {project_name}/project.json:",
+      "context": "auto-bing"
+    },
+    "超时": {
+      "vi": "Hết thời gian",
+      "context": "auto-bing"
+    },
+    "级配置": {
+      "vi": "Cấu hình cấp",
+      "context": "auto-bing"
+    },
+    "仅在": {
+      "vi": "Chỉ khi",
+      "context": "auto-bing"
+    },
+    "nhà cung cấp {provider_id} 不支持 {media_type} 生成": {
+      "vi": "Nhà cung cấp {provider_id} không hỗ trợ tạo {media_type}",
+      "context": "auto-bing"
+    },
+    "姜月茴": {
+      "vi": "姜月茴",
+      "context": "auto-bing"
+    },
+    "器": {
+      "vi": "Thiết bị",
+      "context": "auto-bing"
+    },
+    "新D": {
+      "vi": "Mới D",
+      "context": "auto-bing"
+    },
+    "目录路径": {
+      "vi": "Đường dẫn thư mục",
+      "context": "auto-bing"
+    },
+    "缺失": {
+      "vi": "Thiếu",
+      "context": "auto-bing"
+    },
+    "如": {
+      "vi": "Như",
+      "context": "auto-bing"
+    },
+    "元数据 t": {
+      "vi": "Siêu dữ liệu t",
+      "context": "auto-bing"
+    },
+    "标识": {
+      "vi": "Nhận dạng",
+      "context": "auto-bing"
+    },
+    "集数": {
+      "vi": "Số tập",
+      "context": "auto-bing"
+    },
+    "相对路径": {
+      "vi": "Đường dẫn tương đối",
+      "context": "auto-bing"
+    },
+    "可选": {
+      "vi": "Tùy chọn",
+      "context": "auto-bing"
+    },
+    "Đã tồn tại，跳过": {
+      "vi": "Đã tồn tại, bỏ qua",
+      "context": "auto-bing"
+    },
+    "构建": {
+      "vi": "Xây dựng",
+      "context": "auto-bing"
+    },
+    "后缀": {
+      "vi": "Hậu tố",
+      "context": "auto-bing"
+    },
+    "Đạo cụ 或": {
+      "vi": "Đạo cụ hoặc",
+      "context": "auto-bing"
+    },
+    "数据": {
+      "vi": "Dữ liệu",
+      "context": "auto-bing"
+    },
+    "标签": {
+      "vi": "Nhãn",
+      "context": "auto-bing"
+    },
+    "是": {
+      "vi": "Là",
+      "context": "auto-bing"
+    },
+    "默认为": {
+      "vi": "Mặc định là",
+      "context": "auto-bing"
+    },
+    "Nhân vật名": {
+      "vi": "Tên nhân vật",
+      "context": "auto-bing"
+    },
+    "编号": {
+      "vi": "Số hiệu",
+      "context": "auto-bing"
+    },
+    "验证": {
+      "vi": "Xác minh",
+      "context": "auto-bing"
+    },
+    "Không.{episode}集": {
+      "vi": "Không.{tập} tập",
+      "context": "auto-bing"
+    },
+    "时间戳": {
+      "vi": "Dấu thời gian",
+      "context": "auto-bing"
+    },
+    "Đối thoại条目": {
+      "vi": "Mục đối thoại",
+      "context": "auto-bing"
+    },
+    "Đối thoại内容": {
+      "vi": "Nội dung đối thoại",
+      "context": "auto-bing"
+    },
+    "Ảnh phân cảnh路径": {
+      "vi": "Đường dẫn ảnh phân cảnh",
+      "context": "auto-bing"
+    },
+    "VideoĐoạn路径": {
+      "vi": "Đường dẫn video đoạn",
+      "context": "auto-bing"
+    },
+    "Đoạn ID，định dạng E{集}S{Số thứ tự} hoặc E{集}S{Số thứ tự}_{Số Thứ Tự Con}": {
+      "vi": "ID đoạn, định dạng E{tập}S{số thứ tự} hoặc E{tập}S{số thứ tự}_{Số thứ tự con}",
+      "context": "auto-bing"
+    },
+    "Tập phim编号": {
+      "vi": "Số hiệu tập phim",
+      "context": "auto-bing"
+    },
+    "Cảnh ID，định dạng E{集}S{Số thứ tự} hoặc E{集}S{Số thứ tự}_{Số Thứ Tự Con}": {
+      "vi": "ID cảnh, định dạng E{tập}S{số thứ tự} hoặc E{tập}S{số thứ tự}_{Số thứ tự con}",
+      "context": "auto-bing"
+    },
+    "Chế độ hoạt hình phimTập phim脚本": {
+      "vi": "Chế độ hoạt hình kịch bản tập phim",
+      "context": "auto-bing"
+    },
+    "统计": {
+      "vi": "Thống kê",
+      "context": "auto-bing"
+    },
+    "统一": {
+      "vi": "Thống nhất",
+      "context": "auto-bing"
+    },
+    "文件路径": {
+      "vi": "Đường dẫn tệp",
+      "context": "auto-bing"
+    },
+    "模块": {
+      "vi": "Mô-đun",
+      "context": "auto-bing"
+    },
+    "Quản lý phiên bản器": {
+      "vi": "Trình quản lý phiên bản",
+      "context": "auto-bing"
+    },
+    "支持的Lo": {
+      "vi": "Lo hỗ trợ",
+      "context": "auto-bing"
+    },
+    "版本号": {
+      "vi": "Số phiên bản",
+      "context": "auto-bing"
+    },
+    "Ark VideoTạo vượt quá thời gian ({max_wait_time}秒）": {
+      "vi": "Tạo video Ark vượt quá thời gian ({max_wait_time} giây)",
+      "context": "auto-bing"
+    },
+    "VideoTạo vượt quá thời gian ({max_wait_time}秒）": {
+      "vi": "Tạo video vượt quá thời gian ({max_wait_time} giây)",
+      "context": "auto-bing"
+    },
+    "用法": {
+      "vi": "Cách sử dụng",
+      "context": "auto-bing"
+    },
+    "Dự án根目录": {
+      "vi": "Dự án thư mục gốc",
+      "context": "auto-bing"
+    },
+    "预览": {
+      "vi": "Xem trước",
+      "context": "auto-bing"
+    },
+    "迁移": {
+      "vi": "Di chuyển",
+      "context": "auto-bing"
+    },
+    "- Xóatừ段: {len(total_stats[": {
+      "vi": "- Xóa từ đoạn: {len(total_stats[",
+      "context": "auto-bing"
+    },
+    "模式: {": {
+      "vi": "Chế độ: {",
+      "context": "auto-bing"
+    },
+    "Thực tế迁移": {
+      "vi": "Thực tế di chuyển",
+      "context": "auto-bing"
+    },
+    "{key}: {count} 条": {
+      "vi": "{key}: {count} mục",
+      "context": "auto-bing"
+    },
+    "名": {
+      "vi": "Tên",
+      "context": "auto-bing"
+    },
+    "提取Nh": {
+      "vi": "Trích xuất Nh",
+      "context": "auto-bing"
+    },
+    "目录": {
+      "vi": "Thư mục",
+      "context": "auto-bing"
+    },
+    "- Tập phim: {len(episodes)} 个": {
+      "vi": "- Tập phim: {len(episodes)} cái",
+      "context": "auto-bing"
+    },
+    "发现 {len(projects)} 个Dự án": {
+      "vi": "Phát hiện {len(projects)} dự án",
+      "context": "auto-bing"
+    },
+    "用量Thống kê": {
+      "vi": "Thống kê lượng dùng",
+      "context": ""
     }
   }
 }

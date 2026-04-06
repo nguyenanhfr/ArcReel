@@ -50,7 +50,7 @@ export function TaskProgressBlock({ block }: TaskProgressBlockProps) {
       >
         <span>{isCompleted ? "\u2713" : isFailed ? "\u2717" : "\u2013"}</span>
         <span>
-          子任务{isCompleted ? "Hoàn thành" : isFailed ? "Thất bại" : "kết thúc"}: {summary || description}
+          Tiểu nhiệm vụ{isCompleted ? "Hoàn thành" : isFailed ? "Thất bại" : "kết thúc"}: {summary || description}
         </span>
       </div>
     );

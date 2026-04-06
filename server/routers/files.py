@@ -1,5 +1,5 @@
 """
-Quản lý tập tin路由
+Quản lý tập tinĐịnh tuyến
 
 Xử lý tải lên tệp và dịch vụ tài nguyên tĩnh
 """
@@ -62,7 +62,7 @@ async def serve_project_file(project_name: str, path: str, request: Request):
 
         return FileResponse(file_path, headers=headers)
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
 
 
 @router.post("/projects/{project_name}/upload/{upload_type}")
@@ -190,7 +190,7 @@ async def upload_file(
         }
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -229,7 +229,7 @@ async def list_project_files(project_name: str, _user: CurrentUser):
         return {"files": files}
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -257,7 +257,7 @@ async def get_source_file(project_name: str, filename: str, _user: CurrentUser):
         return PlainTextResponse(content)
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except UnicodeDecodeError:
         raise HTTPException(status_code=400, detail="Lỗi mã hóa tệp, không thể đọc")
     except HTTPException:
@@ -288,7 +288,7 @@ async def update_source_file(
         return {"success": True, "path": f"source/{filename}"}
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -298,7 +298,7 @@ async def update_source_file(
 
 @router.delete("/projects/{project_name}/source/{filename}")
 async def delete_source_file(project_name: str, filename: str, _user: CurrentUser):
-    """Xóa source 文件"""
+    """Xóa tệp nguồn"""
     try:
         project_dir = get_project_manager().get_project_path(project_name)
         source_path = project_dir / "source" / filename
@@ -316,7 +316,7 @@ async def delete_source_file(project_name: str, filename: str, _user: CurrentUse
             raise HTTPException(status_code=404, detail=f"Tệp không tồn tại: {filename}")
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -354,7 +354,7 @@ async def list_drafts(project_name: str, _user: CurrentUser):
 
         return {"drafts": result}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
 
 
 def _extract_step_number(filename: str) -> int:
@@ -377,7 +377,7 @@ def _get_step_title(filename: str) -> str:
     """Lấy tiêu đề bước"""
     titles = {
         "step1_normalized_script.md": "Chuẩn hóa kịch bản",
-        "step1_segments.md": "Đoạn拆分",
+        "step1_segments.md": "Phân tách đoạn",
     }
     return titles.get(filename, filename)
 
@@ -412,7 +412,7 @@ async def get_draft_content(project_name: str, episode: int, step_num: int, _use
         return PlainTextResponse(content)
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
 
 
 @router.put("/projects/{project_name}/drafts/{episode}/step{step_num}")
@@ -441,12 +441,12 @@ async def update_draft_content(
 
         # Phát sự kiện nháp thông báo frontend
         action = "created" if is_new else "updated"
-        label_prefix = "Đoạn拆分" if content_mode == "narration" else "Chuẩn hóa kịch bản"
+        label_prefix = "Phân tách đoạn" if content_mode == "narration" else "Chuẩn hóa kịch bản"
         change = {
             "entity_type": "draft",
             "action": action,
             "entity_id": f"episode_{episode}_step{step_num}",
-            "label": f"Không. {episode} 集{label_prefix}",
+            "label": f"Số. {episode} Tập {label_prefix}",
             "episode": episode,
             "focus": {
                 "pane": "episode",
@@ -462,12 +462,12 @@ async def update_draft_content(
         return {"success": True, "path": str(draft_path.relative_to(project_dir))}
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
 
 
 @router.delete("/projects/{project_name}/drafts/{episode}/step{step_num}")
 async def delete_draft(project_name: str, episode: int, step_num: int, _user: CurrentUser):
-    """Xóa草稿文件"""
+    """Xóa tệp nháp"""
     try:
         project_dir = get_project_manager().get_project_path(project_name)
         content_mode = _get_content_mode(project_dir)
@@ -485,7 +485,7 @@ async def delete_draft(project_name: str, episode: int, step_num: int, _user: Cu
             raise HTTPException(status_code=404, detail="Tệp nháp không tồn tại")
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
 
 
 # ==================== Phong cáchẢnh tham chiếuQuản lý ======================
@@ -550,7 +550,7 @@ async def upload_style_image(project_name: str, _user: CurrentUser, file: Upload
         }
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -582,7 +582,7 @@ async def delete_style_image(project_name: str, _user: CurrentUser):
         return {"success": True}
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -595,7 +595,7 @@ async def update_style_description(
     project_name: str, _user: CurrentUser, style_description: str = Body(..., embed=True)
 ):
     """
-    Update Style Description（手动Chỉnh sửa）
+    Update Style Description（Thủ công Chỉnh sửa）
     """
     try:
         project_data = get_project_manager().load_project(project_name)
@@ -606,7 +606,7 @@ async def update_style_description(
         return {"success": True, "style_description": style_description}
 
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:

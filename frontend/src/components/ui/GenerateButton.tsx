@@ -17,7 +17,7 @@ interface GenerateButtonProps {
 export function GenerateButton({
   onClick,
   loading = false,
-  label = "生成",
+  label = "Tạo",
   className,
   disabled = false,
   layoutId,

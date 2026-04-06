@@ -243,7 +243,7 @@ class JianyingDraftService:
         # 4. TạoThư mục tạm thời + sao chép nguyên liệu vào khu vực tạm
         raw_title = project.get("title", project_name)
         safe_title = raw_title.replace("/", "_").replace("\\", "_").replace("..", "_")
-        draft_name = f"{safe_title}_Không.{episode}集"
+        draft_name = f"{safe_title}_Tập.{episode}"
         tmp_dir = Path(tempfile.mkdtemp(prefix="arcreel_jy_"))
         try:
             staging_dir = tmp_dir / "staging"

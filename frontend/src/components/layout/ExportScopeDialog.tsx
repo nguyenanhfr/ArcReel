@@ -132,7 +132,7 @@ export function ExportScopeDialog({
               type="button"
               onClick={() => setMode("select")}
               className="rounded p-0.5 text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
-              aria-label="返回"
+              aria-label="Quay lại"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>

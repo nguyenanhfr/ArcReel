@@ -4,7 +4,7 @@ Dọn dẹp các đoạn từ dư thừa trong Dự án hiện có
 Script này dùng để di chuyển dữ liệu hiện có, Xóa các đoạn từ dư thừa đã chuyển sang tính toán khi đọc.
 Trước khi chạy, vui lòng đảm bảo đã sao lưu dữ liệu.
 
-用法:
+Cách sử dụng:
     python scripts/migrate_clean_redundant_fields.py
     python scripts/migrate_clean_redundant_fields.py --dry-run  # Chỉ xem trước, không sửa đổi
 """
@@ -19,7 +19,7 @@ def migrate_project(project_dir: Path, dry_run: bool = False) -> dict:
     Dọn dẹp các đoạn từ dư thừa của một Dự án riêng lẻ
 
     Args:
-        project_dir: Dự án目录路径
+        project_dir: Dự ánĐường dẫn thư mục
         dry_run: Có chỉ xem trước, không sửa đổi
 
     Returns:
@@ -106,7 +106,7 @@ def migrate_project(project_dir: Path, dry_run: bool = False) -> dict:
 def main():
     parser = argparse.ArgumentParser(description="Dọn dẹp các đoạn từ dư thừa trong Dự án")
     parser.add_argument("--dry-run", action="store_true", help="Chỉ xem trước, không sửa đổi")
-    parser.add_argument("--projects-root", default="projects", help="Dự án根目录")
+    parser.add_argument("--projects-root", default="projects", help="Dự án thư mục gốc")
     args = parser.parse_args()
 
     projects_root = Path(args.projects_root)
@@ -137,11 +137,11 @@ def main():
             else:
                 print("  - Không cần dọn dẹp")
 
-    print(f"\n{'预览' if args.dry_run else '迁移'}Hoàn thành:")
+    print(f"\n{'Xem trước' if args.dry_run else 'Di chuyển'}Hoàn thành:")
     print(f"  - Xử lý Dự án: {total_stats['projects_processed']}")
     print(f"  - Dọn dẹp Dự án: {total_stats['projects_cleaned']}")
     print(f"  - Dọn dẹp Kịch bản: {total_stats['scripts_cleaned']}")
-    print(f"  - Xóatừ段: {len(total_stats['fields_removed'])}")
+    print(f"  - Xóa từ đoạn: {len(total_stats['fields_removed'])}")
 
     if args.dry_run and total_stats["fields_removed"]:
         print("\nĐể thực hiện một Thực tế di cư, hãy Xóa tham số --dry-run và chạy lại")

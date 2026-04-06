@@ -554,7 +554,7 @@ describe("API", () => {
           statusText: "Conflict",
           jsonData: {
             detail: "Phát hiện xung đột mã dự án",
-            errors: ["Dự án编号 'demo' Đã tồn tại"],
+            errors: ["Mã dự án 'demo' Đã tồn tại"],
             warnings: [],
             conflict_project_name: "demo",
             diagnostics: {

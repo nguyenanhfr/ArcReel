@@ -232,13 +232,13 @@ def main():
     args = parser.parse_args()
 
     print("=== SQLite → ORM Di chuyển dữ liệu ===")
-    print(f"模式: {'DRY RUN' if args.dry_run else 'Thực tế迁移'}\n")
+    print(f"Chế độ: {'DRY RUN' if args.dry_run else 'Thực tế di chuyển'}\n")
 
     stats = asyncio.run(_migrate(args.dry_run))
 
     print("\n=== Thống kê di chuyển ===")
     for key, count in stats.items():
-        print(f"  {key}: {count} 条")
+        print(f"  {key}: {count} mục")
 
     print("\nDi chuyển hoàn tất!")
 

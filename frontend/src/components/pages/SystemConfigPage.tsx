@@ -19,11 +19,11 @@ type SettingsSection = "agent" | "providers" | "media" | "usage" | "api-keys";
 // ---------------------------------------------------------------------------
 
 const SECTION_LIST: { id: SettingsSection; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: "agent", label: "智能体", Icon: Bot },
+  { id: "agent", label: "Tác nhân", Icon: Bot },
   { id: "providers", label: "nhà cung cấp", Icon: Plug },
   { id: "media", label: "Lựa chọn mô hình", Icon: Film },
-  { id: "usage", label: "用量统计", Icon: BarChart3 },
-  { id: "api-keys", label: "API 管理", Icon: KeyRound },
+  { id: "usage", label: "Thống kê lượng dùng", Icon: BarChart3 },
+  { id: "api-keys", label: "Quản lý API", Icon: KeyRound },
 ];
 
 // ---------------------------------------------------------------------------
@@ -71,7 +71,7 @@ export function SystemConfigPage() {
             aria-label="Quay lại sảnh dự án"
           >
             <ChevronLeft className="h-4 w-4" />
-            返回
+            Quay lại
           </Link>
           <div>
             <h1 className="text-lg font-semibold text-gray-100">Cài đặt</h1>

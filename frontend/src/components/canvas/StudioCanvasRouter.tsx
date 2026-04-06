@@ -105,7 +105,7 @@ export function StudioCanvasRouter() {
     const prompt = seg?.image_prompt ?? "";
     try {
       await API.generateStoryboard(currentProjectName, segmentId, prompt as string | Record<string, unknown>, resolvedFile);
-      useAppStore.getState().pushToast(`Đã gửi Phân cảnh "${segmentId}" 生成任务`, "success");
+      useAppStore.getState().pushToast(`Đã gửi Phân cảnh "${segmentId}" Tạo nhiệm vụ`, "success");
     } catch (err) {
       useAppStore.getState().pushToast(`Tạo phân cảnh thất bại: ${(err as Error).message}`, "error");
     }
@@ -127,7 +127,7 @@ export function StudioCanvasRouter() {
     const duration = seg?.duration_seconds ?? 4;
     try {
       await API.generateVideo(currentProjectName, segmentId, prompt as string | Record<string, unknown>, resolvedFile, duration);
-      useAppStore.getState().pushToast(`Đã gửi video "${segmentId}" 生成任务`, "success");
+      useAppStore.getState().pushToast(`Đã gửi video "${segmentId}" Tạo nhiệm vụ`, "success");
     } catch (err) {
       useAppStore.getState().pushToast(`Tạo video thất bại: ${(err as Error).message}`, "error");
     }
@@ -163,7 +163,7 @@ export function StudioCanvasRouter() {
           ? [buildEntityRevisionKey("character", name)]
           : [],
       );
-      useAppStore.getState().pushToast(`Nhân vật "${name}" 已更新`, "success");
+      useAppStore.getState().pushToast(`Nhân vật "${name}" Đã cập nhật`, "success");
     } catch (err) {
       useAppStore.getState().pushToast(`Cập nhật nhân vật thất bại: ${(err as Error).message}`, "error");
     }

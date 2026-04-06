@@ -3,7 +3,7 @@
 Kịch bản di chuyển dữ liệu: Di chuyển characters từ dự án hiện tại sang project.json
 
 Cách sử dụng:
-    python scripts/migrate_to_project_json.py <Dự án名>
+    python scripts/migrate_to_project_json.py <Dự ánTên>
     python scripts/migrate_to_project_json.py --all  # Di chuyển tất cả Dự án
 """
 
@@ -64,7 +64,7 @@ def migrate_project(pm: ProjectManager, project_name: str, dry_run: bool = False
         with open(script_file, encoding="utf-8") as f:
             script = json.load(f)
 
-        # 提取Nhân vật
+        # Trích xuất Nhân vật
         characters = script.get("characters", {})
         for name, char_data in characters.items():
             if name not in all_characters:
@@ -141,7 +141,7 @@ def migrate_project(pm: ProjectManager, project_name: str, dry_run: bool = False
             if sheet_path.exists():
                 completed_chars += 1
 
-    # Tạo clues 目录
+    # Tạo clues Thư mục
     clues_dir = project_dir / "clues"
     if not clues_dir.exists():
         if not dry_run:
@@ -150,7 +150,7 @@ def migrate_project(pm: ProjectManager, project_name: str, dry_run: bool = False
 
     print("\n  📊 Tóm tắt di chuyển:")
     print(f"      - Nhân vật: {len(all_characters)} cái ({completed_chars} cái có thiết kế)")
-    print(f"      - Tập phim: {len(episodes)} 个")
+    print(f"      - Tập phim: {len(episodes)} cái")
     print("      - Manh mối: 0 cái (chờ Thêm)")
 
     if dry_run:
@@ -175,7 +175,7 @@ def main():
     parser.add_argument("project", nargs="?", help="Dự ánTên，Hoặc sử dụng --all để di chuyển tất cả Dự án")
     parser.add_argument("--all", action="store_true", help="Di chuyển tất cả Dự án")
     parser.add_argument("--dry-run", action="store_true", help="Chế độ xem trước, không thực sự thực hiện")
-    parser.add_argument("--projects-root", default=None, help="Dự án根目录")
+    parser.add_argument("--projects-root", default=None, help="Dự án thư mục gốc")
 
     args = parser.parse_args()
 
@@ -198,7 +198,7 @@ def main():
 
     if args.all:
         projects = pm.list_projects()
-        print(f"   发现 {len(projects)} 个Dự án")
+        print(f"   Phát hiện {len(projects)} dự án")
 
         for project_name in projects:
             if migrate_project(pm, project_name, dry_run=args.dry_run):

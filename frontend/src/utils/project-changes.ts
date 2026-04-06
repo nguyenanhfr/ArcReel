@@ -69,7 +69,7 @@ function getEntityLabel(group: GroupedProjectChange): string {
   if (group.action === "video_ready") {
     return "Video";
   }
-  return ENTITY_LABELS[group.entityType] ?? "内容";
+  return ENTITY_LABELS[group.entityType] ?? "Nội dung";
 }
 
 function getChangeListLabel(change: ProjectChange): string {
@@ -85,7 +85,7 @@ function getChangeListLabel(change: ProjectChange): string {
 
 function summarizeGroupNames(group: GroupedProjectChange): string {
   const names = group.changes.slice(0, GROUP_NAME_LIMIT).map(getChangeListLabel);
-  const suffix = group.changes.length > GROUP_NAME_LIMIT ? "…等" : "";
+  const suffix = group.changes.length > GROUP_NAME_LIMIT ? "…v.v" : "";
   return `${names.join("、")}${suffix}`;
 }
 
@@ -102,7 +102,7 @@ function formatSingleNotificationText(change: ProjectChange): string {
   if (change.action === "deleted") {
     return `${change.label}Đã Xóa`;
   }
-  return `${change.label}已更新`;
+  return `${change.label} đã được cập nhật`;
 }
 
 function formatSingleDeferredText(change: ProjectChange): string {

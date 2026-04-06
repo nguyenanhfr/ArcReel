@@ -155,7 +155,7 @@ export function CustomProviderDetail({ providerId, onDeleted, onSaved }: CustomP
             <span className="text-gray-300">{provider.api_key_masked || "Chưa cài đặt"}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Tạo时间</span>
+            <span className="text-gray-500">Thời gian tạo</span>
             <span className="text-gray-300">
               {new Date(provider.created_at).toLocaleDateString("zh-CN")}
             </span>
@@ -181,7 +181,7 @@ export function CustomProviderDetail({ providerId, onDeleted, onSaved }: CustomP
                 </span>
                 {m.is_default && (
                   <span className="rounded bg-indigo-600/30 px-1.5 py-0.5 text-xs text-indigo-300">
-                    默认
+                    Mặc định
                   </span>
                 )}
                 {!m.is_enabled && (

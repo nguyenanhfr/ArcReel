@@ -175,7 +175,7 @@ const CredentialRow = memo(function CredentialRow({ cred, providerId, isVertex, 
                 disabled={deleting}
                 className={`rounded px-2 py-1 text-xs text-rose-400 transition-colors hover:bg-rose-900/20 ${focusRing}`}
               >
-                {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : "确认"}
+                {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : "Xác nhận"}
               </button>
               <button
                 type="button"
@@ -237,7 +237,7 @@ const CredentialRow = memo(function CredentialRow({ cred, providerId, isVertex, 
           </div>
           {providerId === "gemini-aistudio" && (
             <div>
-              <label htmlFor={`${editPrefix}-baseurl`} className="mb-1 block text-xs text-gray-500">Base URL（可选）</label>
+              <label htmlFor={`${editPrefix}-baseurl`} className="mb-1 block text-xs text-gray-500">URL cơ sở (tùy chọn)</label>
               <input
                 id={`${editPrefix}-baseurl`}
                 name="base_url"
@@ -369,7 +369,7 @@ function AddCredentialForm({ providerId, isVertex, onCreated, onCancel }: AddFor
           </div>
           {providerId === "gemini-aistudio" && (
             <div>
-              <label htmlFor="cred-add-baseurl" className="mb-1 block text-xs text-gray-500">Base URL（可选）</label>
+              <label htmlFor="cred-add-baseurl" className="mb-1 block text-xs text-gray-500">URL cơ sở (tùy chọn)</label>
               <input
                 id="cred-add-baseurl"
                 name="base_url"
@@ -463,7 +463,7 @@ export function CredentialList({ providerId, onChanged }: Props) {
             onClick={() => setShowAdd(true)}
             className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-[var(--neon-500)] transition-colors hover:bg-[var(--neon-500)]/10 ${focusRing}`}
           >
-            <Plus className="h-3 w-3" /> Thêm密钥
+            <Plus className="h-3 w-3" /> ThêmKhóa
           </button>
         )}
       </div>

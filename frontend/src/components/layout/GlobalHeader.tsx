@@ -273,7 +273,7 @@ export function GlobalHeader({ onNavigateBack }: GlobalHeaderProps) {
                 ? "bg-amber-500/20 text-amber-200"
                 : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
             }`}
-            title={`Thông báo hội thoại: ${workspaceNotifications.length} 条`}
+            title={`Thông báo hội thoại: ${workspaceNotifications.length} mục`}
             aria-label="Mở trung tâm thông báo"
           >
             <Bell className="h-3.5 w-3.5" />

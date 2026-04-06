@@ -304,7 +304,7 @@ export function VersionTimeMachine({
                         >
                           <img
                             src={selectedInfo.file_url}
-                            alt={`Phiên bản v${selectedInfo.version} 预览`}
+                            alt={`Phiên bản v${selectedInfo.version} xem trước`}
                             className="max-h-full w-full object-contain"
                           />
                         </div>

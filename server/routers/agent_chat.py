@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-SYNC_CHAT_TIMEOUT = 120  # 秒
+SYNC_CHAT_TIMEOUT = 120  # giây
 
 
 class AgentChatRequest(BaseModel):
@@ -60,7 +60,7 @@ async def _collect_reply(
     """Đăng ký hàng đợi phiên, thu thập phản hồi của assistant cho đến khi Hoàn thành hoặc quá thời gian.
 
     Returns:
-        (reply_text, status) — status 为 "completed" / "timeout" / "error"
+        (reply_text, status) — status để "completed" / "timeout" / "error"
     """
     queue = await service.session_manager.subscribe(session_id, replay_buffer=True)
     try:
@@ -140,17 +140,17 @@ async def agent_chat(
     try:
         service.pm.get_project_path(body.project_name)
     except (FileNotFoundError, KeyError):
-        raise HTTPException(status_code=404, detail=f"Dự án '{body.project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{body.project_name}' không tồn tại")
 
     # Nếu truyền session_id, trước tiên kiểm tra quyền sở hữu phiên
     if body.session_id:
         session = await service.get_session(body.session_id)
         if session is None:
-            raise HTTPException(status_code=404, detail=f"会话 '{body.session_id}' 不存在")
+            raise HTTPException(status_code=404, detail=f"phiên '{body.session_id}' không tồn tại")
         if session.project_name != body.project_name:
             raise HTTPException(
                 status_code=400,
-                detail=f"会话 '{body.session_id}' Thuộc về Dự án '{session.project_name}'，So với Dự án yêu cầu '{body.project_name}' 不符",
+                detail=f"phiên '{body.session_id}' Thuộc về Dự án '{session.project_name}'，So với Dự án yêu cầu '{body.project_name}' không phù hợp",
             )
 
     # Thống nhất thông qua send_or_create Tạo hoặc tái sử dụng phiên và Gửi tin nhắn.

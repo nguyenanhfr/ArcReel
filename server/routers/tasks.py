@@ -160,5 +160,5 @@ async def get_task(task_id: str, _user: CurrentUser):
     queue = get_task_queue()
     task = await queue.get_task(task_id)
     if not task:
-        raise HTTPException(status_code=404, detail=f"任务 '{task_id}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Nhiệm vụ '{task_id}' không tồn tại")
     return {"task": task}

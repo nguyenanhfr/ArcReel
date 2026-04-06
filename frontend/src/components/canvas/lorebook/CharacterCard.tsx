@@ -169,12 +169,12 @@ export function CharacterCard({
           </div>
           <PreviewableImageFrame
             src={sheetUrl && !imgError ? sheetUrl : null}
-            alt={`${name} 设计图`}
+            alt={`Bản vẽ thiết kế ${name}`}
           >
             <AspectFrame ratio="3:4">
               <ImageFlipReveal
                 src={sheetUrl && !imgError ? sheetUrl : null}
-                alt={`${name} 设计图`}
+                alt={`Bản vẽ thiết kế ${name}`}
                 className="h-full w-full object-cover"
                 onError={() => setImgError(true)}
                 fallback={

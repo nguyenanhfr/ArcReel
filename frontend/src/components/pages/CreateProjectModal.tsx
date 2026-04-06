@@ -8,7 +8,7 @@ import { useAppStore } from "@/stores/app-store";
 const STYLE_OPTIONS = [
   { value: "Photographic", label: "Chụp ảnh thực tế" },
   { value: "Anime", label: "Anime Phong Cách" },
-  { value: "3D Animation", label: "3D 动画" },
+  { value: "3D Animation", label: "Hoạt hình 3D" },
 ] as const;
 
 export function CreateProjectModal() {
@@ -138,7 +138,7 @@ export function CreateProjectModal() {
                   onChange={() => setContentMode("narration")}
                   className="sr-only"
                 />
-                说书+画面
+                Kể chuyện+Hình ảnh
               </label>
               <label className={`flex-1 cursor-pointer rounded-lg border px-3 py-2 text-center text-sm transition-colors ${
                 contentMode === "drama"
@@ -153,7 +153,7 @@ export function CreateProjectModal() {
                   onChange={() => setContentMode("drama")}
                   className="sr-only"
                 />
-                Tập phim动画
+                Tập phimHoạt hình
               </label>
             </div>
           </div>
@@ -190,13 +190,13 @@ export function CreateProjectModal() {
           {/* Style reference image */}
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">
-              Phong cáchẢnh tham chiếu <span className="text-xs text-gray-600 font-normal">（可选）</span>
+              Phong cáchẢnh tham chiếu <span className="text-xs text-gray-600 font-normal">(Tùy chọn)</span>
             </label>
             {styleImagePreview ? (
               <div className="relative rounded-lg border border-gray-700 overflow-hidden">
                 <img
                   src={styleImagePreview}
-                  alt="Phong cáchẢnh tham chiếu预览"
+                  alt="Phong cách Ảnh tham chiếu Xem trước"
                   className="w-full h-32 object-cover"
                 />
                 <button
@@ -238,7 +238,7 @@ export function CreateProjectModal() {
             {creatingProject ? (
               <span className="inline-flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Tạo中...
+                TạoTrung...
               </span>
             ) : (
               "TạoDự án"

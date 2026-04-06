@@ -14,7 +14,7 @@ import { CustomProviderForm } from "./settings/CustomProviderForm";
 // ---------------------------------------------------------------------------
 
 const STATUS_MAP: Record<string, { color: string; label: string }> = {
-  ready: { color: "bg-green-400", label: "已就绪" },
+  ready: { color: "bg-green-400", label: "Đã sẵn sàng" },
   error: { color: "bg-yellow-400", label: "bất thường" },
   unconfigured: { color: "bg-gray-500", label: "Chưa được định cấu hình" },
 };

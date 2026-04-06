@@ -89,21 +89,21 @@ const smallBtnClassName =
 const MODEL_ROUTING_FIELDS = [
   {
     key: "haikuModel" as const,
-    label: "Haiku 模型",
+    label: "Mô hình Haiku",
     envVar: "ANTHROPIC_DEFAULT_HAIKU_MODEL",
     hint: "Nhiệm vụ nhẹ (phân loại, trích xuất, hỏi đáp đơn giản)",
     patchKey: "anthropic_default_haiku_model" as const,
   },
   {
     key: "sonnetModel" as const,
-    label: "Sonnet 模型",
+    label: "Mô hình Sonnet",
     envVar: "ANTHROPIC_DEFAULT_SONNET_MODEL",
     hint: "Nhiệm vụ cân bằng (viết, sắp xếp, lý luận nhiều bước)",
     patchKey: "anthropic_default_sonnet_model" as const,
   },
   {
     key: "opusModel" as const,
-    label: "Opus 模型",
+    label: "Mô hình Opus",
     envVar: "ANTHROPIC_DEFAULT_OPUS_MODEL",
     hint: "Nhiệm vụ phức tạp (tạo bài viết dài, phân tích chuyên sâu)",
     patchKey: "anthropic_default_opus_model" as const,

@@ -111,7 +111,7 @@ def verify_token(token: str) -> dict | None:
         return None
 
 
-DOWNLOAD_TOKEN_EXPIRY_SECONDS = 300  # 5 分钟
+DOWNLOAD_TOKEN_EXPIRY_SECONDS = 300  # 5 Phút
 
 
 def create_download_token(username: str, project_name: str) -> str:
@@ -134,7 +134,7 @@ def verify_download_token(token: str, project_name: str) -> dict:
         Trả lại lệnh tải trọng thành công
 
     Raises:
-        jwt.ExpiredSignatureError: token 已过期
+        jwt.ExpiredSignatureError: token Hết hạn
         jwt.InvalidTokenError: token không hợp lệ
         ValueError: purpose hoặc dự án không phù hợp
     """
@@ -226,7 +226,7 @@ def ensure_auth_password(env_path: str | None = None) -> str:
 # ---------------------------------------------------------------------------
 
 API_KEY_PREFIX = "arc-"
-API_KEY_CACHE_TTL = 300  # 5 分钟
+API_KEY_CACHE_TTL = 300  # 5 Phút
 
 # LRU Bộ đệm: key_hash → (payload_dict | Không, hết hạn_at_timestamp)
 # payload Không có nghĩa là khóa không tồn tại hoặc đã hết hạn (bộ nhớ đệm âm)
@@ -366,7 +366,7 @@ async def _verify_and_get_payload_async(token: str) -> dict:
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return payload
-    # JWT 路径
+    # JWT Đường dẫn
     return _verify_and_get_payload(token)
 
 

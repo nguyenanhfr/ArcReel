@@ -156,7 +156,7 @@ describe("PendingQuestionWizard", () => {
               question: "Đây là một câu hỏi dài.".repeat(120),
               multiSelect: false,
               options: [
-                { label: "继续", description: "Tiếp tục xử lý" },
+                { label: "Tiếp tục", description: "Tiếp tục xử lý" },
               ],
             },
           ],

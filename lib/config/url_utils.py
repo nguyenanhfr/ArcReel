@@ -38,7 +38,7 @@ def normalize_base_url(url: str | None) -> str | None:
 def ensure_google_base_url(url: str | None) -> str | None:
     """Chuẩn hóa base_url của Google genai SDK.
 
-    Google genai SDK Sẽ tự động ghép nối sau base_url ``api_version``（默认 ``v1beta``）。
+    Google genai SDK Sẽ tự động ghép nối sau base_url ``api_version``(Mặc định ``v1beta``）。
     Nếu người dùng vô tình điền sai ``https://example.com/v1beta``，SDK Có thể ghép ra
     ``https://example.com/v1beta/v1beta/models``，nguyên nhânYêu cầu thất bại。
 

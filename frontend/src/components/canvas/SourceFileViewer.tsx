@@ -44,7 +44,7 @@ export function SourceFileViewer({ projectName, filename }: SourceFileViewerProp
     return () => { cancelled = true; };
   }, [projectName, filename]);
 
-  // Lưu文件
+  // LưuTài liệu
   const handleSave = useCallback(async () => {
     setSaving(true);
     try {

@@ -81,7 +81,7 @@ async def _create_custom_backend(provider_name: str, model_id: str | None, media
         db_id = parse_provider_id(provider_name)
         provider = await repo.get_provider(db_id)
         if provider is None:
-            raise ValueError(f"nhà cung cấp tùy chỉnh {provider_name} 不存在")
+            raise ValueError(f"Nhà cung cấp tùy chỉnh {provider_name} không tồn tại")
         if model_id:
             # Kiểm tra model_id vẫn tồn tại và đã được kích hoạt, nếu không thì quay về Mô hình mặc định
             from sqlalchemy import select
@@ -104,7 +104,7 @@ async def _create_custom_backend(provider_name: str, model_id: str | None, media
             if default_model:
                 model_id = default_model.model_id
             else:
-                raise ValueError(f"nhà cung cấp tùy chỉnh {provider_name} Không có mặc định {media_type} 模型")
+                raise ValueError(f"Nhà cung cấp tùy chỉnh {provider_name} không có mô hình {media_type} mặc định")
         return create_custom_backend(provider=provider, model_id=model_id, media_type=media_type)
 
 
@@ -486,8 +486,8 @@ def _compute_affected_fingerprints(project_name: str, task_type: str, resource_i
 _TASK_CHANGE_SPECS: dict[str, tuple] = {
     "storyboard": ("segment", "storyboard_ready", "Phân cảnh「{}」", True),
     "video": ("segment", "video_ready", "Phân cảnh「{}」", True),
-    "character": ("character", "updated", "Nhân vật「{}」设计图", False),
-    "clue": ("clue", "updated", "Manh mối「{}」设计图", False),
+    "character": ("character", "updated", "Bản thiết kế nhân vật 「{}」", False),
+    "clue": ("clue", "updated", "Bản thiết kế manh mối 「{}」", False),
 }
 
 

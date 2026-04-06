@@ -146,7 +146,7 @@ export function ProjectSettingsPage() {
           <>
             {/* Video model override */}
             <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4">
-              <div className="mb-3 text-sm font-medium text-gray-100">Video模型</div>
+              <div className="mb-3 text-sm font-medium text-gray-100">Mô hình Video</div>
               <ProviderModelSelect
                 value={videoBackend}
                 options={options.video_backends}
@@ -161,7 +161,7 @@ export function ProjectSettingsPage() {
 
             {/* Image model override */}
             <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4">
-              <div className="mb-3 text-sm font-medium text-gray-100">Ảnh模型</div>
+              <div className="mb-3 text-sm font-medium text-gray-100">Mô hình Ảnh</div>
               <ProviderModelSelect
                 value={imageBackend}
                 options={options.image_backends}
@@ -198,13 +198,13 @@ export function ProjectSettingsPage() {
             </div>
             {/* Text model overrides */}
             <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4">
-              <div className="mb-3 text-sm font-medium text-gray-100">Văn bản模型</div>
+              <div className="mb-3 text-sm font-medium text-gray-100">Mô hình Văn bản</div>
               <p className="mb-2 text-xs text-gray-500">Ghi đè theo tác vụ Loại, để trống theo mặc định chung</p>
               <div className="space-y-3">
                 {([
-                  [textScript, setTextScript, "Kịch bản生成"] as const,
+                  [textScript, setTextScript, "Tạo kịch bản"] as const,
                   [textOverview, setTextOverview, "Tạo tổng quan"] as const,
-                  [textStyle, setTextStyle, "Phong cách分析"] as const,
+                  [textStyle, setTextStyle, "Phân tích phong cách"] as const,
                 ]).map(([value, setter, label]) => (
                   <div key={label}>
                     <div className="mb-1 text-xs text-gray-400">{label}</div>
@@ -235,7 +235,7 @@ export function ProjectSettingsPage() {
             disabled={saving}
             className="rounded-lg bg-indigo-600 px-6 py-2 text-sm text-white hover:bg-indigo-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
           >
-            {saving ? "Lưu中…" : "Lưu"}
+            {saving ? "Đang lưu…" : "Lưu"}
           </button>
           <button
             onClick={() => guardedNavigate(`/app/projects/${projectName}`)}

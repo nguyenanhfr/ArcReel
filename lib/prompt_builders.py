@@ -4,9 +4,9 @@ Hàm xây dựng Prompt tạo hình ảnh thống nhất
 Tất cả mẫu Prompt tập trung ở đây để quản lý tập tin, đảm bảo WebUI và Skill sử dụng cùng một logic.
 
 Trách nhiệm của mô-đun:
-- Ảnh thiết kế nhân vật Prompt 构建
+- Ảnh thiết kế nhân vật Prompt Xây dựng
 - Ảnh thiết kế manh mối Prompt Xây dựng (Loại Đạo cụ/Loại Môi trường)
-- Ảnh phân cảnh Prompt 后缀
+- Ảnh phân cảnh Prompt Hậu tố
 
 Người sử dụng:
 - webui/server/routers/generate.py
@@ -60,7 +60,7 @@ def build_clue_prompt(
     Args:
         name: Tên manh mối
         description: Manh mốiMô tả
-        clue_type: Manh mốiLoại ("prop" Đạo cụ 或 "location" Môi trường)
+        clue_type: Manh mốiLoại ("prop" Đạo cụ hoặc "location" Môi trường)
         style: Phong cách dự án
         style_description: AI Phân tích Mô tả phong cách
 
@@ -156,7 +156,7 @@ def build_style_prompt(project_data: dict) -> str:
     Kết hợp style (do người dùng điền thủ công) và style_description (do AI phân tích tạo ra).
 
     Args:
-        project_data: project.json 数据
+        project_data: project.json Dữ liệu
 
     Returns:
         Mô tả phong cáchchuỗi，Dùng để ghép vào Prompt tạo ra

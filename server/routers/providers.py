@@ -53,13 +53,13 @@ _FIELD_META: dict[str, dict[str, str]] = {
     "image_rpm": {"label": "Ảnh RPM", "type": "number"},
     "video_rpm": {"label": "Video RPM", "type": "number"},
     "request_gap": {"label": "Khoảng thời gian yêu cầu (giây)", "type": "number"},
-    "image_max_workers": {"label": "Ảnh最大并发", "type": "number"},
-    "video_max_workers": {"label": "Video最大并发", "type": "number"},
+    "image_max_workers": {"label": "Số lượng ảnh tối đa đồng thời", "type": "number"},
+    "video_max_workers": {"label": "Số lượng video tối đa đồng thời", "type": "number"},
 }
 
 
 # ---------------------------------------------------------------------------
-# Pydantic 模型
+# Pydantic mô hình
 # ---------------------------------------------------------------------------
 
 
@@ -414,7 +414,7 @@ async def activate_credential(
 @router.post("/gemini-vertex/credentials/upload", status_code=201, response_model=CredentialResponse)
 async def upload_vertex_credential(
     request: Request,
-    name: str = "Vertex 凭证",
+    name: str = "Chứng chỉ Vertex",
     session: AsyncSession = Depends(get_async_session),
     file: UploadFile = File(...),
 ) -> CredentialResponse:
@@ -464,7 +464,7 @@ async def upload_vertex_credential(
 # kết nốiKiểm tra: Các nhà cung cấp triển khai
 # ---------------------------------------------------------------------------
 
-_CONNECTION_TEST_TIMEOUT = 15  # 秒
+_CONNECTION_TEST_TIMEOUT = 15  # giây
 
 
 def _test_gemini_aistudio(config: dict[str, str]) -> ConnectionTestResponse:
@@ -481,7 +481,7 @@ def _test_gemini_aistudio(config: dict[str, str]) -> ConnectionTestResponse:
     return ConnectionTestResponse(
         success=True,
         available_models=available,
-        message="kết nối成功",
+        message="Kết nối thành công",
     )
 
 
@@ -525,7 +525,7 @@ def _test_gemini_vertex(config: dict[str, str]) -> ConnectionTestResponse:
     return ConnectionTestResponse(
         success=True,
         available_models=available,
-        message="kết nối成功",
+        message="Kết nối thành công",
     )
 
 
@@ -537,7 +537,7 @@ def _extract_gemini_models(pager) -> list[str]:
         name = m.name or ""
         if not any(k in name.lower() for k in keywords):
             continue
-        # Loại bỏ "models/" 或 "publishers/google/models/" Tiền tố
+        # Loại bỏ "models/" hoặc "publishers/google/models/" Tiền tố
         short = name.rsplit("/", 1)[-1]
         models.add(short)
     return sorted(models)
@@ -553,7 +553,7 @@ def _test_ark(config: dict[str, str]) -> ConnectionTestResponse:
     return ConnectionTestResponse(
         success=True,
         available_models=[],
-        message="kết nối成功",
+        message="Kết nối thành công",
     )
 
 
@@ -567,7 +567,7 @@ def _test_grok(config: dict[str, str]) -> ConnectionTestResponse:
     return ConnectionTestResponse(
         success=True,
         available_models=available,
-        message="kết nối成功",
+        message="Kết nối thành công",
     )
 
 
@@ -588,7 +588,7 @@ def _test_openai(config: dict[str, str]) -> ConnectionTestResponse:
     return ConnectionTestResponse(
         success=True,
         available_models=available,
-        message="kết nối成功",
+        message="Kết nối thành công",
     )
 
 

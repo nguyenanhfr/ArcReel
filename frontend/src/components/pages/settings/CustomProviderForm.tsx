@@ -99,7 +99,7 @@ function rowToInput(r: ModelRow): CustomProviderModelInput {
 // ---------------------------------------------------------------------------
 
 function priceLabel(mediaType: MediaType): { input: string; output: string } {
-  if (mediaType === "video") return { input: "/秒", output: "" };
+  if (mediaType === "video") return { input: "/giây", output: "" };
   if (mediaType === "image") return { input: "/Trương", output: "" };
   return { input: "/MĐầu vào", output: "/MĐầu ra" };
 }
@@ -383,7 +383,7 @@ export function CustomProviderForm({ existing, onSaved, onCancel }: CustomProvid
               type="button"
               onClick={() => setShowApiKey((v) => !v)}
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded text-gray-500 hover:text-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60"
-              aria-label={showApiKey ? "隐藏" : "显示"}
+              aria-label={showApiKey ? "Ẩn" : "Hiển thị"}
             >
               {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -496,7 +496,7 @@ export function CustomProviderForm({ existing, onSaved, onCancel }: CustomProvid
                             : "border border-gray-700 text-gray-500 hover:border-gray-600 hover:text-gray-300"
                         }`}
                       >
-                        默认
+                        Mặc định
                       </button>
 
                       {/* Remove */}
@@ -504,7 +504,7 @@ export function CustomProviderForm({ existing, onSaved, onCancel }: CustomProvid
                         type="button"
                         onClick={() => removeModel(m.key)}
                         className="rounded p-1 text-gray-500 hover:text-red-400"
-                        aria-label="Xóa模型"
+                        aria-label="Xóa mô hình"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -613,7 +613,7 @@ export function CustomProviderForm({ existing, onSaved, onCancel }: CustomProvid
             {saving ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Lưu中…
+                Đang lưu…
               </>
             ) : (
               "Lưu"

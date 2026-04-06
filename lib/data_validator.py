@@ -307,7 +307,7 @@ class DataValidator:
             if not segment_id:
                 errors.append(f"{prefix}: Thiếu trường bắt buộc: segment_id")
             elif not self.ID_PATTERN.match(segment_id):
-                errors.append(f"{prefix}: segment_id định dạng错误 '{segment_id}'，Phải là E{{n}}S{{nn}}")
+                errors.append(f"{prefix}: định dạng segment_id không hợp lệ '{segment_id}'，Phải là E{{n}}S{{nn}}")
 
             duration = segment.get("duration_seconds")
             if duration is None:
@@ -373,7 +373,7 @@ class DataValidator:
             if not scene_id:
                 errors.append(f"{prefix}: Thiếu đoạn bắt buộc scene_id")
             elif not self.ID_PATTERN.match(scene_id):
-                errors.append(f"{prefix}: scene_id định dạng错误 '{scene_id}'，Phải là E{{n}}S{{nn}}")
+                errors.append(f"{prefix}: định dạng scene_id không đúng '{scene_id}'，Phải là E{{n}}S{{nn}}")
 
             scene_type = scene.get("scene_type")
             if not scene_type:
@@ -615,7 +615,7 @@ class DataValidator:
                 if self._is_hidden_path(Path(child.name)):
                     continue
                 if child.name not in self.ALLOWED_ROOT_ENTRIES:
-                    warnings.append(f"发现未识别的附加文件/目录: {child.name}")
+                    warnings.append(f"Phát hiện tệp/thư mục bổ sung không nhận dạng được: {child.name}")
 
         return ValidationResult(valid=len(errors) == 0, errors=errors, warnings=warnings)
 
@@ -653,10 +653,10 @@ if __name__ == "__main__":
     if len(sys.argv) >= 3:
         episode_file = sys.argv[2]
         result = validate_episode(project_name, episode_file)
-        print(f"验证 {project_name}/scripts/{episode_file}:")
+        print(f"Xác minh {project_name}/scripts/{episode_file}:")
     else:
         result = validate_project(project_name)
-        print(f"验证 {project_name}/project.json:")
+        print(f"Xác minh {project_name}/project.json:")
 
     print(result)
     sys.exit(0 if result.valid else 1)

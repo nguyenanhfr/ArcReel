@@ -83,7 +83,7 @@ def _project_level_provider(project: dict, task_type: str) -> str | None:
 async def _extract_provider(task: dict[str, Any]) -> str:
     """Extract provider_id from a claimed task dict.
 
-    Ưu tiên: payload giá trị rõ ràng > Dự án级配置 > Mặc định toàn cục.
+    Ưu tiên: payload giá trị rõ ràng > Dự ánCấu hình cấp > Mặc định toàn cục.
     """
     payload = task.get("payload") or {}
     # Tương thích với các nhiệm vụ lịch sử đã vào hàng đợi (payload có rõ provider)
@@ -364,7 +364,7 @@ class GenerationWorker:
 
                 await self._drain_finished_tasks()
 
-                # 仅在"Mới nhận quyền thuê và phiên bản này không có nhiệm vụ đang tiến hành"Khi thu hồi nhiệm vụ đang chạy,
+                # Chỉ khi"Mới nhận quyền thuê và phiên bản này không có nhiệm vụ đang tiến hành"Khi thu hồi nhiệm vụ đang chạy,
                 # Tránh đưa sai nhiệm vụ đang thực thi vào hàng đợi do quyền thuê chập chờn tạm thời.
                 all_inflight = self._image_inflight or self._video_inflight
                 if self._owns_lease and not had_lease and not all_inflight:
@@ -425,7 +425,7 @@ class GenerationWorker:
                     )
                     await self.queue.mark_task_failed(
                         task["task_id"],
-                        f"nhà cung cấp {provider_id} 不支持 {media_type} 生成",
+                        f"Nhà cung cấp {provider_id} không hỗ trợ tạo {media_type}",
                     )
                     claimed_any = True
                     continue

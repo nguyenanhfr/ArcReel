@@ -36,7 +36,7 @@ def build_narration_prompt(
 
     Args:
         project_overview: Mô tả dự án（synopsis, genre, theme, world_setting）
-        style: Visual Phong cách标签
+        style: Visual Phong cáchNhãn
         style_description: Mô tả phong cách
         characters: Nhân vậttừĐiển hình (chỉ dùng để lấy tên danh sách)
         clues: Manh mốitừĐiển hình (chỉ dùng để lấy tên danh sách)
@@ -84,7 +84,7 @@ Mô tả：{style_description}
 </segments>
 
 segments Bảng phân tách đoạn, mỗi dòng là một đoạn, bao gồm:
-- Đoạn ID：định dạngCho E{{集数}}S{{Số thứ tự}}
+- Đoạn ID：định dạngCho E{{Số tập}}S{{Số thứ tự}}
 - Văn bản gốc tiểu thuyết: phải giữ nguyên như novel_text từ đoạn
 - Thời lượng: 4, 6 hoặc 8 giây
 - Có đối thoại hay không: dùng để xác định có cần điền video_prompt.dialogue hay không
@@ -123,11 +123,11 @@ e. **video_prompt**：Tạo đối tượng bao gồm các đoạn từ sau:
      Chỉ mô tả âm thanh thực sự tồn tại trong cảnh. Loại trừ nhạc nền, BGM, lồng tiếng, âm thanh ngoài cảnh.
    - dialogue：{{speaker, line}} Dạng mảng. Chỉ điền khi văn bản gốc có dấu ngoặc kép đối thoại. speaker phải đến từ characters_in_segment.
 
-f. **segment_break**：Nếu trong bảng đoạn được đánh dấu là"是"，thì đặt là true.
+f. **segment_break**：Nếu trong bảng đoạn được đánh dấu là"Là"，thì đặt là true.
 
 g. **duration_seconds**：Sử dụng thời lượng trong bảng đoạn (4, 6 hoặc 8).
 
-h. **transition_to_next**：默认为 "cut"。
+h. **transition_to_next**：Mặc định là "cut"。
 
 Mục tiêu: Tạo phân cảnh Prompt sinh động, nhất quán về mặt hình ảnh, dùng để hướng dẫn AI tạo hình ảnh và video. Giữ sáng tạo, cụ thể, và trung thành với văn bản gốc.
 """
@@ -147,7 +147,7 @@ def build_drama_prompt(
 
     Args:
         project_overview: Mô tả dự án
-        style: Visual Phong cách标签
+        style: Visual Phong cáchNhãn
         style_description: Mô tả phong cách
         characters: Nhân vậttừĐiển
         clues: Manh mốitừĐiển
@@ -195,7 +195,7 @@ Mô tả：{style_description}
 </scenes>
 
 scenes Bảng phân tách cảnh, mỗi dòng là một cảnh, bao gồm:
-- Cảnh ID：định dạngCho E{{集数}}S{{Số thứ tự}}
+- Cảnh ID：định dạngCho E{{Số tập}}S{{Số thứ tự}}
 - CảnhMô tả：Kịch bảnNội dung cảnh đã được chuyển thể
 - Thời lượng: 4, 6 hoặc 8 giây (mặc định 8 giây)
 - CảnhLoại：Cốt truyện, hành động, đối thoại, v.v.
@@ -232,13 +232,13 @@ d. **video_prompt**：Tạo đối tượng bao gồm các đoạn từ sau:
      Chỉ mô tả âm thanh thực sự tồn tại trong cảnh. Loại trừ nhạc nền, BGM, lồng tiếng, âm thanh ngoài cảnh.
    - dialogue：{{speaker, line}} Mảng, bao gồm đối thoại của nhân vật. Người nói phải là một trong những nhân vật trong cảnh.
 
-e. **segment_break**：Nếu trong bảng cảnh được đánh dấu là"是"，thì đặt là true.
+e. **segment_break**：Nếu trong bảng cảnh được đánh dấu là"Là"，thì đặt là true.
 
 f. **duration_seconds**：Sử dụng thời lượng từ bảng cảnh (4, 6 hoặc 8 giây), mặc định là 8.
 
 g. **scene_type**：Sử dụng loại cảnh từ bảng cảnh, mặc định là"Cốt truyện"。
 
-h. **transition_to_next**：默认为 "cut"。
+h. **transition_to_next**：Mặc định là "cut"。
 
 Mục tiêu: Tạo các prompt phân cảnh sống động và thống nhất về mặt thị giác, dùng để hướng dẫn AI tạo hình ảnh và video. Giữ tính sáng tạo, cụ thể, phù hợp với trình bày hoạt hình theo bố cục ngang 16:9.
 """

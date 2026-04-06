@@ -45,7 +45,7 @@ class StatusCalculator:
 
         Args:
             project_name: Dự ánTên
-            script: Kịch bản数据
+            script: Kịch bảnDữ liệu
 
         Returns:
             Thống kê từ điển
@@ -154,7 +154,7 @@ class StatusCalculator:
         """
         project_dir = self.pm.get_project_path(project_name)
 
-        # Nhân vật统计
+        # Nhân vậtThống kê
         chars = project.get("characters", {})
         chars_total = len(chars)
         chars_done = sum(1 for c in chars.values() if self._safe_exists(project_dir, c.get("character_sheet", "")))

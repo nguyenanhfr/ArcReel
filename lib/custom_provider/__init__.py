@@ -9,7 +9,7 @@ def make_provider_id(db_id: int) -> str:
 
 
 def parse_provider_id(provider_id: str) -> int:
-    """从 'custom-3' định dạngprovider_id để trích xuất ID cơ sở dữ liệu.
+    """Từ 'custom-3' định dạngprovider_id để trích xuất ID cơ sở dữ liệu.
 
     Raises:
         ValueError: Nếu định dạng không đúng

@@ -187,7 +187,7 @@ export function useAssistantSession(projectName: string | null) {
     syncPendingQuestion(getPendingQuestionFromSnapshot(snapshot));
   }, [store, syncPendingQuestion]);
 
-  // Đóng流
+  // ĐóngDòng
   const closeStream = useCallback(() => {
     if (reconnectRef.current) {
       clearTimeout(reconnectRef.current);

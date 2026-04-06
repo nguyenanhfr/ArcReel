@@ -287,11 +287,11 @@ export function TaskHud({ anchorRef }: { anchorRef: RefObject<HTMLElement | null
           {/* Cột thống kê */}
           <div className="flex gap-3 border-b border-gray-800 px-3 py-2 text-xs text-gray-400">
             <span>
-              排队{" "}
+              Xếp hàng{" "}
               <strong className="text-gray-200">{stats.queued}</strong>
             </span>
             <span>
-              运行{" "}
+              Chạy{" "}
               <strong className="text-indigo-400">{stats.running}</strong>
             </span>
             <span>

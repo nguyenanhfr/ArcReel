@@ -126,7 +126,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS 配置
+# CORS Cấu hình
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -166,23 +166,23 @@ async def request_logging_middleware(request: Request, call_next):
 
 
 # Đăng ký lộ trình API
-app.include_router(auth_router.router, prefix="/api/v1", tags=["认证"])
-app.include_router(projects.router, prefix="/api/v1", tags=["Dự án管理"])
-app.include_router(characters.router, prefix="/api/v1", tags=["Nhân vật管理"])
-app.include_router(clues.router, prefix="/api/v1", tags=["Manh mối管理"])
+app.include_router(auth_router.router, prefix="/api/v1", tags=["Xác nhận"])
+app.include_router(projects.router, prefix="/api/v1", tags=["Quản lý dự án"])
+app.include_router(characters.router, prefix="/api/v1", tags=["Quản lý nhân vật"])
+app.include_router(clues.router, prefix="/api/v1", tags=["Quản lý manh mối"])
 app.include_router(files.router, prefix="/api/v1", tags=["Quản lý tập tin"])
-app.include_router(generate.router, prefix="/api/v1", tags=["生成"])
+app.include_router(generate.router, prefix="/api/v1", tags=["Tạo"])
 app.include_router(versions.router, prefix="/api/v1", tags=["Quản lý phiên bản"])
 app.include_router(usage.router, prefix="/api/v1", tags=["Thống kê chi phí"])
-app.include_router(assistant.router, prefix="/api/v1/projects/{project_name}/assistant", tags=["Trợ lý会话"])
+app.include_router(assistant.router, prefix="/api/v1/projects/{project_name}/assistant", tags=["Phiên trợ lý"])
 app.include_router(tasks.router, prefix="/api/v1", tags=["hàng đợi nhiệm vụ"])
 app.include_router(project_events.router, prefix="/api/v1", tags=["Dự ánthay đổi dòng chảy"])
 app.include_router(providers.router, prefix="/api/v1", tags=["Quản lý nhà cung cấp"])
-app.include_router(system_config.router, prefix="/api/v1", tags=["Hệ thống配置"])
-app.include_router(api_keys.router, prefix="/api/v1", tags=["API Key 管理"])
+app.include_router(system_config.router, prefix="/api/v1", tags=["Cấu hình hệ thống"])
+app.include_router(api_keys.router, prefix="/api/v1", tags=["Quản lý API Key"])
 app.include_router(agent_chat.router, prefix="/api/v1", tags=["Agent Đối thoại"])
 app.include_router(custom_providers.router, prefix="/api/v1", tags=["nhà cung cấp tùy chỉnh"])
-app.include_router(cost_estimation.router, prefix="/api/v1", tags=["费用估算"])
+app.include_router(cost_estimation.router, prefix="/api/v1", tags=["Ước tính chi phí"])
 
 
 def create_generation_worker() -> GenerationWorker:

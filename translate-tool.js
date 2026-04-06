@@ -76,13 +76,32 @@ function extractChineseFromFile(filepath) {
     const ln = lines[i];
     if (!isChinese(ln)) continue;
 
-    // Trích xuất từng chuỗi liên tiếp chứa ký tự Hán (bao gồm dấu câu xung quanh)
-    const matches = ln.match(/[\u4e00-\u9fa5][^\n"'`<>{}]{0,80}/g) || [];
-    for (const m of matches) {
-      const phrase = m.trim().replace(/^[^\u4e00-\u9fa5]+/, '').trim();
-      if (phrase && isChinese(phrase)) {
-        found.push({ line: ln.trim(), lineNo: i + 1, phrase });
+    // Trích xuất các chuỗi trong nháy đơn, nháy kép, backtick hoặc giữa các thẻ HTML/JSX chứa tiếng Trung
+    // Cách này giúp bắt trọn vẹn cụm từ lai như "Lưu中..."
+    const phraseRegex = /(?:["'`])([^"'`]*?[\u4e00-\u9fa5]+[^"'`]*?)(?:["'`])|(?:>)([^<]*?[\u4e00-\u9fa5]+[^<]*?)(?:<)|(?:})([^<{}]*?[\u4e00-\u9fa5]+[^<{}]*?)(?:{)/g;
+    let match;
+    let foundInLine = false;
+    
+    while ((match = phraseRegex.exec(ln)) !== null) {
+      let phrase = match[1] || match[2] || match[3];
+      if (phrase) {
+        phrase = phrase.trim();
+        if (phrase && isChinese(phrase)) {
+          found.push({ line: ln.trim(), lineNo: i + 1, phrase });
+          foundInLine = true;
+        }
       }
+    }
+    
+    // Fallback if regex didn't catch it but line has Chinese (e.g. comments or plain strings without brackets)
+    if (!foundInLine) {
+        const matches = ln.match(/[\u4e00-\u9fa5][A-Za-z0-9_\s\.\u4e00-\u9fa5]{0,80}/g) || [];
+        for (const m of matches) {
+          const phrase = m.trim();
+          if (phrase && isChinese(phrase)) {
+            found.push({ line: ln.trim(), lineNo: i + 1, phrase });
+          }
+        }
     }
   }
   return found;
@@ -102,9 +121,8 @@ function cmdScan() {
   for (const f of files) {
     const hits = extractChineseFromFile(f);
     for (const h of hits) {
-      // Kiểm tra xem phrase (hoặc phần nào đó của nó) có trong DB không
-      const found = Object.keys(phrases).some(key => h.phrase.includes(key) || key.includes(h.phrase));
-      if (!found) {
+      // Chỉ khi TRONG DB CÓ CHÍNH XÁC KEY NÀY thì mới tính là covered! Không chơi trò "includes" nữa.
+      if (!phrases[h.phrase]) {
         const key = h.phrase;
         if (!missing.has(key)) missing.set(key, []);
         missing.get(key).push(`${path.relative(__dirname, f)}:${h.lineNo}`);

@@ -74,7 +74,7 @@ def video_prompt_to_yaml(video_prompt: dict) -> str:
                 "action": "Hành động Mô tả",
                 "camera_motion": "Chuyển động máy quay",
                 "ambiance_audio": "Âm thanh môi trườngMô tả",
-                "dialogue": [{"speaker": "Nhân vật名", "line": "Thoại"}]
+                "dialogue": [{"speaker": "Tên nhân vật", "line": "Thoại"}]
             }
 
     Returns:

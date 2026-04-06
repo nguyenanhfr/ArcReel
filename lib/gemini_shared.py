@@ -51,7 +51,7 @@ try:
     RETRYABLE_ERRORS = RETRYABLE_ERRORS + (
         google_exceptions.ResourceExhausted,  # 429 Too Many Requests
         google_exceptions.ServiceUnavailable,  # 503
-        google_exceptions.DeadlineExceeded,  # 超时
+        google_exceptions.DeadlineExceeded,  # Hết thời gian
         google_exceptions.InternalServerError,  # 500
         genai.errors.ClientError,  # 4xx errors from new SDK
         genai.errors.ServerError,  # 5xx errors from new SDK

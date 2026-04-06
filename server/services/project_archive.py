@@ -487,7 +487,7 @@ class ProjectArchiveService:
             diagnostics.add(
                 "blocking",
                 "invalid_project_json",
-                f"无法解析 {self.project_manager.PROJECT_FILE}: {project_path}",
+                f"Không thể phân tích {self.project_manager.PROJECT_FILE}: {project_path}",
                 location=self.project_manager.PROJECT_FILE,
             )
             return diagnostics
@@ -828,7 +828,7 @@ class ProjectArchiveService:
                     diagnostics.add(
                         "auto_fixed",
                         "current_asset_materialized",
-                        f"{location}: 从 {resolved_raw} Khôi phục Hiện tại tập tin {canonical_rel}",
+                        f"{location}: Khôi phục tệp hiện tại {canonical_rel} từ {resolved_raw}",
                         location=location,
                     )
                     return True
@@ -850,7 +850,7 @@ class ProjectArchiveService:
                     diagnostics.add(
                         "auto_fixed",
                         "current_asset_restored_from_version",
-                        f"{location}: 从 {version_rel} Khôi phục Hiện tại tập tin {canonical_rel}",
+                        f"{location}: Khôi phục hiện tại tập tin {canonical_rel} từ {version_rel}",
                         location=location,
                     )
                     return True
@@ -1137,7 +1137,7 @@ class ProjectArchiveService:
         except Exception as exc:
             raise ProjectArchiveValidationError(
                 "Xác thực gói nhập thất bại",
-                errors=[f"无法解析 {label}: {'/'.join(member.parts)}"],
+                errors=[f"Không thể phân tích {label}: {'/'.join(member.parts)}"],
             ) from exc
 
     def _locate_project_root(
@@ -1275,7 +1275,7 @@ class ProjectArchiveService:
                 raise ProjectArchiveValidationError(
                     "Phát hiện xung đột mã dự án",
                     status_code=409,
-                    errors=[f"Dự án编号 '{preferred_name}' Đã tồn tại，Vui lòng chọn Ghi đè dự án hiện có hoặc Tự động đổi tên khi nhập."],
+                    errors=[f"Mã dự án '{preferred_name}' Đã tồn tại，Vui lòng chọn Ghi đè dự án hiện có hoặc Tự động đổi tên khi nhập."],
                     extra={"conflict_project_name": preferred_name},
                 )
             return preferred_name, "none"

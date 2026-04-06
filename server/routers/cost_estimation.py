@@ -23,12 +23,12 @@ pm = ProjectManager(PROJECT_ROOT / "projects")
 async def get_cost_estimate(project_name: str, _user: CurrentUser):
     """Lấy ước tính chi phí dự án (Ước tính + Thực tế)."""
     if not pm.project_exists(project_name):
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
 
     try:
         project_data = pm.load_project(project_name)
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' không tồn tại")
 
     # Tải tất cả kịch bản
     scripts: dict[str, dict] = {}
@@ -48,4 +48,4 @@ async def get_cost_estimate(project_name: str, _user: CurrentUser):
         return await service.compute(project_data, scripts, project_name=project_name)
     except Exception:
         logger.exception("Ước tính chi phí thất bại")
-        raise HTTPException(status_code=500, detail="Ước tính chi phí thất bại，请稍后Thử lại")
+        raise HTTPException(status_code=500, detail="Ước tính chi phí thất bại, vui lòng thử lại sau")

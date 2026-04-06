@@ -1,5 +1,5 @@
 """
-Quản lý phiên bản模块
+Quản lý phiên bảnMô-đun
 
 Quản lý lịch sử phiên bản của Ảnh phân cảnh, Video, Nhân vật đồ họa, Bản đồ manh mối.
 Hỗ trợ sao lưu phiên bản, chuyển đổi phiên bản hiện tại, ghi lại và truy vấn.
@@ -26,9 +26,9 @@ def _get_versions_file_lock(versions_file: Path) -> threading.RLock:
 
 
 class VersionManager:
-    """Quản lý phiên bản器"""
+    """Trình quản lý phiên bản"""
 
-    # 支持的Loại tài nguyên
+    # Lo hỗ trợại tài nguyên
     RESOURCE_TYPES = ("storyboards", "videos", "characters", "clues")
 
     # Loại tài nguyênPhần mở rộng tệp tương ứng
@@ -201,7 +201,7 @@ class VersionManager:
         Args:
             resource_type: Loại tài nguyên
             resource_id: ID tài nguyên
-            current_file: Hiện tại文件路径
+            current_file: Hiện tạiĐường dẫn tệp
             prompt: Hiện tạiPrompt của phiên bản
             **metadata: Siêu dữ liệu bổ sung
 
@@ -228,7 +228,7 @@ class VersionManager:
         Args:
             resource_type: Loại tài nguyên
             resource_id: ID tài nguyên
-            current_file: Hiện tại文件路径
+            current_file: Hiện tạiĐường dẫn tệp
             prompt: Hiện tạiPrompt tương ứng với tệp (dùng để ghi lại)
             **metadata: Metadata bổ sung
 
@@ -263,7 +263,7 @@ class VersionManager:
             resource_type: Loại tài nguyên
             resource_id: ID tài nguyên
             version: Số phiên bản cần khôi phục
-            current_file: Hiện tại文件路径
+            current_file: Hiện tạiĐường dẫn tệp
 
         Returns:
             Thông tin chuyển đổi, bao gồm restored_version, current_version, prompt
@@ -313,7 +313,7 @@ class VersionManager:
         Args:
             resource_type: Loại tài nguyên
             resource_id: ID tài nguyên
-            version: 版本号
+            version: Số phiên bản
 
         Returns:
             URL tệp, nếu không tồn tại thì trả về None
@@ -331,7 +331,7 @@ class VersionManager:
         Args:
             resource_type: Loại tài nguyên
             resource_id: ID tài nguyên
-            version: 版本号
+            version: Số phiên bản
 
         Returns:
             prompt Văn bản，Trả về None nếu không tồn tại

@@ -142,7 +142,7 @@ class ArkVideoBackend:
 
             elapsed += poll_interval
             if elapsed >= max_wait_time:
-                raise TimeoutError(f"Ark VideoTạo vượt quá thời gian ({max_wait_time}秒）")
+                raise TimeoutError(f"Tạo video Ark vượt quá thời gian ({max_wait_time} giây)")
 
             logger.info(
                 "Ark VideoĐang tạo... Trạng thái: %s, đã chờ %d giây",

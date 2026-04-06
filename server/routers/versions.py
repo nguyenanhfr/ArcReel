@@ -1,5 +1,5 @@
 """
-Quản lý phiên bản API 路由
+Quản lý phiên bản API Định tuyến
 
 Xử lý truy vấn phiên bản và yêu cầu khôi phục.
 """

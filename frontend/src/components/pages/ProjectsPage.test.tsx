@@ -219,7 +219,7 @@ describe("ProjectsPage", () => {
     };
     conflictError.status = 409;
     conflictError.detail = "Phát hiện xung đột mã dự án";
-    conflictError.errors = ["Dự án编号 'demo' Đã tồn tại"];
+    conflictError.errors = ["Mã dự án 'demo' Đã tồn tại"];
     conflictError.conflict_project_name = "demo";
 
     vi.spyOn(API, "importProject")

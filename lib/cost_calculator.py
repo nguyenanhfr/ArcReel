@@ -1,7 +1,7 @@
 """
 Máy tính chi phí
 
-Dựa trên quy tắc chi phí trong docs/Video&Ảnh生成费用表.md, tính toán chi phí tạo Ảnh và Video.
+Dựa trên quy tắc chi phí trong docs/Video&ẢnhTạo bảng chi phí.md, tính toán chi phí tạo Ảnh và Video.
 Hỗ trợ phân biệt chi phí theo mô hình, để dữ liệu lịch sử của các mô hình khác nhau có thể tính phí đúng.
 """
 

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 _IMAGE_PATTERN = re.compile(r"image|dall|img", re.IGNORECASE)
 _VIDEO_PATTERN = re.compile(r"video|sora|kling|wan|seedance|cog|mochi|veo|pika", re.IGNORECASE)
 
-# Google generation method → media_type 映射
+# Google generation method → media_type Bản đồ
 _GENERATION_METHOD_MAP: dict[str, str] = {
     "generateVideo": "video",
     "generateVideos": "video",
@@ -45,13 +45,13 @@ async def discover_models(api_format: str, base_url: str | None, api_key: str) -
     Args:
         api_format: API định dạng ("openai" | "google")
         base_url: nhà cung cấp API URL cơ bản
-        api_key: API 密钥
+        api_key: API Khóa
 
     Returns:
         Danh sách người mẫu，Mỗi mục bao gồm: model_id, display_name, media_type, is_default, is_enabled
 
     Raises:
-        ValueError: api_format 不支持
+        ValueError: api_format Không hỗ trợ
     """
     if api_format == "openai":
         return await _discover_openai(base_url, api_key)

@@ -128,7 +128,7 @@ export function AddCharacterForm({ onSubmit, onCancel }: AddCharacterFormProps) 
         <div>
           <div className="mb-1 flex items-center justify-between">
             <label className="block text-xs font-medium text-gray-400">
-              Ảnh tham chiếu <span className="text-gray-600">（可选）</span>
+              Ảnh tham chiếu <span className="text-gray-600">(Tùy chọn)</span>
             </label>
             {referenceFile && (
               <span className="text-[11px] text-gray-500">{referenceFile.name}</span>

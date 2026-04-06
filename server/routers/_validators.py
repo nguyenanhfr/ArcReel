@@ -16,7 +16,7 @@ _LEGACY_PROVIDER_NAMES: dict[str, str] = {
 
 
 def validate_backend_value(value: str, field_name: str) -> None:
-    """校验 ``provider/model`` định dạngGiá trị từ backend của trường.
+    """Xác minh ``provider/model`` định dạngGiá trị từ backend của trường.
 
     Cũng chấp nhận tên provider đơn theo định dạng cũ (ví dụ ``"gemini"``），Để tương thích với các dự án tồn tại.
 

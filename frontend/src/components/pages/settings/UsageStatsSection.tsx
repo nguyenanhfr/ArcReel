@@ -8,7 +8,7 @@ const percentFmt = new Intl.NumberFormat("zh-CN", { style: "percent", maximumFra
 const TIME_RANGES = [
   { label: "7 ngày qua", days: 7 },
   { label: "30 ngày qua", days: 30 },
-  { label: "全部", days: 0 },
+  { label: "Tất cả", days: 0 },
 ];
 
 export function UsageStatsSection() {
@@ -49,7 +49,7 @@ export function UsageStatsSection() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-100">用量统计</h3>
+        <h3 className="text-lg font-semibold text-gray-100">Thống kê lượng dùng</h3>
         <p className="mt-1 text-sm text-gray-500">Xem thống kê cuộc gọi API cho từng nhà cung cấp</p>
       </div>
 
@@ -114,7 +114,7 @@ export function UsageStatsSection() {
                     : "0%"}
                 </span>
                 {s.call_type === "text" ? (
-                  s.total_calls > 0 && <span>Loại: Văn bản生成</span>
+                  s.total_calls > 0 && <span>Loại: Tạo văn bản</span>
                 ) : s.total_duration_seconds !== undefined && (
                   <span>Thời lượng: {s.total_duration_seconds}s</span>
                 )}

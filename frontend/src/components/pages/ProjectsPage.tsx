@@ -225,7 +225,7 @@ function ProjectCard({ project }: { project: ProjectSummary }) {
       {/* Episodes summary */}
       {summary && summary.total > 0 && (
         <div className="text-xs text-gray-500">
-          {summary.total} 集
+          {summary.total} Tập hợp
           {summary.scripted > 0 && ` · ${summary.scripted} Ji hoàn thành bản`}
           {summary.in_production > 0 && ` · ${summary.in_production} Đặt sản phẩm`}
           {summary.completed > 0 && ` · ${summary.completed} set Đã hoàn thành`}
@@ -297,7 +297,7 @@ export function ProjectsPage() {
         const warningCount = result.diagnostics.warnings.length;
         useAppStore.getState().pushToast(
           autoFixedCount > 0
-            ? `Dự án "${result.project.title || result.project_name}" Nhập khẩu, tự động sửa chữa ${autoFixedCount} 项`
+            ? `Dự án "${result.project.title || result.project_name}" Nhập khẩu, tự động sửa ${autoFixedCount} mục`
             : `Dự án "${result.project.title || result.project_name}" Đã nhập`,
           "success"
         );
@@ -429,8 +429,8 @@ export function ProjectsPage() {
                 type="button"
                 onClick={() => navigate("/app/settings")}
                 className="relative rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
-                title="Hệ thống配置"
-                aria-label="Hệ thống配置"
+                title="Cấu hình hệ thống"
+                aria-label="Cấu hình hệ thống"
               >
                 <Settings className="h-4 w-4" />
                 {!isConfigComplete && (

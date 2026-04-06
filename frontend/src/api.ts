@@ -620,7 +620,7 @@ class API {
   }
 
   /**
-   * Xóa source 文件
+   * Xóa tệp nguồn
    */
   static async deleteSourceFile(
     projectName: string,
@@ -650,7 +650,7 @@ class API {
   }
 
   /**
-   * 获取草稿内容
+   * Lấy nội dung bản thảo
    */
   static async getDraftContent(
     projectName: string,
@@ -666,7 +666,7 @@ class API {
   }
 
   /**
-   * Lưu草稿内容
+   * LưuNội dung bản thảo
    */
   static async saveDraft(
     projectName: string,
@@ -687,7 +687,7 @@ class API {
   }
 
   /**
-   * Xóa草稿
+   * XóaBản thảo
    */
   static async deleteDraft(
     projectName: string,
@@ -1016,7 +1016,7 @@ class API {
   /**
    * Tải lên ảnh tham chiếu phong cách
    * @param projectName - Dự ánTên
-   * @param file - Ảnh文件
+   * @param file - ẢnhTài liệu
    * @returns Kết quả chứa style_image, style_description, url
    */
   static async uploadStyleImage(

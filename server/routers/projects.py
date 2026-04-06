@@ -237,7 +237,7 @@ def export_jianying_draft(
     name: str,
     episode: int = Query(..., description="Số tập"),
     draft_path: str = Query(..., description="Thư mục bản nháp Jianying của người dùng trên máy"),
-    download_token: str = Query(..., description="下载 token"),
+    download_token: str = Query(..., description="Tải token"),
     jianying_version: str = Query("6", description="Phiên bản Jianying：6 Hoặc 5"),
 ):
     """Xuất bản nháp Jianying dưới dạng ZIP của tập được chỉ định"""
@@ -271,7 +271,7 @@ def export_jianying_draft(
         raise HTTPException(status_code=422, detail=str(e))
     except Exception:
         logger.exception("Xuất bản nháp Jianying thất bại: project=%s episode=%d", name, episode)
-        raise HTTPException(status_code=500, detail="Xuất bản nháp Jianying thất bại，请稍后Thử lại")
+        raise HTTPException(status_code=500, detail="Xuất bản nháp Jianying thất bại, vui lòng thử lại sau")
 
     download_name = f"{name}_Không.{episode}Tập_Đoạn ghép Jingying.zip"
 
@@ -328,7 +328,7 @@ async def list_projects(_user: CurrentUser):
                 )
         except Exception as e:
             # Trả về thông tin cơ bản khi xảy ra lỗi
-            logger.warning("加载Dự án '%s' Metadata Thất bại: %s", name, e)
+            logger.warning("Tải Dự án '%s' Metadata Thất bại: %s", name, e)
             projects.append(
                 {"name": name, "title": name, "style": "", "thumbnail": None, "status": {}, "error": str(e)}
             )
@@ -338,7 +338,7 @@ async def list_projects(_user: CurrentUser):
 
 @router.post("/projects")
 async def create_project(req: CreateProjectRequest, _user: CurrentUser):
-    """Tạo新Dự án"""
+    """Tạo Dự án Mới"""
     try:
         manager = get_project_manager()
         title = (req.title or "").strip()
@@ -349,7 +349,7 @@ async def create_project(req: CreateProjectRequest, _user: CurrentUser):
 
         # TạoDự ánCấu trúc thư mục
         manager.create_project(project_name)
-        # TạoDự án元数据
+        # TạoDự ánSiêu dữ liệu
         with project_change_source("webui"):
             project = manager.create_project_metadata(
                 project_name,
@@ -407,7 +407,7 @@ async def get_project(name: str, _user: CurrentUser):
             "asset_fingerprints": fingerprints,
         }
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -456,7 +456,7 @@ async def update_project(name: str, req: UpdateProjectRequest, _user: CurrentUse
             manager.save_project(name, project)
         return {"success": True, "project": project}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -472,7 +472,7 @@ async def delete_project(name: str, _user: CurrentUser):
         shutil.rmtree(project_dir)
         return {"success": True, "message": f"Dự án '{name}' Đã Xóa"}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -487,7 +487,7 @@ async def get_script(name: str, script_file: str, _user: CurrentUser):
         script = get_project_manager().load_script(name, script_file)
         return {"script": script}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Kịch bản '{script_file}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Kịch bản '{script_file}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -529,13 +529,13 @@ async def update_scene(name: str, scene_id: str, req: UpdateSceneRequest, _user:
                 break
 
         if not scene_found:
-            raise HTTPException(status_code=404, detail=f"Cảnh '{scene_id}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Cảnh '{scene_id}' không tồn tại")
 
         with project_change_source("webui"):
             manager.save_script(name, script, req.script_file)
         return {"success": True, "scene": scene}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Kịch bản不存在")
+        raise HTTPException(status_code=404, detail="Kịch bản không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -592,13 +592,13 @@ async def update_segment(name: str, segment_id: str, req: UpdateSegmentRequest, 
                 break
 
         if not segment_found:
-            raise HTTPException(status_code=404, detail=f"Đoạn '{segment_id}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Đoạn '{segment_id}' không tồn tại")
 
         with project_change_source("webui"):
             manager.save_script(name, script, req.script_file)
         return {"success": True, "segment": segment}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Kịch bản不存在")
+        raise HTTPException(status_code=404, detail="Kịch bản không tồn tại")
     except HTTPException:
         raise
     except Exception as e:
@@ -636,7 +636,7 @@ async def set_project_source(
     try:
         manager = get_project_manager()
         if not manager.project_exists(name):
-            raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Dự án '{name}' không tồn tại")
 
         project_dir = manager.get_project_path(name)
         source_dir = project_dir / "source"
@@ -711,7 +711,7 @@ async def generate_overview(name: str, _user: CurrentUser):
             overview = await get_project_manager().generate_overview(name)
         return {"success": True, "overview": overview}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' không tồn tại")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except HTTPException:
@@ -746,7 +746,7 @@ async def update_overview(name: str, req: UpdateOverviewRequest, _user: CurrentU
             manager.save_project(name, project)
         return {"success": True, "overview": project["overview"]}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' không tồn tại")
     except HTTPException:
         raise
     except Exception as e:

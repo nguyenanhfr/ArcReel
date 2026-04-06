@@ -20,7 +20,7 @@ function makeTodoWriteBlock(overrides: Partial<ContentBlock> = {}): ContentBlock
     id: "todo-write-1",
     name: "TodoWrite",
     input: {
-      todos: [makeTodo("Nhiệm vụ chuẩn bị"), makeTodo("Hoàn thành任务", "completed")],
+      todos: [makeTodo("Nhiệm vụ chuẩn bị"), makeTodo("Hoàn thành nhiệm vụ", "completed")],
     },
     ...overrides,
   };
