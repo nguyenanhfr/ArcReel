@@ -50,6 +50,14 @@ projects/.arcreel.db
 projects/.*.db.bak
 projects/.agent_data/*.db.bak
 
+# Translation tools (Private)
+translate-tool.js
+auto-translate.js
+translation_db.json
+extract.js
+extract.py
+to_translate.json
+
 # Environment
 .env
 .env.local
@@ -57,13 +65,9 @@ projects/.agent_data/*.db.bak
 !.env.example
 CLAUDE.local.md
 
-# Local Codex runtime metadata
-.codex/
-
 # Frontend build artifacts
 node_modules/
 package-lock.json
-to_translate.json
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
@@ -94,3 +98,4 @@ deploy/production/projects/
 deploy/production/vertex_keys/
 deploy/production/claude_data/
 deploy/production/pgdata/
+node_modules

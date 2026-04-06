@@ -99,7 +99,15 @@ cp .env.example .env    # Cần thiết lập POSTGRES_PASSWORD
 docker compose up -d
 ```
 
-Sau khi khởi động lần đầu, đăng nhập bằng tài khoản mặc định (tên đăng nhập `admin`, mật khẩu trong `.env` được thiết lập qua `AUTH_PASSWORD`; nếu chưa thiết lập, hệ thống sẽ tự động tạo và ghi lại vào `.env` khi chạy lần đầu). Sau đó đi tới **Trang cài đặt** (`/settings`) để hoàn tất cấu hình:
+Sau khi khởi động lần đầu, đăng nhập bằng tài khoản mặc định:
+
+> [!IMPORTANT]
+> **Tên đăng nhập:** `admin` / **Mật khẩu:** `admin`
+
+_(Mật khẩu trong `.env` được thiết lập qua `AUTH_PASSWORD`; nếu chưa thiết lập, hệ thống sẽ tự động tạo và ghi lại vào `.env` khi chạy lần đầu)._
+
+Sau đó đi tới **Trang cài đặt** (`/settings`) để hoàn tất cấu hình:
+
 
 1. **ArcReel Agent** — Cấu hình Anthropic API Key (để vận hành trợ lý AI), hỗ trợ tùy chỉnh Base URL và Model.
 2. **AI Tạo hình ảnh/video** — Cấu hình API Key của ít nhất một nhà cung cấp (Gemini / ByteDance / Grok / OpenAI), hoặc thêm nhà cung cấp tùy chỉnh.
