@@ -1,4 +1,4 @@
-"""OpenAIVideoBackend — OpenAI Sora 视频生成后端。"""
+"""OpenAIVideoBackend — OpenAI Sora VideoTạo backend."""
 
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ def _resolve_size(resolution: str, aspect_ratio: str) -> str:
 
 
 class OpenAIVideoBackend:
-    """OpenAI Sora 视频生成后端。"""
+    """OpenAI Sora VideoTạo backend."""
 
     def __init__(self, *, api_key: str | None = None, model: str | None = None, base_url: str | None = None):
         self._client = create_openai_client(api_key=api_key, base_url=base_url)
@@ -68,18 +68,18 @@ class OpenAIVideoBackend:
         if request.start_image and Path(request.start_image).exists():
             kwargs["input_reference"] = _encode_start_image(request.start_image)
 
-        logger.info("OpenAI 视频生成开始: model=%s, seconds=%s", self._model, kwargs["seconds"])
+        logger.info("OpenAI VideoBắt đầu tạo: model=%s, seconds=%s", self._model, kwargs["seconds"])
 
         video = await self._client.videos.create_and_poll(**kwargs)
 
         if video.status == "failed":
-            raise RuntimeError(f"Sora 视频生成失败: {video.error}")
+            raise RuntimeError(f"Sora VideoTạo thất bại: {video.error}")
 
         content = await self._client.videos.download_content(video.id)
         request.output_path.parent.mkdir(parents=True, exist_ok=True)
         request.output_path.write_bytes(content.content)
 
-        logger.info("OpenAI 视频下载完成: %s", request.output_path)
+        logger.info("OpenAI VideoTải xong: %s", request.output_path)
 
         return VideoGenerationResult(
             video_path=request.output_path,

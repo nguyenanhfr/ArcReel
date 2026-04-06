@@ -174,7 +174,7 @@ class ProjectArchiveService:
     ) -> dict[str, list[dict[str, Any]]]:
         self._validate_scope(scope)
         if not self.project_manager.project_exists(project_name):
-            raise FileNotFoundError(f"项目 '{project_name}' 不存在或未初始化")
+            raise FileNotFoundError(f"Dự án '{project_name}' Không tồn tại hoặc chưa được khởi tạo")
 
         temp_dir, _, _, diagnostics = self._prepare_export_snapshot(project_name, scope=scope)
         temp_dir.cleanup()
@@ -183,7 +183,7 @@ class ProjectArchiveService:
     def export_project(self, project_name: str, *, scope: str = "full") -> tuple[Path, str]:
         self._validate_scope(scope)
         if not self.project_manager.project_exists(project_name):
-            raise FileNotFoundError(f"项目 '{project_name}' 不存在或未初始化")
+            raise FileNotFoundError(f"Dự án '{project_name}' Không tồn tại hoặc chưa được khởi tạo")
 
         fd, archive_path_str = tempfile.mkstemp(
             prefix=f"{project_name}-",
@@ -237,8 +237,8 @@ class ProjectArchiveService:
     ) -> ProjectImportResult:
         if conflict_policy not in {"prompt", "rename", "overwrite"}:
             raise ProjectArchiveValidationError(
-                "无效的冲突策略",
-                errors=[f"conflict_policy 仅支持 prompt、rename 或 overwrite，收到: {conflict_policy}"],
+                "không hợp lệChiến lược xung đột",
+                errors=[f"conflict_policy Chỉ hỗ trợ prompt, rename hoặc overwrite, nhận được: {conflict_policy}"],
             )
 
         try:
@@ -261,7 +261,7 @@ class ProjectArchiveService:
                     diagnostics.extend_validation(self.validator.validate_project_tree(staging_dir))
                     if diagnostics.blocking:
                         raise ProjectArchiveValidationError(
-                            "导入包校验失败",
+                            "Xác thực gói nhập thất bại",
                             errors=diagnostics.blocking_messages(),
                             warnings=diagnostics.warning_messages(),
                             diagnostics=diagnostics.to_import_error_payload(),
@@ -306,7 +306,7 @@ class ProjectArchiveService:
                     )
         except zipfile.BadZipFile as exc:
             raise ProjectArchiveValidationError(
-                "上传文件不是有效的 ZIP 归档",
+                "Tệp tải lên không phải là lưu trữ ZIP hợp lệ",
                 errors=[str(exc)],
             ) from exc
 
@@ -324,13 +324,13 @@ class ProjectArchiveService:
         diagnostics = self._repair_project_tree(snapshot_dir)
         diagnostics.extend_validation(self.validator.validate_project_tree(snapshot_dir))
 
-        # 从源目录收集非标准顶层条目，记录到诊断中（即使已被过滤不导出）
+        # Thu thập các mục cấp cao không chuẩn từ thư mục nguồn, ghi lại vào chẩn đoán (ngay cả khi đã bị lọc không xuất)
         excluded_entries = self._collect_pass_through_entries(source_dir)
         for entry in excluded_entries:
             diagnostics.add(
                 "warnings",
                 "non_standard_entry_excluded",
-                f"非标准顶层目录/文件 '{entry}' 未包含在导出中",
+                f"Thư mục/tệp cấp cao không chuẩn '{entry}' Không bao gồm trong xuất",
                 location=entry,
             )
 
@@ -577,7 +577,7 @@ class ProjectArchiveService:
                         diagnostics.add(
                             "auto_fixed",
                             "script_file_repaired",
-                            f"{script_location}: 自动修复为 {repaired_script}",
+                            f"{script_location}: Tự động sửa thành {repaired_script}",
                             location=script_location,
                         )
                     script_path_rel = repaired_script or script_file.replace("\\", "/")
@@ -592,7 +592,7 @@ class ProjectArchiveService:
                     diagnostics.add(
                         "blocking",
                         "missing_script_file",
-                        f"{script_location}: 引用的文件不存在: {script_path_rel}",
+                        f"{script_location}: Tệp được tham chiếu không tồn tại: {script_path_rel}",
                         location=script_location,
                     )
                     continue
@@ -602,7 +602,7 @@ class ProjectArchiveService:
                     diagnostics.add(
                         "blocking",
                         "invalid_script_json",
-                        f"无法解析剧本文件: {script_path_rel}",
+                        f"Không thể phân tích tệp kịch bản: {script_path_rel}",
                         location=script_location,
                     )
                     continue
@@ -651,11 +651,11 @@ class ProjectArchiveService:
             diagnostics.add(
                 "auto_fixed",
                 "deprecated_source_file_removed",
-                "novel.source_file 字段已废弃，已移除",
+                "novel.source_file từĐoạn đã bị loại bỏ, Đã Xóa",
                 location=f"{script_path_rel}:novel.source_file",
             )
 
-        # 剥离废弃的 episode 级聚合字段
+        # Loại bỏ tập hợp cấp episode đã bị loại bỏ từ đoạn
         for deprecated_field in ("characters_in_episode", "clues_in_episode"):
             if deprecated_field in script_payload:
                 script_payload.pop(deprecated_field)
@@ -663,7 +663,7 @@ class ProjectArchiveService:
                 diagnostics.add(
                     "auto_fixed",
                     "deprecated_field_removed",
-                    f"{deprecated_field} 字段已废弃（改为读时计算），已移除",
+                    f"{deprecated_field} từĐoạn đã bị loại bỏ (chuyển sang tính toán khi đọc), Đã Xóa",
                     location=f"{script_path_rel}:{deprecated_field}",
                 )
 
@@ -690,7 +690,7 @@ class ProjectArchiveService:
                 diagnostics.add(
                     "auto_fixed",
                     "missing_clues_field",
-                    f"{items_key}[{index}]: 补全缺失字段 {clues_field}",
+                    f"{items_key}[{index}]: Bổ sung các đoạn bị thiếu {clues_field}",
                     location=f"{location_prefix}.{clues_field}",
                 )
 
@@ -701,7 +701,7 @@ class ProjectArchiveService:
                 diagnostics.add(
                     "auto_fixed",
                     "missing_generated_assets",
-                    f"{items_key}[{index}]: 补全缺失字段 generated_assets",
+                    f"{items_key}[{index}]: Bổ sung các đoạn bị thiếu generated_assets",
                     location=f"{location_prefix}.generated_assets",
                 )
                 assets = item["generated_assets"]
@@ -715,7 +715,7 @@ class ProjectArchiveService:
                     diagnostics.add(
                         "auto_fixed",
                         "generated_assets_defaults",
-                        (f"{items_key}[{index}].generated_assets: 补全默认字段 {', '.join(sorted(missing_keys))}"),
+                        (f"{items_key}[{index}].generated_assets: Bổ sung các đoạn mặc định {', '.join(sorted(missing_keys))}"),
                         location=f"{location_prefix}.generated_assets",
                     )
 
@@ -737,7 +737,7 @@ class ProjectArchiveService:
                     diagnostics.add(
                         "auto_fixed",
                         "placeholder_character_added",
-                        f"自动补充缺失角色定义: {character_name}",
+                        f"Tự động bổ sung định nghĩa nhân vật còn thiếu: {character_name}",
                         location=f"characters[{character_name}]",
                     )
 
@@ -751,8 +751,8 @@ class ProjectArchiveService:
                         "blocking",
                         "missing_clue_definition",
                         (
-                            f"{items_key}[{index}]: {clues_field} 引用了不存在于 "
-                            f"project.json 的线索: {', '.join(missing_clues)}"
+                            f"{items_key}[{index}]: {clues_field} Trích dẫn cái không tồn tại trong "
+                            f"project.json Manh mối: {', '.join(missing_clues)}"
                         ),
                         location=f"{location_prefix}.{clues_field}",
                     )
@@ -807,7 +807,7 @@ class ProjectArchiveService:
                 diagnostics.add(
                     "auto_fixed",
                     "canonical_path_normalized",
-                    f"{location}: 规范化为 {canonical_rel}",
+                    f"{location}: chuẩn hóa thành {canonical_rel}",
                     location=location,
                 )
                 return True
@@ -828,7 +828,7 @@ class ProjectArchiveService:
                     diagnostics.add(
                         "auto_fixed",
                         "current_asset_materialized",
-                        f"{location}: 从 {resolved_raw} 恢复当前文件 {canonical_rel}",
+                        f"{location}: 从 {resolved_raw} Khôi phục Hiện tại tập tin {canonical_rel}",
                         location=location,
                     )
                     return True
@@ -850,7 +850,7 @@ class ProjectArchiveService:
                     diagnostics.add(
                         "auto_fixed",
                         "current_asset_restored_from_version",
-                        f"{location}: 从 {version_rel} 恢复当前文件 {canonical_rel}",
+                        f"{location}: 从 {version_rel} Khôi phục Hiện tại tập tin {canonical_rel}",
                         location=location,
                     )
                     return True
@@ -1048,7 +1048,7 @@ class ProjectArchiveService:
                     return json.load(handle)
         except (OSError, UnicodeDecodeError, json.JSONDecodeError):
             return None
-        logger.warning("路径越界，拒绝读取: %s", real)
+        logger.warning("Vượt ngoài phạm vi đường dẫn, từ chối đọc: %s", real)
         return None
 
     def _write_json_file(self, path: Path, payload: dict[str, Any]) -> None:
@@ -1065,27 +1065,27 @@ class ProjectArchiveService:
             with open(real, "w", encoding="utf-8") as handle:  # noqa: PTH123
                 json.dump(payload, handle, ensure_ascii=False, indent=2)
             return
-        raise ValueError(f"路径越界，拒绝写入: {real}")
+        raise ValueError(f"Vượt quá giới hạn đường dẫn, từ chối ghi: {real}")
 
     @staticmethod
     def _validate_scope(scope: str) -> None:
         if scope not in {"full", "current"}:
-            raise ValueError(f"scope 仅支持 full 或 current，收到: {scope}")
+            raise ValueError(f"scope Chỉ hỗ trợ full hoặc current, nhận được: {scope}")
 
     def _scan_archive_members(self, archive: zipfile.ZipFile) -> list[ArchiveMember]:
         members: list[ArchiveMember] = []
         for info in archive.infolist():
             if info.flag_bits & 0x1:
                 raise ProjectArchiveValidationError(
-                    "导入包校验失败",
-                    errors=[f"ZIP 包含加密条目，无法导入: {info.filename}"],
+                    "Xác thực gói nhập thất bại",
+                    errors=[f"ZIP Bao gồm mục được mã hóa, không thể nhập: {info.filename}"],
                 )
 
             normalized_name = info.filename.replace("\\", "/")
             if normalized_name.startswith("/"):
                 raise ProjectArchiveValidationError(
-                    "导入包校验失败",
-                    errors=[f"ZIP 包含绝对路径条目: {info.filename}"],
+                    "Xác thực gói nhập thất bại",
+                    errors=[f"ZIP Bao gồm các mục đường dẫn tuyệt đối: {info.filename}"],
                 )
 
             stripped_name = normalized_name.strip("/")
@@ -1095,20 +1095,20 @@ class ProjectArchiveService:
             parts = tuple(part for part in stripped_name.split("/") if part)
             if parts and len(parts[0]) == 2 and parts[0][1] == ":":
                 raise ProjectArchiveValidationError(
-                    "导入包校验失败",
-                    errors=[f"ZIP 包含绝对路径条目: {info.filename}"],
+                    "Xác thực gói nhập thất bại",
+                    errors=[f"ZIP Bao gồm các mục đường dẫn tuyệt đối: {info.filename}"],
                 )
             if any(part == ".." for part in parts):
                 raise ProjectArchiveValidationError(
-                    "导入包校验失败",
-                    errors=[f"ZIP 包含路径穿越条目: {info.filename}"],
+                    "Xác thực gói nhập thất bại",
+                    errors=[f"ZIP Bao gồm mục vượt qua đường dẫn: {info.filename}"],
                 )
 
             mode = (info.external_attr >> 16) & 0xFFFF
             if stat.S_ISLNK(mode):
                 raise ProjectArchiveValidationError(
-                    "导入包校验失败",
-                    errors=[f"ZIP 包含符号链接条目: {info.filename}"],
+                    "Xác thực gói nhập thất bại",
+                    errors=[f"ZIP Bao gồm mục liên kết biểu tượng: {info.filename}"],
                 )
 
             members.append(
@@ -1136,7 +1136,7 @@ class ProjectArchiveService:
                 return json.loads(handle.read().decode("utf-8"))
         except Exception as exc:
             raise ProjectArchiveValidationError(
-                "导入包校验失败",
+                "Xác thực gói nhập thất bại",
                 errors=[f"无法解析 {label}: {'/'.join(member.parts)}"],
             ) from exc
 
@@ -1152,15 +1152,15 @@ class ProjectArchiveService:
             root_candidates = {member.parts[:-1] for member in manifest_members}
             if len(root_candidates) != 1:
                 raise ProjectArchiveValidationError(
-                    "导入包校验失败",
-                    errors=["ZIP 中包含多个 arcreel-export.json，无法确定项目根目录"],
+                    "Xác thực gói nhập thất bại",
+                    errors=["ZIP Chứa nhiều arcreel-export.json, không thể xác định thư mục gốc Dự án"],
                 )
 
             root_parts = next(iter(root_candidates))
             if not any(member.parts == (*root_parts, self.project_manager.PROJECT_FILE) for member in visible_members):
                 raise ProjectArchiveValidationError(
-                    "导入包校验失败",
-                    errors=["官方导出包缺少 project.json"],
+                    "Xác thực gói nhập thất bại",
+                    errors=["Gói xuất chính thức dự án.json bị thiếu"],
                 )
 
             manifest = self._load_member_json(
@@ -1176,13 +1176,13 @@ class ProjectArchiveService:
         root_candidates = {member.parts[:-1] for member in project_members}
         if not root_candidates:
             raise ProjectArchiveValidationError(
-                "导入包校验失败",
-                errors=["ZIP 中未找到 project.json"],
+                "Xác thực gói nhập thất bại",
+                errors=["ZIP Không tìm thấy project.json"],
             )
         if len(root_candidates) != 1:
             raise ProjectArchiveValidationError(
-                "导入包校验失败",
-                errors=["ZIP 中包含多个 project.json，无法确定项目根目录"],
+                "Xác thực gói nhập thất bại",
+                errors=["ZIP Chứa nhiều project.json, không thể xác định thư mục gốc của dự án"],
             )
 
         return next(iter(root_candidates)), None
@@ -1214,8 +1214,8 @@ class ProjectArchiveService:
                 target_path.resolve(strict=False).relative_to(staging_root)
             except ValueError as exc:
                 raise ProjectArchiveValidationError(
-                    "导入包校验失败",
-                    errors=[f"解压路径越界: {'/'.join(member.parts)}"],
+                    "Xác thực gói nhập thất bại",
+                    errors=[f"Đường dẫn giải nén vượt quá giới hạn: {'/'.join(member.parts)}"],
                 ) from exc
 
             if member.is_dir:
@@ -1273,9 +1273,9 @@ class ProjectArchiveService:
         if conflict_policy == "prompt":
             if target_dir.exists():
                 raise ProjectArchiveValidationError(
-                    "检测到项目编号冲突",
+                    "Phát hiện xung đột mã dự án",
                     status_code=409,
-                    errors=[f"项目编号 '{preferred_name}' 已存在，请选择覆盖现有项目或自动重命名导入。"],
+                    errors=[f"Dự án编号 '{preferred_name}' Đã tồn tại，Vui lòng chọn Ghi đè dự án hiện có hoặc Tự động đổi tên khi nhập."],
                     extra={"conflict_project_name": preferred_name},
                 )
             return preferred_name, "none"

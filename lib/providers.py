@@ -1,4 +1,4 @@
-"""供应商名称常量，image_backends / video_backends 共用。"""
+"""nhà cung cấpTênHằng số, image_backends / video_backends dùng chung."""
 
 from typing import Literal
 

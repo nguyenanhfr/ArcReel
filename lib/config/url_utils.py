@@ -1,4 +1,4 @@
-"""URL 归一化工具函数。"""
+"""URL Chuẩn hóa hàm Công cụ."""
 
 from __future__ import annotations
 
@@ -6,10 +6,10 @@ import re
 
 
 def ensure_openai_base_url(url: str | None) -> str | None:
-    """自动补全 OpenAI 兼容 API 的 /v1 路径后缀。
+    """Tự động bổ sung hậu tố đường dẫn /v1 tương thích API OpenAI.
 
-    用户可能只填了 ``https://api.example.com``，但 OpenAI SDK 期望
-    ``https://api.example.com/v1``。本函数在缺少版本路径时自动追加。
+    Người dùng có thể chỉ điền ``https://api.example.com``，Nhưng OpenAI SDK mong đợi
+    ``https://api.example.com/v1``。Hàm này tự động thêm khi thiếu đường dẫn phiên bản.
     """
     if not url:
         return url
@@ -20,10 +20,10 @@ def ensure_openai_base_url(url: str | None) -> str | None:
 
 
 def normalize_base_url(url: str | None) -> str | None:
-    """确保 base_url 以 / 结尾。
+    """Đảm bảo base_url kết thúc bằng /.
 
-    Google genai SDK 的 http_options.base_url 要求尾部带 /，
-    否则请求路径拼接会失败。预置 Gemini 后端使用此函数。
+    Google genai SDK http_options.base_url yêu cầu kết thúc bằng /,
+    Nếu không, việc ghép nối đường dẫn yêu cầu sẽ thất bại. Backend Gemini được cài đặt sẵn sử dụng hàm này.
     """
     if not url:
         return None
@@ -36,13 +36,13 @@ def normalize_base_url(url: str | None) -> str | None:
 
 
 def ensure_google_base_url(url: str | None) -> str | None:
-    """规范化 Google genai SDK 的 base_url。
+    """Chuẩn hóa base_url của Google genai SDK.
 
-    Google genai SDK 会自动在 base_url 后拼接 ``api_version``（默认 ``v1beta``）。
-    如果用户误填了 ``https://example.com/v1beta``，SDK 会拼出
-    ``https://example.com/v1beta/v1beta/models``，导致请求失败。
+    Google genai SDK Sẽ tự động ghép nối sau base_url ``api_version``（默认 ``v1beta``）。
+    Nếu người dùng vô tình điền sai ``https://example.com/v1beta``，SDK Có thể ghép ra
+    ``https://example.com/v1beta/v1beta/models``，nguyên nhânYêu cầu thất bại。
 
-    本函数剥离末尾的版本路径（如 ``/v1beta``、``/v1``），并确保尾部带 ``/``。
+    Hàm này loại bỏ đường dẫn phiên bản ở cuối (ví dụ ``/v1beta``、``/v1``），và đảm bảo phần cuối có ``/``。
     """
     if not url:
         return None
@@ -50,7 +50,7 @@ def ensure_google_base_url(url: str | None) -> str | None:
     if not url:
         return None
     url = url.rstrip("/")
-    # 剥离末尾的版本路径（/v1, /v1beta, /v1alpha 等）
+    # Loại bỏ đường dẫn phiên bản ở cuối (/v1, /v1beta, /v1alpha, v.v.)
     url = re.sub(r"/v\d+\w*$", "", url)
     if not url.endswith("/"):
         url += "/"

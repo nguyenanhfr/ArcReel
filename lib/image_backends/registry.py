@@ -1,4 +1,4 @@
-"""图片后端注册与工厂。"""
+"""ẢnhĐăng ký backend với factory."""
 
 from __future__ import annotations
 

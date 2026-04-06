@@ -1,8 +1,8 @@
 """
-生成 API 路由
+Tạo API route
 
-处理分镜图、视频、角色图、线索图的生成请求。
-所有生成请求入队到 GenerationQueue，由 GenerationWorker 异步执行。
+Xử lý các yêu cầu tạo Ảnh phân cảnh, Video, Nhân vật, Bản đồ manh mối.
+Tất cả các yêu cầu tạo được đưa vào GenerationQueue, được GenerationWorker thực hiện bất đồng bộ.
 """
 
 import logging
@@ -27,7 +27,7 @@ from server.auth import CurrentUser
 
 router = APIRouter()
 
-# 初始化管理器
+# Khởi tạo trình quản lý
 pm = ProjectManager(PROJECT_ROOT / "projects")
 
 
@@ -35,7 +35,7 @@ def get_project_manager() -> ProjectManager:
     return pm
 
 
-# ==================== 请求模型 ====================
+# ==================== Yêu cầu mô hình ====================
 
 
 class GenerateStoryboardRequest(BaseModel):
@@ -66,31 +66,31 @@ _LEGACY_PROVIDER_NAMES: dict[str, str] = {
 
 
 def _normalize_provider_id(raw: str) -> str:
-    """将旧格式 provider 名称归一化为标准 provider_id。"""
+    """Chuẩn hóa tên nhà cung cấp định dạng cũ thành provider_id chuẩn."""
     return _LEGACY_PROVIDER_NAMES.get(raw, raw)
 
 
 def _snapshot_image_backend(project_name: str) -> dict:
-    """快照图片供应商配置，返回可合并到 payload 的字典。
+    """Chụp ảnh cấu hình nhà cung cấp, trả về từ điển có thể hợp nhất vào payload.
 
-    优先级：项目级 image_backend > 系统级 default_image_backend。
+    Ưu tiên: image_backend cấp dự án > Hệ thốngCấp default_image_backend.
     """
     project = get_project_manager().load_project(project_name)
-    project_image_backend = project.get("image_backend")  # 格式: "provider_id/model"
+    project_image_backend = project.get("image_backend")  # định dạng: "provider_id/model"
     if project_image_backend and "/" in project_image_backend:
         image_provider, image_model = project_image_backend.split("/", 1)
     elif project_image_backend:
         image_provider = _normalize_provider_id(project_image_backend)
         image_model = ""
     else:
-        return {}  # 无项目级覆盖，使用全局默认
+        return {}  # Nếu không có ghi đè cấp dự án, sử dụng mặc định toàn cục
     return {
         "image_provider": image_provider,
         "image_model": image_model,
     }
 
 
-# ==================== 分镜图生成 ====================
+# ==================== Ảnh phân cảnhTạo ====================
 
 
 @router.post("/projects/{project_name}/generate/storyboard/{segment_id}")
@@ -101,34 +101,34 @@ async def generate_storyboard(
     _user: CurrentUser,
 ):
     """
-    提交分镜图生成任务到队列，立即返回 task_id。
+    Gửi nhiệm vụ tạo ảnh cảnh vào hàng đợi, trả về task_id ngay lập tức.
 
-    生成由 GenerationWorker 异步执行，状态通过 SSE 推送。
+    Việc tạo được thực hiện bất đồng bộ bởi GenerationWorker, trạng thái được đẩy qua SSE.
     """
     try:
         get_project_manager().load_project(project_name)
 
-        # 加载剧本验证片段存在
+        # Tải kịch bản kiểm tra Đoạn tồn tại
         script = get_project_manager().load_script(project_name, req.script_file)
         items, id_field, _, _ = get_storyboard_items(script)
         resolved = find_storyboard_item(items, id_field, segment_id)
         if resolved is None:
-            raise HTTPException(status_code=404, detail=f"片段/场景 '{segment_id}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Đoạn/Cảnh '{segment_id}' 不存在")
 
-        # 验证 prompt 格式
+        # Xác minh định dạng prompt
         if isinstance(req.prompt, dict):
             if not is_structured_image_prompt(req.prompt):
                 raise HTTPException(
                     status_code=400,
-                    detail="prompt 必须是字符串或包含 scene/composition 的对象",
+                    detail="prompt Phải là chuỗi hoặc đối tượng chứa scene/composition",
                 )
             scene_text = str(req.prompt.get("scene", "")).strip()
             if not scene_text:
                 raise HTTPException(status_code=400, detail="prompt.scene 不能为空")
         elif not isinstance(req.prompt, str):
-            raise HTTPException(status_code=400, detail="prompt 必须是字符串或对象")
+            raise HTTPException(status_code=400, detail="prompt Phải là chuỗi hoặc đối tượng")
 
-        # 入队
+        # Vào hàng đợi
         queue = get_generation_queue()
         image_snapshot = _snapshot_image_backend(project_name)
         result = await queue.enqueue_task(
@@ -149,7 +149,7 @@ async def generate_storyboard(
         return {
             "success": True,
             "task_id": result["task_id"],
-            "message": f"分镜「{segment_id}」生成任务已提交",
+            "message": f"Phân cảnh「{segment_id}」Tác vụ tạo đã được gửi",
         }
 
     except FileNotFoundError as e:
@@ -157,46 +157,46 @@ async def generate_storyboard(
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ==================== 视频生成 ====================
+# ==================== VideoTạo ====================
 
 
 @router.post("/projects/{project_name}/generate/video/{segment_id}")
 async def generate_video(project_name: str, segment_id: str, req: GenerateVideoRequest, _user: CurrentUser):
     """
-    提交视频生成任务到队列，立即返回 task_id。
+    Gửi nhiệm vụ tạo video vào hàng đợi, trả về task_id ngay lập tức.
 
-    需要先有分镜图作为起始帧。生成由 GenerationWorker 异步执行。
+    Cần có trước Ảnh phân cảnh làm khung hình bắt đầu. Tạo bởi GenerationWorker thực hiện bất đồng bộ.
     """
     try:
         get_project_manager().load_project(project_name)
         project_path = get_project_manager().get_project_path(project_name)
 
-        # 检查分镜图是否存在
+        # Kiểm tra Ảnh phân cảnh có tồn tại không
         storyboard_file = project_path / "storyboards" / f"scene_{segment_id}.png"
         if not storyboard_file.exists():
-            raise HTTPException(status_code=400, detail=f"请先生成分镜图 scene_{segment_id}.png")
+            raise HTTPException(status_code=400, detail=f"Vui lòng Tạo ảnh phân cảnh scene_{segment_id}.png")
 
-        # 验证 prompt 格式
+        # Xác minh định dạng prompt
         if isinstance(req.prompt, dict):
             if not is_structured_video_prompt(req.prompt):
                 raise HTTPException(
                     status_code=400,
-                    detail="prompt 必须是字符串或包含 action/camera_motion 的对象",
+                    detail="prompt Phải là chuỗi hoặc đối tượng chứa action/camera_motion",
                 )
             action_text = str(req.prompt.get("action", "")).strip()
             if not action_text:
                 raise HTTPException(status_code=400, detail="prompt.action 不能为空")
             dialogue = req.prompt.get("dialogue", [])
             if dialogue is not None and not isinstance(dialogue, list):
-                raise HTTPException(status_code=400, detail="prompt.dialogue 必须是数组")
+                raise HTTPException(status_code=400, detail="prompt.dialogue Phải là mảng")
         elif not isinstance(req.prompt, str):
-            raise HTTPException(status_code=400, detail="prompt 必须是字符串或对象")
+            raise HTTPException(status_code=400, detail="prompt Phải là chuỗi hoặc đối tượng")
 
-        # 入队（provider 由服务层根据配置自动解析，调用方无需传递）
+        # Đưa vào hàng đợi (nhà cung cấp sẽ được lớp dịch vụ phân tích tự động dựa trên cấu hình, người gọi không cần truyền)
         queue = get_generation_queue()
         result = await queue.enqueue_task(
             project_name=project_name,
@@ -217,7 +217,7 @@ async def generate_video(project_name: str, segment_id: str, req: GenerateVideoR
         return {
             "success": True,
             "task_id": result["task_id"],
-            "message": f"视频「{segment_id}」生成任务已提交",
+            "message": f"Video「{segment_id}」Tác vụ tạo đã được gửi",
         }
 
     except FileNotFoundError as e:
@@ -225,11 +225,11 @@ async def generate_video(project_name: str, segment_id: str, req: GenerateVideoR
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ==================== 角色设计图生成 ====================
+# ==================== Ảnh thiết kế nhân vậtTạo ====================
 
 
 @router.post("/projects/{project_name}/generate/character/{char_name}")
@@ -240,16 +240,16 @@ async def generate_character(
     _user: CurrentUser,
 ):
     """
-    提交角色设计图生成任务到队列，立即返回 task_id。
+    Gửi nhiệm vụ tạo Ảnh thiết kế nhân vật vào hàng đợi, ngay lập tức trả về task_id.
     """
     try:
         project = get_project_manager().load_project(project_name)
 
-        # 检查角色是否存在
+        # Kiểm tra Nhân vật có tồn tại không
         if char_name not in project.get("characters", {}):
-            raise HTTPException(status_code=404, detail=f"角色 '{char_name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Nhân vật '{char_name}' 不存在")
 
-        # 入队
+        # Vào hàng đợi
         queue = get_generation_queue()
         image_snapshot = _snapshot_image_backend(project_name)
         result = await queue.enqueue_task(
@@ -268,7 +268,7 @@ async def generate_character(
         return {
             "success": True,
             "task_id": result["task_id"],
-            "message": f"角色「{char_name}」设计图生成任务已提交",
+            "message": f"Nhân vật「{char_name}」Nhiệm vụ Tạo bản thiết kế đã được gửi",
         }
 
     except FileNotFoundError as e:
@@ -276,26 +276,26 @@ async def generate_character(
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ==================== 线索设计图生成 ====================
+# ==================== Ảnh thiết kế manh mốiTạo ====================
 
 
 @router.post("/projects/{project_name}/generate/clue/{clue_name}")
 async def generate_clue(project_name: str, clue_name: str, req: GenerateClueRequest, _user: CurrentUser):
     """
-    提交线索设计图生成任务到队列，立即返回 task_id。
+    Gửi nhiệm vụ tạo Ảnh thiết kế manh mối vào hàng đợi, ngay lập tức trả về task_id.
     """
     try:
         project = get_project_manager().load_project(project_name)
 
-        # 检查线索是否存在
+        # Kiểm tra Manh mối có tồn tại không
         if clue_name not in project.get("clues", {}):
-            raise HTTPException(status_code=404, detail=f"线索 '{clue_name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Manh mối '{clue_name}' 不存在")
 
-        # 入队
+        # Vào hàng đợi
         queue = get_generation_queue()
         image_snapshot = _snapshot_image_backend(project_name)
         result = await queue.enqueue_task(
@@ -314,7 +314,7 @@ async def generate_clue(project_name: str, clue_name: str, req: GenerateClueRequ
         return {
             "success": True,
             "task_id": result["task_id"],
-            "message": f"线索「{clue_name}」设计图生成任务已提交",
+            "message": f"Manh mối「{clue_name}」Nhiệm vụ Tạo bản thiết kế đã được gửi",
         }
 
     except FileNotFoundError as e:
@@ -322,5 +322,5 @@ async def generate_clue(project_name: str, clue_name: str, req: GenerateClueRequ
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))

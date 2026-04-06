@@ -1,6 +1,6 @@
-"""自定义供应商模型发现。
+"""nhà cung cấp tùy chỉnhKhám phá mô hình.
 
-提供模型列表查询与 media_type 推断功能。
+Cung cấp chức năng tra cứu danh sách người mẫu và suy đoán media_type.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ _GENERATION_METHOD_MAP: dict[str, str] = {
 
 
 def infer_media_type(model_id: str) -> str:
-    """根据模型 ID 关键字推断 media_type。
+    """Suy đoán media_type theo từ khóa Mã mẫu.
 
     Returns:
         "image" | "video" | "text"
@@ -40,15 +40,15 @@ def infer_media_type(model_id: str) -> str:
 
 
 async def discover_models(api_format: str, base_url: str | None, api_key: str) -> list[dict]:
-    """查询供应商的可用模型列表。
+    """Tra cứu danh sách người mẫu có sẵn của nhà cung cấp.
 
     Args:
-        api_format: API 格式 ("openai" | "google")
-        base_url: 供应商 API 基础 URL
+        api_format: API định dạng ("openai" | "google")
+        base_url: nhà cung cấp API URL cơ bản
         api_key: API 密钥
 
     Returns:
-        模型列表，每项包含: model_id, display_name, media_type, is_default, is_enabled
+        Danh sách người mẫu，Mỗi mục bao gồm: model_id, display_name, media_type, is_default, is_enabled
 
     Raises:
         ValueError: api_format 不支持
@@ -58,11 +58,11 @@ async def discover_models(api_format: str, base_url: str | None, api_key: str) -
     elif api_format == "google":
         return await _discover_google(base_url, api_key)
     else:
-        raise ValueError(f"不支持的 api_format: {api_format!r}，支持: 'openai', 'google'")
+        raise ValueError(f"Định dạng api không được hỗ trợ: {api_format!r}，Hỗ trợ: 'openai', 'google'")
 
 
 async def _discover_openai(base_url: str | None, api_key: str) -> list[dict]:
-    """通过 OpenAI 兼容 API 发现模型。"""
+    """Khám phá mô hình thông qua API tương thích OpenAI."""
 
     def _sync():
         from lib.config.url_utils import ensure_openai_base_url
@@ -76,7 +76,7 @@ async def _discover_openai(base_url: str | None, api_key: str) -> list[dict]:
 
 
 async def _discover_google(base_url: str | None, api_key: str) -> list[dict]:
-    """通过 Google genai SDK 发现模型。"""
+    """Khám phá mô hình thông qua Google genai SDK."""
 
     def _sync():
         from lib.config.url_utils import ensure_google_base_url
@@ -104,10 +104,10 @@ async def _discover_google(base_url: str | None, api_key: str) -> list[dict]:
 
 
 def _infer_from_generation_methods(model) -> str | None:
-    """从 Google model 的 supported_generation_methods 推断 media_type。
+    """Suy ra media_type từ supported_generation_methods của mô hình Google.
 
     Returns:
-        推断出的 media_type，无法推断时返回 None
+        media_type suy ra, nếu không thể suy ra thì trả về None
     """
     methods = getattr(model, "supported_generation_methods", None)
     if not methods:
@@ -121,7 +121,7 @@ def _infer_from_generation_methods(model) -> str | None:
 
 
 def _build_result_list(entries: list[tuple[str, str]]) -> list[dict]:
-    """将 (model_id, media_type) 列表转为结果字典列表，标记每种 media_type 的第一个为 default。"""
+    """Chuyển danh sách (model_id, media_type) thành kết quả từ danh sách điển hình, đánh dấu Không cho mỗi media_type, một trong số đó là mặc địnhault。"""
     seen_types: set[str] = set()
     result: list[dict] = []
 

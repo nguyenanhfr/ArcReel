@@ -1,4 +1,4 @@
-"""Instructor 降级支持 — 为不支持原生结构化输出的模型提供 prompt 注入 + 解析 + 重试。"""
+"""Instructor Hỗ trợ hạ cấp — Cho các mô hình không hỗ trợ đầu ra cấu trúc gốc bằng cách chèn prompt + phân tích + thử lại."""
 
 from __future__ import annotations
 
@@ -15,15 +15,15 @@ def generate_structured_via_instructor(
     mode: Mode = Mode.MD_JSON,
     max_retries: int = 2,
 ) -> tuple[str, int | None, int | None]:
-    """通过 Instructor 生成结构化输出（同步版，供 Ark 等同步 SDK 使用）。
+    """Tạo đầu ra cấu trúc thông qua Instructor (phiên bản đồng bộ, dành cho SDK đồng bộ như Ark).
 
-    返回 (json_text, input_tokens, output_tokens)。
+    Trả về (json_text, input_tokens, output_tokens).
     """
     patched = instructor.from_openai(client, mode=mode)
     if patched is None:
         raise TypeError(
-            f"instructor.from_openai() 返回 None — client 类型 {type(client).__name__} 不受支持，"
-            "请传入 openai.OpenAI 或 openai.AsyncOpenAI 实例"
+            f"instructor.from_openai() Trả về None — loại client {type(client).__name__} Không được hỗ trợ,"
+            "Vui lòng truyền một thực thể openai.OpenAI hoặc openai.AsyncOpenAI"
         )
     result, completion = patched.chat.completions.create_with_completion(
         model=model,
@@ -50,15 +50,15 @@ async def generate_structured_via_instructor_async(
     mode: Mode = Mode.MD_JSON,
     max_retries: int = 2,
 ) -> tuple[str, int | None, int | None]:
-    """通过 Instructor 生成结构化输出（异步版，供 OpenAI AsyncOpenAI 使用）。
+    """Tạo đầu ra cấu trúc thông qua Instructor (phiên bản bất đồng bộ, dành cho OpenAI AsyncOpenAI).
 
-    返回 (json_text, input_tokens, output_tokens)。
+    Trả về (json_text, input_tokens, output_tokens).
     """
     patched = instructor.from_openai(client, mode=mode)
     if patched is None:
         raise TypeError(
-            f"instructor.from_openai() 返回 None — client 类型 {type(client).__name__} 不受支持，"
-            "请传入 openai.OpenAI 或 openai.AsyncOpenAI 实例"
+            f"instructor.from_openai() Trả về None — loại client {type(client).__name__} Không được hỗ trợ,"
+            "Vui lòng truyền một thực thể openai.OpenAI hoặc openai.AsyncOpenAI"
         )
     result, completion = await patched.chat.completions.create_with_completion(
         model=model,
@@ -78,10 +78,10 @@ async def generate_structured_via_instructor_async(
 
 
 def inject_json_instruction(messages: list[dict]) -> list[dict]:
-    """向 messages 注入 JSON 格式指令，确保 json_object 模式可用。
+    """Chèn chỉ dẫn định dạng JSON vào messages, đảm bảo chế độ json_object có thể sử dụng.
 
-    OpenAI API 要求 prompt 中包含 "JSON" 关键字才能启用 json_object 模式。
-    若 messages 中已包含 "JSON"，则原样返回副本。
+    OpenAI API Yêu cầu prompt phải chứa "JSON" Từ khóa quan trọng để kích hoạt chế độ json_object.
+    Nếu messages đã chứa "JSON"，thì trả lại bản sao nguyên trạng.
     """
     fb_messages = list(messages)
     if any("JSON" in (m.get("content") or "") for m in fb_messages):

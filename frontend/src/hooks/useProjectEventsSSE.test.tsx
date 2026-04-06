@@ -33,14 +33,14 @@ describe("useProjectEventsSSE", () => {
         title: "Demo",
         content_mode: "narration",
         style: "Anime",
-        episodes: [{ episode: 1, title: "第一集", script_file: "scripts/episode_1.json" }],
-        characters: { hero: { description: "勇者" } },
+        episodes: [{ episode: 1, title: "Tập 1", script_file: "scripts/episode_1.json" }],
+        characters: { hero: { description: "dũng cảm" } },
         clues: {},
       },
       scripts: {
         "episode_1.json": {
           episode: 1,
-          title: "第一集",
+          title: "Tập 1",
           content_mode: "narration",
           duration_seconds: 4,
           summary: "",
@@ -75,7 +75,7 @@ describe("useProjectEventsSSE", () => {
               entity_type: "character",
               action: "created",
               entity_id: "hero",
-              label: "角色「hero」",
+              label: "Nhân vật「hero」",
               focus: {
                 pane: "characters",
                 anchor_type: "character",
@@ -102,7 +102,7 @@ describe("useProjectEventsSSE", () => {
     );
     expect(useAppStore.getState().workspaceNotifications[0]).toEqual(
       expect.objectContaining({
-        text: "AI 刚新增了 角色「hero」，点击查看",
+        text: "AI Nhân vật "anh hùng" vừa được thêm vào, bấm vào để xem",
         target: expect.objectContaining({
           type: "character",
           id: "hero",
@@ -137,12 +137,12 @@ describe("useProjectEventsSSE", () => {
             {
               entity_type: "clue",
               action: "updated",
-              entity_id: "玉佩",
-              label: "线索「玉佩」",
+              entity_id: "mặt dây chuyền ngọc bích",
+              label: "Manh mối「mặt dây chuyền ngọc bích",
               focus: {
                 pane: "clues",
                 anchor_type: "clue",
-                anchor_id: "玉佩",
+                anchor_id: "mặt dây chuyền ngọc bích",
               },
               important: true,
             },
@@ -154,7 +154,7 @@ describe("useProjectEventsSSE", () => {
 
     await waitFor(() => {
       expect(API.getProject).toHaveBeenCalledWith("demo");
-      expect(useAppStore.getState().workspaceNotifications[0]?.target?.id).toBe("玉佩");
+      expect(useAppStore.getState().workspaceNotifications[0]?.target?.id).toBe("mặt dây chuyền ngọc bích");
     });
     expect(screen.getByTestId("location")).toHaveTextContent("/");
     expect(useAppStore.getState().scrollTarget).toBeNull();
@@ -182,7 +182,7 @@ describe("useProjectEventsSSE", () => {
               entity_type: "segment",
               action: "storyboard_ready",
               entity_id: "E1S01",
-              label: "分镜「E1S01」",
+              label: "Phân cảnh「E1S01」",
               episode: 1,
               focus: null,
               important: true,
@@ -195,12 +195,12 @@ describe("useProjectEventsSSE", () => {
 
     await waitFor(() => {
       expect(API.getProject).toHaveBeenCalledWith("demo");
-      expect(useAppStore.getState().toast?.text).toBe("分镜「E1S01」的分镜图已生成");
+      expect(useAppStore.getState().toast?.text).toBe("Phân cảnh「E1S01」Phân cảnh Ảnh đã được tạo");
     });
     expect(useAppStore.getState().toast?.tone).toBe("success");
     expect(useAppStore.getState().workspaceNotifications[0]).toEqual(
       expect.objectContaining({
-        text: "分镜「E1S01」的分镜图已生成",
+        text: "Phân cảnh「E1S01」Phân cảnh Ảnh đã được tạo",
         tone: "success",
         target: null,
       }),
@@ -231,7 +231,7 @@ describe("useProjectEventsSSE", () => {
               entity_type: "character",
               action: "created",
               entity_id: "hero",
-              label: "角色「hero」",
+              label: "Nhân vật「hero」",
               focus: {
                 pane: "characters",
                 anchor_type: "character",
@@ -243,7 +243,7 @@ describe("useProjectEventsSSE", () => {
               entity_type: "character",
               action: "created",
               entity_id: "mage",
-              label: "角色「mage」",
+              label: "Nhân vật「mage」",
               focus: {
                 pane: "characters",
                 anchor_type: "character",
@@ -254,12 +254,12 @@ describe("useProjectEventsSSE", () => {
             {
               entity_type: "clue",
               action: "updated",
-              entity_id: "玉佩",
-              label: "线索「玉佩」",
+              entity_id: "mặt dây chuyền ngọc bích",
+              label: "Manh mối「mặt dây chuyền ngọc bích",
               focus: {
                 pane: "clues",
                 anchor_type: "clue",
-                anchor_id: "玉佩",
+                anchor_id: "mặt dây chuyền ngọc bích",
               },
               important: true,
             },
@@ -271,17 +271,17 @@ describe("useProjectEventsSSE", () => {
 
     await waitFor(() => {
       expect(API.getProject).toHaveBeenCalledWith("demo");
-      expect(useAppStore.getState().toast?.text).toBe("线索「玉佩」已更新");
+      expect(useAppStore.getState().toast?.text).toBe("Manh mối「"Mặt dây chuyền ngọc bích" đã được cập nhật");
     });
 
     expect(useAppStore.getState().getEntityRevision("character:hero")).toBe(1);
     expect(useAppStore.getState().getEntityRevision("character:mage")).toBe(1);
-    expect(useAppStore.getState().getEntityRevision("clue:玉佩")).toBe(1);
+    expect(useAppStore.getState().getEntityRevision("clue:mặt dây chuyền ngọc bích")).toBe(1);
     expect(useAppStore.getState().getEntityRevision("segment:SEG-404")).toBe(0);
     expect(useAppStore.getState().workspaceNotifications).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          text: "AI 刚新增了 2 个角色：hero、mage，点击查看",
+          text: "AI Thêm 2 Nhân vật mới: hero, image, click để xem",
           target: expect.objectContaining({
             type: "character",
             id: "hero",
@@ -289,10 +289,10 @@ describe("useProjectEventsSSE", () => {
           }),
         }),
         expect.objectContaining({
-          text: "AI 刚更新了 线索「玉佩」，点击查看",
+          text: "AI Mạnh mối "Mặt Dây Ngọc" vừa được cập nhật, click để xem",
           target: expect.objectContaining({
             type: "clue",
-            id: "玉佩",
+            id: "mặt dây chuyền ngọc bích",
             route: "/clues",
           }),
         }),
@@ -321,12 +321,12 @@ describe("useProjectEventsSSE", () => {
             {
               entity_type: "clue",
               action: "updated",
-              entity_id: "玉佩",
-              label: "线索「玉佩」",
+              entity_id: "mặt dây chuyền ngọc bích",
+              label: "Manh mối「mặt dây chuyền ngọc bích",
               focus: {
                 pane: "clues",
                 anchor_type: "clue",
-                anchor_id: "玉佩",
+                anchor_id: "mặt dây chuyền ngọc bích",
               },
               important: true,
             },
@@ -368,12 +368,12 @@ describe("useProjectEventsSSE", () => {
             {
               entity_type: "clue",
               action: "updated",
-              entity_id: "玉佩",
-              label: "线索「玉佩」",
+              entity_id: "mặt dây chuyền ngọc bích",
+              label: "Manh mối「mặt dây chuyền ngọc bích",
               focus: {
                 pane: "clues",
                 anchor_type: "clue",
-                anchor_id: "玉佩",
+                anchor_id: "mặt dây chuyền ngọc bích",
               },
               important: true,
             },
@@ -384,7 +384,7 @@ describe("useProjectEventsSSE", () => {
     });
 
     await waitFor(() => {
-      expect(useAppStore.getState().workspaceNotifications[0]?.target?.id).toBe("玉佩");
+      expect(useAppStore.getState().workspaceNotifications[0]?.target?.id).toBe("mặt dây chuyền ngọc bích");
     });
     expect(screen.getByTestId("location")).toHaveTextContent("/characters");
     expect(useAppStore.getState().scrollTarget).toBeNull();
@@ -412,7 +412,7 @@ describe("useProjectEventsSSE", () => {
               entity_type: "segment",
               action: "storyboard_ready",
               entity_id: "E1S01",
-              label: "分镜「E1S01」",
+              label: "Phân cảnh「E1S01」",
               focus: null,
               important: true,
               asset_fingerprints: { "storyboards/scene_E1S01.png": 1710288000 },
@@ -423,7 +423,7 @@ describe("useProjectEventsSSE", () => {
       );
     });
 
-    // fingerprints 应立即（同步）写入 store，无需等待 getProject
+    // fingerprints Nên ghi vào store ngay (đồng bộ) không cần chờ getProject
     expect(useProjectsStore.getState().getAssetFingerprint("storyboards/scene_E1S01.png")).toBe(1710288000);
   });
 });

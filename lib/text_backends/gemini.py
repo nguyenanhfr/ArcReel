@@ -1,4 +1,4 @@
-"""Gemini 文本生成后端。"""
+"""Gemini Văn bảnTạo backend."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ DEFAULT_MODEL = "gemini-3-flash-preview"
 
 
 class GeminiTextBackend:
-    """Gemini 文本生成后端，支持 AI Studio 和 Vertex AI 两种模式。"""
+    """Gemini Văn bảnTạo backend, hỗ trợ hai chế độ: AI Studio và Vertex AI."""
 
     def __init__(
         self,
@@ -51,14 +51,14 @@ class GeminiTextBackend:
 
             credentials_file = resolve_vertex_credentials_path(Path(__file__).parent.parent.parent)
             if credentials_file is None:
-                raise ValueError("未找到 Vertex AI 凭证文件\n请将服务账号 JSON 文件放入 vertex_keys/ 目录")
+                raise ValueError("Không tìm thấy Tệp thông tin xác thực Vertex AI. Vui lòng đặt tệp JSON tài khoản dịch vụ vào thư mục vertex_keys/")
 
             with open(credentials_file) as f:
                 creds_data = json_module.load(f)
             project_id = creds_data.get("project_id")
 
             if not project_id:
-                raise ValueError(f"凭证文件 {credentials_file} 中未找到 project_id")
+                raise ValueError(f"Tệp thông tin xác thực {credentials_file} Không tìm thấy project_id")
 
             credentials = service_account.Credentials.from_service_account_file(
                 str(credentials_file), scopes=VERTEX_SCOPES
@@ -70,17 +70,17 @@ class GeminiTextBackend:
                 location="global",
                 credentials=credentials,
             )
-            logger.info("GeminiTextBackend: 使用 Vertex AI 后端（凭证: %s）", credentials_file.name)
+            logger.info("GeminiTextBackend: Sử dụng backend Vertex AI (Thông tin chứng thực: %s)", credentials_file.name)
         else:
             if not api_key:
-                raise ValueError("Gemini API Key 未提供（API Key is required for AI Studio mode）。")
+                raise ValueError("Gemini API Key Chưa cung cấp (Yêu cầu API Key cho chế độ AI Studio).")
             effective_base_url = normalize_base_url(base_url)
             http_options = {"base_url": effective_base_url} if effective_base_url else None
             self._client = genai.Client(api_key=api_key, http_options=http_options)
             if base_url:
-                logger.info("GeminiTextBackend: 使用 AI Studio 后端（Base URL: %s）", base_url)
+                logger.info("GeminiTextBackend: Sử dụng backend AI Studio (Base URL: %s)", base_url)
             else:
-                logger.info("GeminiTextBackend: 使用 AI Studio 后端")
+                logger.info("GeminiTextBackend: Sử dụng backend AI Studio")
 
     @property
     def name(self) -> str:
@@ -103,7 +103,7 @@ class GeminiTextBackend:
         response_schema: dict | type | None,
         system_prompt: str | None,
     ) -> dict:
-        """构建 generate_content 的 config 字典。"""
+        """Xây dựng cấu hình generate_content từ điển."""
         config: dict = {}
         if response_schema:
             config["response_mime_type"] = "application/json"
@@ -116,7 +116,7 @@ class GeminiTextBackend:
         return config
 
     def _build_contents(self, request: TextGenerationRequest) -> list:
-        """构建 contents 列表（图片 parts + 文本 prompt）。"""
+        """Xây dựng danh sách contents (Hình ảnh phần + Văn bản prompt)."""
         contents: list = []
 
         if request.images:
@@ -125,7 +125,7 @@ class GeminiTextBackend:
                     pil_img = Image.open(img_input.path)
                     contents.append(pil_img)
                 elif img_input.url is not None:
-                    # URL 型图片直接作为字符串传递，SDK 内部会处理
+                    # URL Hình ảnh trực tiếp được truyền dưới dạng chuỗi, SDK sẽ xử lý bên trong.
                     contents.append(img_input.url)
 
         contents.append(request.prompt)
@@ -133,7 +133,7 @@ class GeminiTextBackend:
 
     @with_retry_async()
     async def generate(self, request: TextGenerationRequest) -> TextGenerationResult:
-        """异步生成文本，支持结构化输出和 vision。"""
+        """Tạo Văn bản bất đồng bộ, hỗ trợ đầu ra cấu trúc và vision."""
         config = self._build_config(request.response_schema, request.system_prompt)
         contents = self._build_contents(request)
 

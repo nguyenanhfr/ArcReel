@@ -10,9 +10,9 @@ interface TabSaveFooterProps {
 }
 
 /**
- * 配置 Tab 底部保存页脚。
- * - isDirty=false: 正常嵌入，保存按钮禁用
- * - isDirty=true:  sticky 固定在视口底部，保存按钮高亮
+ * Cấu hình Tab Bottom Lưu Footer.
+ * - isDirty=false: Nhúng bình thường, nút Lưu bị tắt
+ * - isDirty=true:  sticky Đã sửa lỗi ở cuối khung nhìn, nút Lưu được tô sáng
  */
 export function TabSaveFooter({
   isDirty,
@@ -32,7 +32,7 @@ export function TabSaveFooter({
     >
       <div className="flex items-center gap-3 min-w-0">
         {isDirty && !error && (
-          <span className="text-sm text-gray-400">有未保存的更改</span>
+          <span className="text-sm text-gray-400">Không có thay đổi nào đối với Lưu</span>
         )}
         {error && (
           <span className="text-sm text-rose-400 truncate">{error}</span>
@@ -64,7 +64,7 @@ export function TabSaveFooter({
           ) : (
             <Save className="h-4 w-4" />
           )}
-          {saving ? "保存中…" : "保存"}
+          {saving ? "Lưu中…" : "Lưu"}
         </button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 """
-同步 Agent 对话端点
+Đồng bộ điểm cuối Agent Đối thoại
 
-封装现有 SSE 流式助手为同步请求-响应模式，供 OpenClaw 等外部 Agent 调用。
+Đóng gói luồng SSE Trợ lý hiện có thành chế độ yêu cầu-đáp ứng đồng bộ, để các Agent bên ngoài như OpenClaw gọi.
 """
 
 import asyncio
@@ -35,7 +35,7 @@ class AgentChatResponse(BaseModel):
 
 
 def _extract_text_from_assistant_message(msg: dict) -> str:
-    """从 assistant 类型消息中提取纯文本内容。"""
+    """Trích xuất nội dung Văn bản thuần từ loại Tin nhắn assistant."""
     content = msg.get("content", [])
     if isinstance(content, str):
         return content
@@ -57,7 +57,7 @@ async def _collect_reply(
     session_id: str,
     timeout: float,
 ) -> tuple[str, str]:
-    """订阅会话队列，收集 assistant 回复直到完成或超时。
+    """Đăng ký hàng đợi phiên, thu thập phản hồi của assistant cho đến khi Hoàn thành hoặc quá thời gian.
 
     Returns:
         (reply_text, status) — status 为 "completed" / "timeout" / "error"
@@ -77,12 +77,12 @@ async def _collect_reply(
             try:
                 message = await asyncio.wait_for(queue.get(), timeout=min(remaining, 5.0))
             except TimeoutError:
-                # 检查会话是否已完成
+                # Kiểm tra phiên đã Hoàn thành hay chưa
                 live_status = await service.session_manager.get_status(session_id)
                 if live_status and live_status != "running":
                     status = "completed" if live_status in {"idle", "completed"} else live_status
                     break
-                # 检查是否超时
+                # Kiểm tra xem có quá hạn không
                 if loop.time() >= deadline:
                     status = "timeout"
                     break
@@ -96,7 +96,7 @@ async def _collect_reply(
                     reply_parts.append(text)
 
             elif msg_type == "result":
-                # 终结消息：提取最后一条 assistant 回复（如果还没有从队列里收到）
+                # Kết thúc Tin nhắn: trích xuất phản hồi cuối cùng của assistant (nếu chưa nhận từ hàng đợi)
                 subtype = str(message.get("subtype") or "").lower()
                 is_error = bool(message.get("is_error"))
                 if is_error or subtype.startswith("error"):
@@ -112,7 +112,7 @@ async def _collect_reply(
                     break
 
             elif msg_type == "_queue_overflow":
-                # 队列溢出，中断
+                # Hàng đợi tràn, gián đoạn
                 status = "error"
                 break
 
@@ -127,22 +127,22 @@ async def agent_chat(
     body: AgentChatRequest,
     _user: CurrentUser,
 ) -> AgentChatResponse:
-    """同步 Agent 对话端点。
+    """Đồng bộ điểm cuối Agent Đối thoại.
 
-    - 若不传 session_id，则新建会话
-    - 若传入 session_id，则在该会话上下文中继续对话
-    - 内部对接 AssistantService，收集完整响应后返回
-    - 超过 120 秒返回已收集的部分响应，status 为 "timeout"
+    - Nếu không truyền session_id, thì tạo Phiên mới
+    - Nếu truyền session_id, tiếp tục Đối thoại trong bối cảnh phiên đó
+    - Kết nối nội bộ với AssistantService, thu thập phản hồi đầy đủ rồi trả về
+    - Quá 120 giây thì trả về phần phản hồi đã thu thập, trạng thái là "timeout"
     """
     service = get_assistant_service()
 
-    # 验证项目是否存在
+    # Xác thực Dự án có tồn tại hay không
     try:
         service.pm.get_project_path(body.project_name)
     except (FileNotFoundError, KeyError):
-        raise HTTPException(status_code=404, detail=f"项目 '{body.project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{body.project_name}' 不存在")
 
-    # 若传入 session_id，先校验会话归属
+    # Nếu truyền session_id, trước tiên kiểm tra quyền sở hữu phiên
     if body.session_id:
         session = await service.get_session(body.session_id)
         if session is None:
@@ -150,11 +150,11 @@ async def agent_chat(
         if session.project_name != body.project_name:
             raise HTTPException(
                 status_code=400,
-                detail=f"会话 '{body.session_id}' 属于项目 '{session.project_name}'，与请求项目 '{body.project_name}' 不符",
+                detail=f"会话 '{body.session_id}' Thuộc về Dự án '{session.project_name}'，So với Dự án yêu cầu '{body.project_name}' 不符",
             )
 
-    # 统一通过 send_or_create 创建或复用会话并发送消息。
-    # 依赖 replay_buffer=True 缓冲已发送的消息，不会产生竞争条件。
+    # Thống nhất thông qua send_or_create Tạo hoặc tái sử dụng phiên và Gửi tin nhắn.
+    # Dựa vào replay_buffer=True lưu trữ các Tin nhắn đã gửi, sẽ không gây ra điều kiện tranh chấp.
     try:
         result = await service.send_or_create(
             body.project_name,
@@ -165,14 +165,14 @@ async def agent_chat(
     except SessionCapacityError as exc:
         raise HTTPException(status_code=503, detail=str(exc))
     except TimeoutError:
-        raise HTTPException(status_code=504, detail="SDK 会话创建超时")
+        raise HTTPException(status_code=504, detail="SDK Hết thời gian tạo phiên")
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc))
 
-    # 收集回复（带超时）
+    # Thu thập phản hồi (có timeout)
     reply, status = await _collect_reply(service, session_id, SYNC_CHAT_TIMEOUT)
 
-    # 若未收到文本但有快照，从 snapshot 提取最新助手回复
+    # Nếu không nhận được Văn bản nhưng có snapshot, lấy phản hồi Trợ lý mới nhất từ snapshot
     if not reply:
         try:
             snapshot = await service.get_snapshot(session_id)
@@ -185,7 +185,7 @@ async def agent_chat(
                     if reply:
                         break
         except Exception as exc:
-            logger.warning("获取快照失败 session_id=%s: %s", session_id, exc)
+            logger.warning("Lấy snapshot Thất bại session_id=%s: %s", session_id, exc)
 
     return AgentChatResponse(
         session_id=session_id,

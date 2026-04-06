@@ -1,5 +1,5 @@
 """
-线索管理路由
+Manh mốiQuản lý tuyến đường
 """
 
 import logging
@@ -15,7 +15,7 @@ from server.auth import CurrentUser
 
 router = APIRouter()
 
-# 初始化项目管理器
+# Khởi tạo quản lý dự án
 pm = ProjectManager(PROJECT_ROOT / "projects")
 
 
@@ -39,7 +39,7 @@ class UpdateClueRequest(BaseModel):
 
 @router.post("/projects/{project_name}/clues")
 async def add_clue(project_name: str, req: CreateClueRequest, _user: CurrentUser):
-    """添加线索"""
+    """Thêm manh mối"""
     try:
         with project_change_source("webui"):
             project = get_project_manager().add_clue(
@@ -49,34 +49,34 @@ async def add_clue(project_name: str, req: CreateClueRequest, _user: CurrentUser
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"项目 '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.patch("/projects/{project_name}/clues/{clue_name}")
 async def update_clue(project_name: str, clue_name: str, req: UpdateClueRequest, _user: CurrentUser):
-    """更新线索"""
+    """Cập nhật manh mối"""
     try:
         manager = get_project_manager()
         project = manager.load_project(project_name)
 
         if clue_name not in project["clues"]:
-            raise HTTPException(status_code=404, detail=f"线索 '{clue_name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Manh mối '{clue_name}' 不存在")
 
         clue = project["clues"][clue_name]
         if req.clue_type is not None:
             if req.clue_type not in ["prop", "location"]:
-                raise HTTPException(status_code=400, detail="线索类型必须是 'prop' 或 'location'")
+                raise HTTPException(status_code=400, detail="Manh mốiLoạiPhải là 'prop' 或 'location'")
             clue["type"] = req.clue_type
         if req.description is not None:
             clue["description"] = req.description
         if req.importance is not None:
             if req.importance not in ["major", "minor"]:
-                raise HTTPException(status_code=400, detail="重要程度必须是 'major' 或 'minor'")
+                raise HTTPException(status_code=400, detail="Quan trọngMức độ phải là 'major' 或 'minor'")
             clue["importance"] = req.importance
         if req.clue_sheet is not None:
             clue["clue_sheet"] = req.clue_sheet
@@ -85,32 +85,32 @@ async def update_clue(project_name: str, clue_name: str, req: UpdateClueRequest,
             manager.save_project(project_name, project)
         return {"success": True, "clue": clue}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"项目 '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/projects/{project_name}/clues/{clue_name}")
 async def delete_clue(project_name: str, clue_name: str, _user: CurrentUser):
-    """删除线索"""
+    """XóaManh mối"""
     try:
         manager = get_project_manager()
         project = manager.load_project(project_name)
 
         if clue_name not in project["clues"]:
-            raise HTTPException(status_code=404, detail=f"线索 '{clue_name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Manh mối '{clue_name}' 不存在")
 
         del project["clues"][clue_name]
         with project_change_source("webui"):
             manager.save_project(project_name, project)
-        return {"success": True, "message": f"线索 '{clue_name}' 已删除"}
+        return {"success": True, "message": f"Manh mối '{clue_name}' Đã Xóa"}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"项目 '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))

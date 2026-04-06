@@ -178,7 +178,7 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
   const episodes = currentProjectData?.episodes ?? [];
   const projectName = currentProjectName ?? "";
 
-  // 源文件列表
+  // Tệp nguồndanh sách
   const [sourceFiles, setSourceFiles] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -206,7 +206,7 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
     loadSourceFiles();
   }, [loadSourceFiles, sourceFilesVersion]);
 
-  // 上传源文件
+  // Tải lên tệp nguồn
   const handleUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !projectName) return;
@@ -215,26 +215,26 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
       loadSourceFiles();
       useAppStore.getState().invalidateSourceFiles();
     } catch {
-      // 静默失败
+      // Im lặng thất bại
     }
-    // 重置 input 以允许再次选择同一文件
+    // Đặt lại đầu vào để cho phép chọn lại cùng một tệp
     e.target.value = "";
   }, [projectName, loadSourceFiles]);
 
-  // 删除源文件
+  // XóaTệp nguồn
   const handleDeleteFile = useCallback(async (filename: string) => {
     if (!projectName) return;
-    if (!confirm(`确定要删除 "${filename}" 吗？`)) return;
+    if (!confirm(`Hãy chắc chắn rằng bạn muốn Xóa "${filename}" 吗？`)) return;
     try {
       await API.deleteSourceFile(projectName, filename);
       loadSourceFiles();
       useAppStore.getState().invalidateSourceFiles();
-      // 如果当前正在查看该文件，返回概览
+      // Nếu Hiện tại đang xem tập tin này, quay lại tổng quan
       if (location === `/source/${encodeURIComponent(filename)}`) {
         setLocation("/");
       }
     } catch {
-      // 静默失败
+      // Im lặng thất bại
     }
   }, [projectName, loadSourceFiles, location, setLocation]);
 
@@ -259,7 +259,7 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
         }`}
       >
         <LayoutDashboard className="h-4 w-4 shrink-0 text-indigo-400" />
-        <span className="font-medium">项目概览</span>
+        <span className="font-medium">Tổng quan dự án</span>
       </button>
 
       {/* ---- Divider ---- */}
@@ -267,7 +267,7 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
 
       {/* ---- Section 1: Source Files ---- */}
       <CollapsibleSection
-        title="源文件"
+        title="Tệp nguồn"
         icon={FileText}
         action={
           <>
@@ -275,7 +275,7 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               className="rounded p-1 text-gray-500 transition-colors hover:bg-gray-800 hover:text-gray-300 focus-ring"
-              title="上传源文件"
+              title="Tải lên tệp nguồn"
             >
               <Upload className="h-3.5 w-3.5" />
             </button>
@@ -290,7 +290,7 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
         }
       >
         {sourceFiles.length === 0 ? (
-          <EmptyState text="暂无文件" />
+          <EmptyState text="Chưa có tệp" />
         ) : (
           <ul>
             {sourceFiles.map((name) => {
@@ -317,7 +317,7 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
                       type="button"
                       onClick={(e) => { e.stopPropagation(); handleDeleteFile(name); }}
                       className="shrink-0 rounded p-0.5 text-gray-600 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100 focus-ring focus-visible:opacity-100"
-                      title="删除文件"
+                      title="Xóa tệp"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -333,15 +333,15 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
       <div className="mx-3 border-t border-gray-800" />
 
       {/* ---- Section 2: Lorebook (Characters + Clues) ---- */}
-      <CollapsibleSection title="设定集" icon={Users} defaultOpen={true}>
+      <CollapsibleSection title="Bộ thiết lập" icon={Users} defaultOpen={true}>
         {/* Characters sub-section */}
         <div className="mb-1">
           <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-gray-600">
             <Users className="h-3 w-3" />
-            <span>角色</span>
+            <span>Nhân vật</span>
           </div>
           {characterEntries.length === 0 ? (
-            <EmptyState text="暂无角色" />
+            <EmptyState text="Chưa có nhân vật" />
           ) : (
             <ul>
               {characterEntries.map(([name, char]) => (
@@ -372,10 +372,10 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
         <div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-gray-600">
             <Puzzle className="h-3 w-3" />
-            <span>线索</span>
+            <span>Manh mối</span>
           </div>
           {clueEntries.length === 0 ? (
-            <EmptyState text="暂无线索" />
+            <EmptyState text="Chưa có manh mối" />
           ) : (
             <ul>
               {clueEntries.map(([name, clue]) => (
@@ -407,9 +407,9 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
       <div className="mx-3 border-t border-gray-800" />
 
       {/* ---- Section 3: Episodes ---- */}
-      <CollapsibleSection title="剧集" icon={Film}>
+      <CollapsibleSection title="Tập phim" icon={Film}>
         {episodes.length === 0 ? (
-          <EmptyState text="暂无剧集" />
+          <EmptyState text="Chưa có tập phim" />
         ) : (
           <ul>
             {episodes.map((ep) => {
@@ -439,7 +439,7 @@ export function AssetSidebar({ className }: AssetSidebarProps) {
                     </span>
                     {isSegmented && !ep.scenes_count && (
                       <span className="ml-auto shrink-0 rounded bg-indigo-950 px-1.5 py-0.5 text-[10px] text-indigo-400">
-                        预处理
+                        Tiền xử lý
                       </span>
                     )}
                   </button>

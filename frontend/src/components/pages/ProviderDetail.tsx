@@ -12,8 +12,8 @@ import type { ProviderConfigDetail, ProviderField } from "@/types";
 
 const STATUS_BADGE_MAP: Record<string, { label: string; cls: string }> = {
   ready: { label: "已就绪", cls: "bg-green-900/30 text-green-400 border border-green-800/50" },
-  unconfigured: { label: "未配置", cls: "bg-gray-800 text-gray-400 border border-gray-700" },
-  error: { label: "异常", cls: "bg-red-900/30 text-red-400 border border-red-800/50" },
+  unconfigured: { label: "Chưa được định cấu hình", cls: "bg-gray-800 text-gray-400 border border-gray-700" },
+  error: { label: "bất thường", cls: "bg-red-900/30 text-red-400 border border-red-800/50" },
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -76,7 +76,7 @@ function FieldEditor({ field, draft, setDraft }: FieldEditorProps) {
               type={showSecret ? "text" : "password"}
               value={displayValue}
               onChange={(e) => handleChange(e.target.value)}
-              placeholder={field.is_set ? field.value_masked ?? "••••••••••" : (field.placeholder ?? "输入密钥")}
+              placeholder={field.is_set ? field.value_masked ?? "••••••••••" : (field.placeholder ?? "Đầu vào密钥")}
               className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 pr-9 text-sm text-gray-100 placeholder-gray-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             />
             <button
@@ -92,11 +92,11 @@ function FieldEditor({ field, draft, setDraft }: FieldEditorProps) {
             <button
               type="button"
               onClick={handleClear}
-              title="清除密钥"
+              title="Xóa密钥"
               className="flex items-center gap-1 rounded-lg border border-gray-700 px-3 py-2 text-xs text-gray-400 hover:border-gray-600 hover:text-gray-200 focus-visible:ring-2 focus-visible:ring-indigo-500/60 focus-visible:outline-none"
             >
               <X className="h-3 w-3" />
-              清除
+              Xóa
             </button>
           )}
           {confirmingClear && (
@@ -106,20 +106,20 @@ function FieldEditor({ field, draft, setDraft }: FieldEditorProps) {
                 onClick={handleClear}
                 className="rounded-lg border border-red-800 bg-red-900/30 px-3 py-2 text-xs text-red-400 hover:bg-red-900/50"
               >
-                确认清除
+                Xác nhận Xóa
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmingClear(false)}
                 className="rounded-lg border border-gray-700 px-3 py-2 text-xs text-gray-400 hover:border-gray-600 hover:text-gray-200"
               >
-                取消
+                Hủy
               </button>
             </div>
           )}
         </div>
         {field.is_set && !(field.key in draft) && (
-          <p className="mt-1 text-xs text-gray-600">已设置（留空则保留现有值）</p>
+          <p className="mt-1 text-xs text-gray-600">Đã đặt（Để trống để giữ lại giá trị hiện tại)</p>
         )}
       </div>
     );
@@ -186,7 +186,7 @@ export function ProviderDetail({ providerId, onSaved }: Props) {
   useWarnUnsaved(hasDraft);
 
   const handleCredentialChanged = useCallback(async () => {
-    // 静默刷新配置（不清除 detail，避免 loading 闪烁和子组件重挂）
+    // Làm mới cấu hình một cách âm thầm (không cần xóa chi tiết, tránh hiện tượng tải chập chờn và treo lại thành phần phụ)
     const updated = await API.getProviderConfig(providerId);
     setDetail(updated);
     onSaved?.();
@@ -224,7 +224,7 @@ export function ProviderDetail({ providerId, onSaved }: Props) {
     return (
       <div className="flex items-center gap-2 text-sm text-gray-500">
         <Loader2 className="h-4 w-4 animate-spin" />
-        加载中…
+        Đang tải...
       </div>
     );
   }
@@ -250,7 +250,7 @@ export function ProviderDetail({ providerId, onSaved }: Props) {
         <div className="mb-5 flex flex-wrap gap-1.5">
           {detail.media_types.map((t) => (
             <span key={t} className="rounded-md bg-gray-800 px-2 py-0.5 text-xs text-gray-400">
-              {t === "video" ? "视频" : t === "image" ? "图片" : t === "text" ? "文本" : t}
+              {t === "video" ? "Video" : t === "image" ? "Ảnh" : t === "text" ? "Văn bản" : t}
             </span>
           ))}
         </div>
@@ -270,7 +270,7 @@ export function ProviderDetail({ providerId, onSaved }: Props) {
             <ChevronRight
               className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-90" : ""}`}
             />
-            高级配置
+            Cấu hình nâng cao
           </button>
           {showAdvanced && (
             <div className="mt-3 space-y-4">
@@ -288,10 +288,10 @@ export function ProviderDetail({ providerId, onSaved }: Props) {
                     {saving ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        保存中…
+                        Lưu中…
                       </>
                     ) : (
-                      "保存"
+                      "Lưu"
                     )}
                   </button>
                 </div>

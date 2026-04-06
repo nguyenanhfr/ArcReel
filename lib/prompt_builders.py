@@ -1,14 +1,14 @@
 """
-统一的图像生成 Prompt 构建函数
+Hàm xây dựng Prompt tạo hình ảnh thống nhất
 
-所有 Prompt 模板集中在此文件管理，确保 WebUI 和 Skill 使用相同的逻辑。
+Tất cả mẫu Prompt tập trung ở đây để quản lý tập tin, đảm bảo WebUI và Skill sử dụng cùng một logic.
 
-模块职责:
-- 角色设计图 Prompt 构建
-- 线索设计图 Prompt 构建（道具类/环境类）
-- 分镜图 Prompt 后缀
+Trách nhiệm của mô-đun:
+- Ảnh thiết kế nhân vật Prompt 构建
+- Ảnh thiết kế manh mối Prompt Xây dựng (Loại Đạo cụ/Loại Môi trường)
+- Ảnh phân cảnh Prompt 后缀
 
-使用方:
+Người sử dụng:
 - webui/server/routers/generate.py
 - .claude/skills/generate-characters/scripts/generate_character.py
 - .claude/skills/generate-clues/scripts/generate_clue.py
@@ -17,55 +17,55 @@
 
 def build_character_prompt(name: str, description: str, style: str = "", style_description: str = "") -> str:
     """
-    构建角色设计图 Prompt
+    Xây dựng Prompt Ảnh thiết kế nhân vật
 
-    遵循 nano-banana 最佳实践：使用叙事性段落描述，而非关键词列表。
+    Tuân theo thực tiễn tốt nhất của nano-banana: sử dụng đoạn văn tường thuật Mô tả, thay vì danh sách từ khóa.
 
     Args:
-        name: 角色名称
-        description: 角色外貌描述（应为叙事性段落）
-        style: 项目风格
-        style_description: AI 分析的风格描述
+        name: Tên nhân vật
+        description: Nhân vậtMô tả ngoại hình (nên là đoạn văn tường thuật)
+        style: Phong cách dự án
+        style_description: AI Phân tích Mô tả phong cách
 
     Returns:
-        完整的 Prompt 字符串
+        Chuỗi Prompt đầy đủ
     """
     style_part = f"，{style}" if style else ""
 
-    # 构建风格前缀
+    # Xây dựng Tiền tố phong cách
     style_prefix = ""
     if style_description:
         style_prefix = f"Visual style: {style_description}\n\n"
 
-    return f"""{style_prefix}角色设计参考图{style_part}。
+    return f"""{style_prefix}Nhân vậtThiết kế Ảnh tham chiếu{style_part}。
 
-「{name}」的全身立绘。
+「{name}」Bản vẽ toàn thân.
 
 {description}
 
-构图要求：单一角色全身像，姿态自然，面向镜头。
-背景：纯净浅灰色，无任何装饰元素。
-光线：柔和均匀的摄影棚照明，无强烈阴影。
-画质：高清，细节清晰，色彩准确。"""
+Yêu cầu bố cục: Hình toàn thân của một Nhân vật duy nhất, tư thế tự nhiên, hướng về Góc máy.
+Nền: Xám nhạt tinh khiết, không có bất kỳ yếu tố trang trí nào.
+Ánh sáng：Ánh sáng trong phòng chụp nhẹ nhàng và đều, không có bóng đổ mạnh.
+Chất lượng hình ảnh: Độ nét cao, chi tiết rõ ràng, màu sắc chính xác."""
 
 
 def build_clue_prompt(
     name: str, description: str, clue_type: str = "prop", style: str = "", style_description: str = ""
 ) -> str:
     """
-    构建线索设计图 Prompt
+    Xây dựng Prompt manh mối thiết kế Ảnh
 
-    根据线索类型选择对应的模板。
+    Chọn mẫu tương ứng theo Loại Manh mối.
 
     Args:
-        name: 线索名称
-        description: 线索描述
-        clue_type: 线索类型 ("prop" 道具 或 "location" 环境)
-        style: 项目风格
-        style_description: AI 分析的风格描述
+        name: Tên manh mối
+        description: Manh mốiMô tả
+        clue_type: Manh mốiLoại ("prop" Đạo cụ 或 "location" Môi trường)
+        style: Phong cách dự án
+        style_description: AI Phân tích Mô tả phong cách
 
     Returns:
-        完整的 Prompt 字符串
+        Chuỗi Prompt đầy đủ
     """
     if clue_type == "location":
         return build_location_prompt(name, description, style, style_description)
@@ -75,100 +75,100 @@ def build_clue_prompt(
 
 def build_prop_prompt(name: str, description: str, style: str = "", style_description: str = "") -> str:
     """
-    构建道具类线索 Prompt
+    Xây dựng Prompt manh mối loại Đạo cụ
 
-    使用三视图构图：正面全视图、45度侧视图、细节特写。
+    Sử dụng bố cục ba góc nhìn: Toàn cảnh chính diện, góc nghiêng 45 độ, cận cảnh chi tiết.
 
     Args:
-        name: 道具名称
-        description: 道具描述
-        style: 项目风格
-        style_description: AI 分析的风格描述
+        name: Đạo cụTên
+        description: Đạo cụMô tả
+        style: Phong cách dự án
+        style_description: AI Phân tích Mô tả phong cách
 
     Returns:
-        完整的 Prompt 字符串
+        Chuỗi Prompt đầy đủ
     """
     style_suffix = f"，{style}" if style else ""
 
-    # 构建风格前缀
+    # Xây dựng Tiền tố phong cách
     style_prefix = ""
     if style_description:
         style_prefix = f"Visual style: {style_description}\n\n"
 
-    return f"""{style_prefix}一张专业的道具设计参考图{style_suffix}。
+    return f"""{style_prefix}Một Ảnh tham chiếu thiết kế Đạo cụ chuyên nghiệp{style_suffix}。
 
-道具「{name}」的多视角展示。{description}
+Đạo cụ「{name}」Trình diễn đa góc độ.{description}
 
-三个视图水平排列在纯净浅灰背景上：左侧正面全视图、中间45度侧视图展示立体感、右侧关键细节特写。柔和均匀的摄影棚照明，高清质感，色彩准确。"""
+Ba góc nhìn được sắp xếp theo chiều ngang trên nền xám nhạt tinh khiết: bên trái là toàn cảnh chính diện, giữa là góc nghiêng 45 độ thể hiện cảm giác ba chiều, bên phải là cận cảnh chi tiết quan trọng. Ánh sáng studio mềm mại và đều, chất lượng hình ảnh HD, màu sắc chính xác."""
 
 
 def build_location_prompt(name: str, description: str, style: str = "", style_description: str = "") -> str:
     """
-    构建环境类线索 Prompt
+    Xây dựng Prompt loại Môi trường gợi ý
 
-    使用 3/4 主画面 + 右下角细节特写的构图。
+    Sử dụng bố cục 3/4 cho hình chính + cận cảnh chi tiết ở góc dưới bên phải.
 
     Args:
-        name: 场景名称
-        description: 场景描述
-        style: 项目风格
-        style_description: AI 分析的风格描述
+        name: CảnhTên
+        description: CảnhMô tả
+        style: Phong cách dự án
+        style_description: AI Phân tích Mô tả phong cách
 
     Returns:
-        完整的 Prompt 字符串
+        Chuỗi Prompt đầy đủ
     """
     style_suffix = f"，{style}" if style else ""
 
-    # 构建风格前缀
+    # Xây dựng Tiền tố phong cách
     style_prefix = ""
     if style_description:
         style_prefix = f"Visual style: {style_description}\n\n"
 
-    return f"""{style_prefix}一张专业的场景设计参考图{style_suffix}。
+    return f"""{style_prefix}Một thiết kế Cảnh chuyên nghiệp làm hình tham chiếu{style_suffix}。
 
-标志性场景「{name}」的视觉参考。{description}
+Cảnh biểu tượng{name}」làm tham chiếu hình ảnh.{description}
 
-主画面占据四分之三区域展示环境整体外观与氛围，右下角小图为细节特写。柔和自然光线。"""
+Hình chính chiếm ba phần tư khu vực hiển thị toàn bộ Môi trường và Không khí, hình nhỏ góc dưới bên phải là cận cảnh chi tiết. Ánh sáng mềm mại và tự nhiên."""
 
 
 def build_storyboard_suffix(content_mode: str = "narration") -> str:
     """
-    获取分镜图 Prompt 后缀
+    Lấy hậu tố Prompt hình phân cảnh
 
-    根据内容模式返回对应的构图后缀。
+    Trả về hậu tố bố cục tương ứng theo chế độ nội dung.
 
     Args:
-        content_mode: 内容模式 ("narration" 说书模式 或 "drama" 剧集模式)
+        content_mode: chế độ nội dung ("narration" Chế độ kể chuyện hoặc "drama" Tập phimchế độ)
 
     Returns:
-        构图后缀字符串
+        Chuỗi hậu tố bố cục
     """
     if content_mode == "narration":
-        return "竖屏构图。"
+        return "Bố cục dọc."
     else:
         return ""
 
 
 def build_style_prompt(project_data: dict) -> str:
     """
-    构建风格描述 Prompt 片段
+    Xây dựng Đoạn Prompt mô tả phong cách
 
-    合并 style（用户手动填写）和 style_description（AI 分析生成）。
+    Kết hợp style (do người dùng điền thủ công) và style_description (do AI phân tích tạo ra).
 
     Args:
         project_data: project.json 数据
 
     Returns:
-        风格描述字符串，用于拼接到生成 Prompt 中
+        Mô tả phong cáchchuỗi，Dùng để ghép vào Prompt tạo ra
     """
     parts = []
 
-    # 基础风格标签
+    # Nhãn phong cách cơ bản
     style = project_data.get("style", "")
     if style:
         parts.append(f"Style: {style}")
 
-    # AI 分析的风格描述
+    # AI Phân tích Mô tả phong cách
     style_description = project_data.get("style_description", "")
     if style_description:
         parts.append(f"Visual style: {style_description}")

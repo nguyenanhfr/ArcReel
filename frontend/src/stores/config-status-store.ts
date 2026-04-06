@@ -26,7 +26,7 @@ async function getConfigIssues(): Promise<ConfigIssue[]> {
     issues.push({
       key: "anthropic",
       tab: "agent",
-      label: "ArcReel 智能体 API Key（Anthropic）未配置",
+      label: "Tác nhân ArcReel API Key（Anthropic）Chưa được định cấu hình",
     });
   }
 
@@ -40,21 +40,21 @@ async function getConfigIssues(): Promise<ConfigIssue[]> {
     issues.push({
       key: "no-video-provider",
       tab: "providers",
-      label: "未配置支持视频生成的供应商",
+      label: "Không có nhà cung cấp nào được định cấu hình để hỗ trợ tạo Video",
     });
   }
   if (!hasMediaType("image")) {
     issues.push({
       key: "no-image-provider",
       tab: "providers",
-      label: "未配置支持图片生成的供应商",
+      label: "Các nhà cung cấp hỗ trợ tạo Ảnh chưa được định cấu hình",
     });
   }
   if (!hasMediaType("text")) {
     issues.push({
       key: "no-text-provider",
       tab: "providers",
-      label: "未配置支持文本生成的供应商",
+      label: "Hỗ trợ của nhà cung cấp cho việc tạo Văn bản chưa được định cấu hình",
     });
   }
 

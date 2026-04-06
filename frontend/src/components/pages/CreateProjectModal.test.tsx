@@ -29,7 +29,7 @@ describe("CreateProjectModal", () => {
       success: true,
       name: "project-aa11bb22",
       project: {
-        title: "演示项目",
+        title: "Dự án trình diễn",
         content_mode: "narration",
         style: "Photographic",
         episodes: [],
@@ -40,18 +40,18 @@ describe("CreateProjectModal", () => {
 
     renderModal();
 
-    const submitButton = screen.getByRole("button", { name: "创建项目" });
+    const submitButton = screen.getByRole("button", { name: "TạoDự án" });
     expect(submitButton).toBeDisabled();
 
-    fireEvent.change(screen.getByPlaceholderText("例如：重生之皇后威武"), {
-      target: { value: "演示项目" },
+    fireEvent.change(screen.getByPlaceholderText("Ví dụ: Nữ hoàng tái sinh rất hùng mạnh"), {
+      target: { value: "Dự án trình diễn" },
     });
 
     expect(submitButton).toBeEnabled();
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(API.createProject).toHaveBeenCalledWith("演示项目", "Photographic", "narration");
+      expect(API.createProject).toHaveBeenCalledWith("Dự án trình diễn", "Photographic", "narration");
     });
   });
 
@@ -60,7 +60,7 @@ describe("CreateProjectModal", () => {
       success: true,
       name: "project-aa11bb22",
       project: {
-        title: "演示项目",
+        title: "Dự án trình diễn",
         content_mode: "narration",
         style: "Photographic",
         episodes: [],
@@ -71,7 +71,7 @@ describe("CreateProjectModal", () => {
 
     renderModal();
 
-    expect(screen.getByRole("button", { name: "创建项目" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "TạoDự án" })).toBeDisabled();
     expect(API.createProject).not.toHaveBeenCalled();
   });
 });

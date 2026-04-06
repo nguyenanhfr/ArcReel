@@ -1,4 +1,4 @@
-"""视频生成服务层核心接口定义。"""
+"""VideoTạo định nghĩa giao diện cốt lõi của lớp dịch vụ."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import httpx
 
 from lib.retry import with_retry_async
 
-# 图片后缀 → MIME 类型映射（多个后端共用）
+# ẢnhBản đồ hậu tố → Loại MIME (dùng chung cho nhiều backend)
 IMAGE_MIME_TYPES: dict[str, str] = {
     ".png": "image/png",
     ".jpg": "image/jpeg",
@@ -23,7 +23,7 @@ IMAGE_MIME_TYPES: dict[str, str] = {
 
 @with_retry_async()
 async def download_video(url: str, output_path: Path, *, timeout: int = 120) -> None:
-    """从 URL 流式下载视频到本地文件（含瞬态错误重试）。"""
+    """Tải Video từ URL về tệp cục bộ theo luồng (bao gồm lỗi nhất thời Thử lại)."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     async with httpx.AsyncClient() as http_client:
         async with http_client.stream("GET", url, timeout=timeout) as resp:
@@ -34,7 +34,7 @@ async def download_video(url: str, output_path: Path, *, timeout: int = 120) -> 
 
 
 class VideoCapability(StrEnum):
-    """视频后端支持的能力枚举。"""
+    """VideoLiệt kê các khả năng được hỗ trợ bởi backend."""
 
     TEXT_TO_VIDEO = "text_to_video"
     IMAGE_TO_VIDEO = "image_to_video"
@@ -47,7 +47,7 @@ class VideoCapability(StrEnum):
 
 @dataclass
 class VideoGenerationRequest:
-    """通用视频生成请求。各 Backend 忽略不支持的字段。"""
+    """Yêu cầu tạo Video chung. Các Backend bỏ qua một số đoạn từ không được hỗ trợ."""
 
     prompt: str
     output_path: Path
@@ -57,20 +57,20 @@ class VideoGenerationRequest:
     start_image: Path | None = None
     generate_audio: bool = True
 
-    # Veo 特有
+    # Veo Riêng
     negative_prompt: str | None = None
 
-    # 项目上下文（用于构建文件服务 URL 等）
+    # Dự ánbối cảnh（Dùng để xây dựng URL dịch vụ tệp, v.v.)
     project_name: str | None = None
 
-    # Seedance 特有
+    # Seedance Riêng
     service_tier: str = "default"
     seed: int | None = None
 
 
 @dataclass
 class VideoGenerationResult:
-    """通用视频生成结果。"""
+    """Kết quả tạo Video chung."""
 
     video_path: Path
     provider: str
@@ -85,7 +85,7 @@ class VideoGenerationResult:
 
 
 class VideoBackend(Protocol):
-    """视频生成后端协议。"""
+    """VideoGiao thức backend tạo."""
 
     @property
     def name(self) -> str: ...

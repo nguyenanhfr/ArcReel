@@ -1,12 +1,12 @@
 """
-Prompt 工具函数
+Prompt Công cụHàm
 
-提供结构化 Prompt 到 YAML 格式的转换功能。
+Cung cấp chức năng chuyển đổi Prompt có cấu trúc sang định dạng YAML.
 """
 
 import yaml
 
-# 预设选项定义
+# Định nghĩa tùy chọn mặc định
 STYLES = ["Photographic", "Anime", "3D Animation"]
 
 SHOT_TYPES = [
@@ -35,22 +35,22 @@ CAMERA_MOTIONS = [
 
 def image_prompt_to_yaml(image_prompt: dict, project_style: str) -> str:
     """
-    将 imagePrompt 结构转换为 YAML 格式字符串
+    Chuyển đổi cấu trúc imagePrompt sang chuỗi định dạng YAML
 
     Args:
-        image_prompt: segment 中的 image_prompt 对象，结构为：
+        image_prompt: segment trong đối tượng image_prompt, cấu trúc như sau:
             {
-                "scene": "场景描述",
+                "scene": "CảnhMô tả",
                 "composition": {
-                    "shot_type": "镜头类型",
-                    "lighting": "光线描述",
-                    "ambiance": "氛围描述"
+                    "shot_type": "Góc máyLoại",
+                    "lighting": "Ánh sángMô tả",
+                    "ambiance": "Không khíMô tả"
                 }
             }
-        project_style: 项目级风格设置（从 project.json 读取）
+        project_style: Dự ánCấp Phong cách Cài đặt (đọc từ project.json)
 
     Returns:
-        YAML 格式字符串，用于 Gemini API 调用
+        YAML định dạngchuỗi，Dùng để gọi API Gemini
     """
     ordered = {
         "Style": project_style,
@@ -66,19 +66,19 @@ def image_prompt_to_yaml(image_prompt: dict, project_style: str) -> str:
 
 def video_prompt_to_yaml(video_prompt: dict) -> str:
     """
-    将 videoPrompt 结构转换为 YAML 格式字符串
+    Chuyển đổi cấu trúc videoPrompt sang chuỗi định dạng YAML
 
     Args:
-        video_prompt: segment 中的 video_prompt 对象，结构为：
+        video_prompt: segment trong đối tượng video_prompt, cấu trúc như sau:
             {
-                "action": "动作描述",
-                "camera_motion": "摄像机运动",
-                "ambiance_audio": "环境音效描述",
-                "dialogue": [{"speaker": "角色名", "line": "台词"}]
+                "action": "Hành động Mô tả",
+                "camera_motion": "Chuyển động máy quay",
+                "ambiance_audio": "Âm thanh môi trườngMô tả",
+                "dialogue": [{"speaker": "Nhân vật名", "line": "Thoại"}]
             }
 
     Returns:
-        YAML 格式字符串，用于 Veo API 调用
+        YAML định dạngchuỗi，Dùng để gọi API Veo
     """
     dialogue = [{"Speaker": d["speaker"], "Line": d["line"]} for d in video_prompt.get("dialogue", [])]
 
@@ -88,7 +88,7 @@ def video_prompt_to_yaml(video_prompt: dict) -> str:
         "Ambiance_Audio": video_prompt.get("ambiance_audio", ""),
     }
 
-    # 仅在有对话时添加 Dialogue 字段
+    # Chỉ thêm Dialogue từ đoạn khi có Đối thoại
     if dialogue:
         ordered["Dialogue"] = dialogue
 
@@ -97,40 +97,40 @@ def video_prompt_to_yaml(video_prompt: dict) -> str:
 
 def is_structured_image_prompt(image_prompt) -> bool:
     """
-    检查 image_prompt 是否为结构化格式
+    Kiểm tra image_prompt có phải là định dạng cấu trúc hay không
 
     Args:
-        image_prompt: image_prompt 字段值
+        image_prompt: image_prompt từGiá trị đoạn
 
     Returns:
-        True 如果是结构化格式（dict），False 如果是旧的字符串格式
+        True Nếu là định dạng cấu trúc (dict), False nếu là định dạng chuỗi cũ
     """
     return isinstance(image_prompt, dict) and "scene" in image_prompt
 
 
 def is_structured_video_prompt(video_prompt) -> bool:
     """
-    检查 video_prompt 是否为结构化格式
+    Kiểm tra video_prompt có phải là định dạng cấu trúc không
 
     Args:
-        video_prompt: video_prompt 字段值
+        video_prompt: video_prompt từGiá trị đoạn
 
     Returns:
-        True 如果是结构化格式（dict），False 如果是旧的字符串格式
+        True Nếu là định dạng cấu trúc (dict), False nếu là định dạng chuỗi cũ
     """
     return isinstance(video_prompt, dict) and "action" in video_prompt
 
 
 def validate_style(style: str) -> bool:
-    """验证风格是否为预设选项"""
+    """Xác thực Phong cách có phải là tùy chọn mặc định"""
     return style in STYLES
 
 
 def validate_shot_type(shot_type: str) -> bool:
-    """验证镜头类型是否为预设选项"""
+    """Xác thực Loại Góc máy có phải là tùy chọn mặc định"""
     return shot_type in SHOT_TYPES
 
 
 def validate_camera_motion(camera_motion: str) -> bool:
-    """验证摄像机运动是否为预设选项"""
+    """Xác thực chuyển động máy quay có phải là tùy chọn mặc định"""
     return camera_motion in CAMERA_MOTIONS

@@ -1,14 +1,14 @@
 """
-prompt_builders_script.py - 剧本生成 Prompt 构建器
+prompt_builders_script.py - Kịch bảnTrình tạo Prompt
 
-1. XML 标签分隔上下文
-2. 明确的字段描述和约束
-3. 可选值列表约束输出
+1. XML Phân tách bối cảnh nhãn
+2. Mô tả đoạn văn rõ ràng và giới hạn khoảng cách
+3. Danh sách giá trị tùy chọn đầu ra
 """
 
 
 def _format_character_names(characters: dict) -> str:
-    """格式化角色列表"""
+    """định dạngDanh sách nhân vật hóa"""
     lines = []
     for name in characters.keys():
         lines.append(f"- {name}")
@@ -16,7 +16,7 @@ def _format_character_names(characters: dict) -> str:
 
 
 def _format_clue_names(clues: dict) -> str:
-    """格式化线索列表"""
+    """định dạngDanh sách manh mối hóa"""
     lines = []
     for name in clues.keys():
         lines.append(f"- {name}")
@@ -32,43 +32,43 @@ def build_narration_prompt(
     segments_md: str,
 ) -> str:
     """
-    构建说书模式的 Prompt
+    Xây dựng Prompt theo chế độ kể chuyện
 
     Args:
-        project_overview: 项目概述（synopsis, genre, theme, world_setting）
-        style: 视觉风格标签
-        style_description: 风格描述
-        characters: 角色字典（仅用于提取名称列表）
-        clues: 线索字典（仅用于提取名称列表）
-        segments_md: Step 1 的 Markdown 内容
+        project_overview: Mô tả dự án（synopsis, genre, theme, world_setting）
+        style: Visual Phong cách标签
+        style_description: Mô tả phong cách
+        characters: Nhân vậttừĐiển hình (chỉ dùng để lấy tên danh sách)
+        clues: Manh mốitừĐiển hình (chỉ dùng để lấy tên danh sách)
+        segments_md: Step 1 Nội dung Markdown
 
     Returns:
-        构建好的 Prompt 字符串
+        Prompt đã xây dựng
     """
     character_names = list(characters.keys())
     clue_names = list(clues.keys())
 
-    prompt = f"""你的任务是为短视频生成分镜剧本。请仔细遵循以下指示：
+    prompt = f"""BạnNhiệm vụ là tạo các cảnh kịch bản cho video ngắn. Vui lòng làm theo các hướng dẫn sau một cách cẩn thận:
 
-**重要：所有输出内容必须使用中文。仅 JSON 键名和枚举值使用英文。**
+**Quan trọng：Tất cả nội dung đầu ra phải sử dụng ngôn ngữ đang dùng. Chỉ các tên khóa JSON và giá trị liệt kê sử dụng tiếng Anh.**
 
-1. 你将获得故事概述、视觉风格、角色列表、线索列表，以及已拆分的小说片段。
+1. BạnSẽ nhận được tổng quan câu chuyện, phong cách hình ảnh, danh sách nhân vật, danh sách manh mối, cũng như các đoạn văn thuộc tiểu thuyết đã được tách.
 
-2. 为每个片段生成：
-   - image_prompt：第一帧的图像生成提示词（中文描述）
-   - video_prompt：动作和音效的视频生成提示词（中文描述）
+2. Để tạo cho mỗi đoạn:
+   - image_prompt：Không.Prompt tạo hình ảnh cho một khung hình (Mô tả bằng tiếng Trung)
+   - video_prompt：Prompt tạo video hành động và âm thanh (Mô tả bằng tiếng Trung)
 
 <overview>
 {project_overview.get("synopsis", "")}
 
-题材类型：{project_overview.get("genre", "")}
-核心主题：{project_overview.get("theme", "")}
-世界观设定：{project_overview.get("world_setting", "")}
+Thể loạiLoại：{project_overview.get("genre", "")}
+Chủ đề chính:{project_overview.get("theme", "")}
+Thế giới quanCài đặt:{project_overview.get("world_setting", "")}
 </overview>
 
 <style>
-风格：{style}
-描述：{style_description}
+Phong cách：{style}
+Mô tả：{style_description}
 </style>
 
 <characters>
@@ -83,53 +83,53 @@ def build_narration_prompt(
 {segments_md}
 </segments>
 
-segments 为片段拆分表，每行是一个片段，包含：
-- 片段 ID：格式为 E{{集数}}S{{序号}}
-- 小说原文：必须原样保留到 novel_text 字段
-- 时长：4、6 或 8 秒
-- 是否有对话：用于判断是否需要填写 video_prompt.dialogue
-- 是否为 segment_break：场景切换点，需设置 segment_break 为 true
+segments Bảng phân tách đoạn, mỗi dòng là một đoạn, bao gồm:
+- Đoạn ID：định dạngCho E{{集数}}S{{Số thứ tự}}
+- Văn bản gốc tiểu thuyết: phải giữ nguyên như novel_text từ đoạn
+- Thời lượng: 4, 6 hoặc 8 giây
+- Có đối thoại hay không: dùng để xác định có cần điền video_prompt.dialogue hay không
+- Có phải là segment_break không: Điểm chuyển cảnh, cần cài đặt segment_break là true
 
-3. 为每个片段生成时，遵循以下规则：
+3. Khi tạo cho mỗi đoạn, tuân theo các quy tắc sau:
 
-a. **novel_text**：原样复制小说原文，不做任何修改。
+a. **novel_text**：Sao chép nguyên văn văn bản gốc tiểu thuyết, không chỉnh sửa bất kỳ điều gì.
 
-b. **characters_in_segment**：列出本片段中出场的角色名称。
-   - 可选值：[{", ".join(character_names)}]
-   - 仅包含明确提及或明显暗示的角色
+b. **characters_in_segment**：Liệt kê tên các nhân vật xuất hiện trong đoạn này.
+   - Giá trị tùy chọn: [{", ".join(character_names)}]
+   - Chỉ bao gồm các Nhân vật được đề cập rõ ràng hoặc ám chỉ rõ ràng
 
-c. **clues_in_segment**：列出本片段中涉及的线索名称。
-   - 可选值：[{", ".join(clue_names)}]
-   - 仅包含明确提及或明显暗示的线索
+c. **clues_in_segment**：Liệt kê tên manh mối có liên quan trong Đoạn này.
+   - Giá trị tùy chọn: [{", ".join(clue_names)}]
+   - Chỉ bao gồm Manh mối được đề cập rõ ràng hoặc ám chỉ rõ ràng
 
-d. **image_prompt**：生成包含以下字段的对象：
-   - scene：用中文描述此刻画面中的具体场景——角色位置、姿态、表情、服装细节，以及可见的环境元素和物品。
-     聚焦当下瞬间的可见画面。仅描述摄像机能够捕捉到的具体视觉元素。
-     确保描述避免超出此刻画面的元素。排除比喻、隐喻、抽象情绪词、主观评价、多场景切换等无法直接渲染的描述。
-     画面应自包含，不暗示过去事件或未来发展。
+d. **image_prompt**：Tạo đối tượng bao gồm các đoạn từ sau:
+   - scene：Dùng tiếng Trung mô tả cụ thể cảnh trong khoảnh khắc này — vị trí Nhân vật, tư thế, biểu cảm, chi tiết trang phục, và các yếu tố Môi trường cũng như vật phẩm có thể thấy.
+     Tập trung vào hình ảnh có thể thấy ngay tại khoảnh khắc hiện tại. Chỉ mô tả các yếu tố thị giác cụ thể mà máy quay có thể ghi lại.
+     Đảm bảo mô tả tránh các yếu tố nằm ngoài cảnh này. Loại bỏ ẩn dụ, ẩn ý, từ ngữ cảm xúc trừu tượng, đánh giá chủ quan, nhiều cảnh chuyển đổi mà không thể hiển thị trực tiếp.
+     Hình ảnh nên tự chứa, không ám chỉ sự kiện trong quá khứ hoặc phát triển tương lai.
    - composition：
-     - shot_type：镜头类型（Extreme Close-up, Close-up, Medium Close-up, Medium Shot, Medium Long Shot, Long Shot, Extreme Long Shot, Over-the-shoulder, Point-of-view）
-     - lighting：用中文描述具体的光源类型、方向和色温（如"左侧窗户透入的暖黄色晨光"）
-     - ambiance：用中文描述可见的环境效果（如"薄雾弥漫"、"尘埃飞扬"），避免抽象情绪词
+     - shot_type：Góc máyLoại（Extreme Close-up, Close-up, Medium Close-up, Medium Shot, Medium Long Shot, Long Shot, Extreme Long Shot, Over-the-shoulder, Point-of-view）
+     - lighting：Dùng tiếng Trung mô tả loại nguồn sáng, hướng và nhiệt màu cụ thể (ví dụ"Ánh sáng vàng ấm buổi sáng chiếu qua cửa sổ bên trái"）
+     - ambiance：Dùng tiếng Trung mô tả hiệu ứng môi trường có thể thấy (ví dụ"Sương mỏng bao phủ"、"Bụi bay lơ lửng"），Tránh từ ngữ cảm xúc trừu tượng
 
-e. **video_prompt**：生成包含以下字段的对象：
-   - action：用中文精确描述该时长内主体的具体动作——身体移动、手势变化、表情转换。
-     聚焦单一连贯动作，确保在指定时长（4/6/8秒）内可完成。
-     排除多场景切换、蒙太奇、快速剪辑等单次生成无法实现的效果。
-     排除比喻性动作描述（如"像蝴蝶般飞舞"）。
-   - camera_motion：镜头运动（Static, Pan Left, Pan Right, Tilt Up, Tilt Down, Zoom In, Zoom Out, Tracking Shot）
-     每个片段仅选择一种镜头运动。
-   - ambiance_audio：用中文描述画内音（diegetic sound）——环境声、脚步声、物体声音。
-     仅描述场景内真实存在的声音。排除音乐、BGM、旁白、画外音。
-   - dialogue：{{speaker, line}} 数组。仅当原文有引号对话时填写。speaker 必须来自 characters_in_segment。
+e. **video_prompt**：Tạo đối tượng bao gồm các đoạn từ sau:
+   - action：Dùng tiếng Trung mô tả chính xác các hành động cụ thể của chủ thể trong khoảng thời gian này — di chuyển cơ thể, thay đổi cử chỉ, chuyển đổi biểu cảm.
+     Tập trung vào một hành động liền mạch duy nhất, đảm bảo có thể hoàn thành trong thời gian quy định (4/6/8 giây).
+     Loại trừ việc chuyển cảnh nhiều, cắt cảnh nhanh, hiệu ứng montaje và các hiệu ứng không thể thực hiện trong một lần sinh tạo.
+     Loại trừ mô tả hành động ẩn dụ (ví dụ"như đang bay lượn như bướm"）。
+   - camera_motion：Chuyển động máy quay（Static, Pan Left, Pan Right, Tilt Up, Tilt Down, Zoom In, Zoom Out, Tracking Shot）
+     Mỗi đoạn chỉ chọn một kiểu chuyển động của máy quay.
+   - ambiance_audio：Dùng tiếng Trung mô tả âm thanh trong cảnh (diegetic sound) — âm thanh môi trường, tiếng bước chân, âm thanh vật thể.
+     Chỉ mô tả âm thanh thực sự tồn tại trong cảnh. Loại trừ nhạc nền, BGM, lồng tiếng, âm thanh ngoài cảnh.
+   - dialogue：{{speaker, line}} Dạng mảng. Chỉ điền khi văn bản gốc có dấu ngoặc kép đối thoại. speaker phải đến từ characters_in_segment.
 
-f. **segment_break**：如果在片段表中标记为"是"，则设为 true。
+f. **segment_break**：Nếu trong bảng đoạn được đánh dấu là"是"，thì đặt là true.
 
-g. **duration_seconds**：使用片段表中的时长（4、6 或 8）。
+g. **duration_seconds**：Sử dụng thời lượng trong bảng đoạn (4, 6 hoặc 8).
 
 h. **transition_to_next**：默认为 "cut"。
 
-目标：创建生动、视觉一致的分镜提示词，用于指导 AI 图像和视频生成。保持创意、具体，并忠于原文。
+Mục tiêu: Tạo phân cảnh Prompt sinh động, nhất quán về mặt hình ảnh, dùng để hướng dẫn AI tạo hình ảnh và video. Giữ sáng tạo, cụ thể, và trung thành với văn bản gốc.
 """
     return prompt
 
@@ -143,43 +143,43 @@ def build_drama_prompt(
     scenes_md: str,
 ) -> str:
     """
-    构建剧集动画模式的 Prompt
+    Xây dựng Prompt chế độ hoạt hình phim.
 
     Args:
-        project_overview: 项目概述
-        style: 视觉风格标签
-        style_description: 风格描述
-        characters: 角色字典
-        clues: 线索字典
-        scenes_md: Step 1 的 Markdown 内容
+        project_overview: Mô tả dự án
+        style: Visual Phong cách标签
+        style_description: Mô tả phong cách
+        characters: Nhân vậttừĐiển
+        clues: Manh mốitừĐiển
+        scenes_md: Step 1 Nội dung Markdown
 
     Returns:
-        构建好的 Prompt 字符串
+        Prompt đã xây dựng
     """
     character_names = list(characters.keys())
     clue_names = list(clues.keys())
 
-    prompt = f"""你的任务是为剧集动画生成分镜剧本。请仔细遵循以下指示：
+    prompt = f"""BạnNhiệm vụ là tạo phân cảnh kịch bản cho tập phim hoạt hình. Vui lòng làm theo chỉ dẫn sau một cách cẩn thận.
 
-**重要：所有输出内容必须使用中文。仅 JSON 键名和枚举值使用英文。**
+**Quan trọng：Tất cả nội dung đầu ra phải sử dụng ngôn ngữ đang dùng. Chỉ các tên khóa JSON và giá trị liệt kê sử dụng tiếng Anh.**
 
-1. 你将获得故事概述、视觉风格、角色列表、线索列表，以及已拆分的场景列表。
+1. BạnSẽ nhận được tổng quan câu chuyện, phong cách hình ảnh, danh sách nhân vật, danh sách manh mối, cũng như danh sách cảnh đã được phân tách.。
 
-2. 为每个场景生成：
-   - image_prompt：第一帧的图像生成提示词（中文描述）
-   - video_prompt：动作和音效的视频生成提示词（中文描述）
+2. Tạo cho mỗi cảnh:
+   - image_prompt：Không.Prompt tạo hình ảnh cho một khung hình (Mô tả bằng tiếng Trung)
+   - video_prompt：Prompt tạo video hành động và âm thanh (Mô tả bằng tiếng Trung)
 
 <overview>
 {project_overview.get("synopsis", "")}
 
-题材类型：{project_overview.get("genre", "")}
-核心主题：{project_overview.get("theme", "")}
-世界观设定：{project_overview.get("world_setting", "")}
+Thể loạiLoại：{project_overview.get("genre", "")}
+Chủ đề chính:{project_overview.get("theme", "")}
+Thế giới quanCài đặt:{project_overview.get("world_setting", "")}
 </overview>
 
 <style>
-风格：{style}
-描述：{style_description}
+Phong cách：{style}
+Mô tả：{style_description}
 </style>
 
 <characters>
@@ -194,52 +194,52 @@ def build_drama_prompt(
 {scenes_md}
 </scenes>
 
-scenes 为场景拆分表，每行是一个场景，包含：
-- 场景 ID：格式为 E{{集数}}S{{序号}}
-- 场景描述：剧本改编后的场景内容
-- 时长：4、6 或 8 秒（默认 8 秒）
-- 场景类型：剧情、动作、对话等
-- 是否为 segment_break：场景切换点，需设置 segment_break 为 true
+scenes Bảng phân tách cảnh, mỗi dòng là một cảnh, bao gồm:
+- Cảnh ID：định dạngCho E{{集数}}S{{Số thứ tự}}
+- CảnhMô tả：Kịch bảnNội dung cảnh đã được chuyển thể
+- Thời lượng: 4, 6 hoặc 8 giây (mặc định 8 giây)
+- CảnhLoại：Cốt truyện, hành động, đối thoại, v.v.
+- Có phải là segment_break không: Điểm chuyển cảnh, cần cài đặt segment_break là true
 
-3. 为每个场景生成时，遵循以下规则：
+3. Khi tạo cho mỗi cảnh, tuân theo các quy tắc sau:
 
-a. **characters_in_scene**：列出本场景中出场的角色名称。
-   - 可选值：[{", ".join(character_names)}]
-   - 仅包含明确提及或明显暗示的角色
+a. **characters_in_scene**：Liệt kê tên nhân vật xuất hiện trong cảnh.
+   - Giá trị tùy chọn: [{", ".join(character_names)}]
+   - Chỉ bao gồm các Nhân vật được đề cập rõ ràng hoặc ám chỉ rõ ràng
 
-b. **clues_in_scene**：列出本场景中涉及的线索名称。
-   - 可选值：[{", ".join(clue_names)}]
-   - 仅包含明确提及或明显暗示的线索
+b. **clues_in_scene**：Liệt kê tên manh mối liên quan trong cảnh.
+   - Giá trị tùy chọn: [{", ".join(clue_names)}]
+   - Chỉ bao gồm Manh mối được đề cập rõ ràng hoặc ám chỉ rõ ràng
 
-c. **image_prompt**：生成包含以下字段的对象：
-   - scene：用中文描述此刻画面中的具体场景——角色位置、姿态、表情、服装细节，以及可见的环境元素和物品。16:9 横屏构图。
-     聚焦当下瞬间的可见画面。仅描述摄像机能够捕捉到的具体视觉元素。
-     确保描述避免超出此刻画面的元素。排除比喻、隐喻、抽象情绪词、主观评价、多场景切换等无法直接渲染的描述。
-     画面应自包含，不暗示过去事件或未来发展。
+c. **image_prompt**：Tạo đối tượng bao gồm các đoạn từ sau:
+   - scene：Dùng tiếng Trung mô tả cụ thể cảnh này — vị trí nhân vật, tư thế, biểu cảm, chi tiết trang phục, cùng các yếu tố môi trường và vật phẩm có thể thấy. Bố cục ngang 16:9.
+     Tập trung vào hình ảnh có thể thấy ngay tại khoảnh khắc hiện tại. Chỉ mô tả các yếu tố thị giác cụ thể mà máy quay có thể ghi lại.
+     Đảm bảo mô tả tránh các yếu tố nằm ngoài cảnh này. Loại bỏ ẩn dụ, ẩn ý, từ ngữ cảm xúc trừu tượng, đánh giá chủ quan, nhiều cảnh chuyển đổi mà không thể hiển thị trực tiếp.
+     Hình ảnh nên tự chứa, không ám chỉ sự kiện trong quá khứ hoặc phát triển tương lai.
    - composition：
-     - shot_type：镜头类型（Extreme Close-up, Close-up, Medium Close-up, Medium Shot, Medium Long Shot, Long Shot, Extreme Long Shot, Over-the-shoulder, Point-of-view）
-     - lighting：用中文描述具体的光源类型、方向和色温（如"左侧窗户透入的暖黄色晨光"）
-     - ambiance：用中文描述可见的环境效果（如"薄雾弥漫"、"尘埃飞扬"），避免抽象情绪词
+     - shot_type：Góc máyLoại（Extreme Close-up, Close-up, Medium Close-up, Medium Shot, Medium Long Shot, Long Shot, Extreme Long Shot, Over-the-shoulder, Point-of-view）
+     - lighting：Dùng tiếng Trung mô tả loại nguồn sáng, hướng và nhiệt màu cụ thể (ví dụ"Ánh sáng vàng ấm buổi sáng chiếu qua cửa sổ bên trái"）
+     - ambiance：Dùng tiếng Trung mô tả hiệu ứng môi trường có thể thấy (ví dụ"Sương mỏng bao phủ"、"Bụi bay lơ lửng"），Tránh từ ngữ cảm xúc trừu tượng
 
-d. **video_prompt**：生成包含以下字段的对象：
-   - action：用中文精确描述该时长内主体的具体动作——身体移动、手势变化、表情转换。
-     聚焦单一连贯动作，确保在指定时长（4/6/8秒）内可完成。
-     排除多场景切换、蒙太奇、快速剪辑等单次生成无法实现的效果。
-     排除比喻性动作描述（如"像蝴蝶般飞舞"）。
-   - camera_motion：镜头运动（Static, Pan Left, Pan Right, Tilt Up, Tilt Down, Zoom In, Zoom Out, Tracking Shot）
-     每个片段仅选择一种镜头运动。
-   - ambiance_audio：用中文描述画内音（diegetic sound）——环境声、脚步声、物体声音。
-     仅描述场景内真实存在的声音。排除音乐、BGM、旁白、画外音。
-   - dialogue：{{speaker, line}} 数组。包含角色对话。speaker 必须来自 characters_in_scene。
+d. **video_prompt**：Tạo đối tượng bao gồm các đoạn từ sau:
+   - action：Dùng tiếng Trung mô tả chính xác các hành động cụ thể của chủ thể trong khoảng thời gian này — di chuyển cơ thể, thay đổi cử chỉ, chuyển đổi biểu cảm.
+     Tập trung vào một hành động liền mạch duy nhất, đảm bảo có thể hoàn thành trong thời gian quy định (4/6/8 giây).
+     Loại trừ việc chuyển cảnh nhiều, cắt cảnh nhanh, hiệu ứng montaje và các hiệu ứng không thể thực hiện trong một lần sinh tạo.
+     Loại trừ mô tả hành động ẩn dụ (ví dụ"như đang bay lượn như bướm"）。
+   - camera_motion：Chuyển động máy quay（Static, Pan Left, Pan Right, Tilt Up, Tilt Down, Zoom In, Zoom Out, Tracking Shot）
+     Mỗi đoạn chỉ chọn một kiểu chuyển động của máy quay.
+   - ambiance_audio：Dùng tiếng Trung mô tả âm thanh trong cảnh (diegetic sound) — âm thanh môi trường, tiếng bước chân, âm thanh vật thể.
+     Chỉ mô tả âm thanh thực sự tồn tại trong cảnh. Loại trừ nhạc nền, BGM, lồng tiếng, âm thanh ngoài cảnh.
+   - dialogue：{{speaker, line}} Mảng, bao gồm đối thoại của nhân vật. Người nói phải là một trong những nhân vật trong cảnh.
 
-e. **segment_break**：如果在场景表中标记为"是"，则设为 true。
+e. **segment_break**：Nếu trong bảng cảnh được đánh dấu là"是"，thì đặt là true.
 
-f. **duration_seconds**：使用场景表中的时长（4、6 或 8），默认为 8。
+f. **duration_seconds**：Sử dụng thời lượng từ bảng cảnh (4, 6 hoặc 8 giây), mặc định là 8.
 
-g. **scene_type**：使用场景表中的场景类型，默认为"剧情"。
+g. **scene_type**：Sử dụng loại cảnh từ bảng cảnh, mặc định là"Cốt truyện"。
 
 h. **transition_to_next**：默认为 "cut"。
 
-目标：创建生动、视觉一致的分镜提示词，用于指导 AI 图像和视频生成。保持创意、具体，适合 16:9 横屏动画呈现。
+Mục tiêu: Tạo các prompt phân cảnh sống động và thống nhất về mặt thị giác, dùng để hướng dẫn AI tạo hình ảnh và video. Giữ tính sáng tạo, cụ thể, phù hợp với trình bày hoạt hình theo bố cục ngang 16:9.
 """
     return prompt

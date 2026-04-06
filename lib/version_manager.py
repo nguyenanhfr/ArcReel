@@ -1,8 +1,8 @@
 """
-版本管理模块
+Quản lý phiên bản模块
 
-管理分镜图、视频、角色图、线索图的历史版本。
-支持版本备份、切换当前版本、记录和查询。
+Quản lý lịch sử phiên bản của Ảnh phân cảnh, Video, Nhân vật đồ họa, Bản đồ manh mối.
+Hỗ trợ sao lưu phiên bản, chuyển đổi phiên bản hiện tại, ghi lại và truy vấn.
 """
 
 import json
@@ -26,12 +26,12 @@ def _get_versions_file_lock(versions_file: Path) -> threading.RLock:
 
 
 class VersionManager:
-    """版本管理器"""
+    """Quản lý phiên bản器"""
 
-    # 支持的资源类型
+    # 支持的Loại tài nguyên
     RESOURCE_TYPES = ("storyboards", "videos", "characters", "clues")
 
-    # 资源类型对应的文件扩展名
+    # Loại tài nguyênPhần mở rộng tệp tương ứng
     EXTENSIONS = {
         "storyboards": ".png",
         "videos": ".mp4",
@@ -41,27 +41,27 @@ class VersionManager:
 
     def __init__(self, project_path: Path):
         """
-        初始化版本管理器
+        Khởi tạo Trình quản lý phiên bản
 
         Args:
-            project_path: 项目根目录路径
+            project_path: Dự ánĐường dẫn thư mục gốc
         """
         self.project_path = Path(project_path)
         self.versions_dir = self.project_path / "versions"
         self.versions_file = self.versions_dir / "versions.json"
         self._lock = _get_versions_file_lock(self.versions_file)
 
-        # 确保版本目录存在
+        # Đảm bảo thư mục phiên bản tồn tại
         self._ensure_dirs()
 
     def _ensure_dirs(self) -> None:
-        """确保版本目录结构存在"""
+        """Đảm bảo phiên bản Cấu trúc thư mục tồn tại"""
         self.versions_dir.mkdir(parents=True, exist_ok=True)
         for resource_type in self.RESOURCE_TYPES:
             (self.versions_dir / resource_type).mkdir(exist_ok=True)
 
     def _load_versions(self) -> dict:
-        """加载版本元数据"""
+        """Tải siêu dữ liệu phiên bản"""
         if not self.versions_file.exists():
             return {rt: {} for rt in self.RESOURCE_TYPES}
 
@@ -69,31 +69,31 @@ class VersionManager:
             return json.load(f)
 
     def _save_versions(self, data: dict) -> None:
-        """保存版本元数据"""
+        """LưuSiêu dữ liệu phiên bản"""
         with open(self.versions_file, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
     def _generate_timestamp(self) -> str:
-        """生成时间戳字符串（用于文件名）"""
+        """Tạo chuỗi dấu thời gian (dùng cho tên tệp)"""
         return datetime.now().strftime("%Y%m%dT%H%M%S")
 
     def _generate_iso_timestamp(self) -> str:
-        """生成 ISO 格式时间戳（用于元数据）"""
+        """Tạo dấu thời gian định dạng ISO (dùng cho siêu dữ liệu)"""
         return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def get_versions(self, resource_type: str, resource_id: str) -> dict:
         """
-        获取资源的所有版本信息
+        Lấy thông tin tất cả các phiên bản của tài nguyên
 
         Args:
-            resource_type: 资源类型 (storyboards, videos, characters, clues)
-            resource_id: 资源 ID (如 E1S01, 姜月茴)
+            resource_type: Loại tài nguyên (bảng phân cảnh, video, nhân vật, manh mối)
+            resource_id: ID tài nguyên (Như E1S01, Giang Nguyệt Hồi)
 
         Returns:
-            版本信息字典，包含 current_version 和 versions 列表
+            Thông tin phiên bản từ Điển, bao gồm current_version và danh sách versions
         """
         if resource_type not in self.RESOURCE_TYPES:
-            raise ValueError(f"不支持的资源类型: {resource_type}")
+            raise ValueError(f"Loại tài nguyên không được hỗ trợ: {resource_type}")
 
         with self._lock:
             data = self._load_versions()
@@ -102,7 +102,7 @@ class VersionManager:
             if not resource_data:
                 return {"current_version": 0, "versions": []}
 
-            # 添加 is_current 和 file_url 字段
+            # Thêm is_current và file_url từ đoạn
             versions = []
             for v in resource_data.get("versions", []):
                 version_info = v.copy()
@@ -114,14 +114,14 @@ class VersionManager:
 
     def get_current_version(self, resource_type: str, resource_id: str) -> int:
         """
-        获取当前版本号
+        Lấy số phiên bản hiện tại
 
         Args:
-            resource_type: 资源类型
-            resource_id: 资源 ID
+            resource_type: Loại tài nguyên
+            resource_id: ID tài nguyên
 
         Returns:
-            当前版本号，无版本时返回 0
+            Hiện tạiSố phiên bản, nếu không có phiên bản thì trả về 0
         """
         info = self.get_versions(resource_type, resource_id)
         return info["current_version"]
@@ -130,29 +130,29 @@ class VersionManager:
         self, resource_type: str, resource_id: str, prompt: str, source_file: Path | None = None, **metadata
     ) -> int:
         """
-        添加新版本记录
+        ThêmGhi nhận phiên bản mới
 
         Args:
-            resource_type: 资源类型
-            resource_id: 资源 ID
-            prompt: 生成该版本使用的 prompt
-            source_file: 源文件路径（用于复制到版本目录）
-            **metadata: 额外的元数据（如 aspect_ratio, duration_seconds）
+            resource_type: Loại tài nguyên
+            resource_id: ID tài nguyên
+            prompt: Tạo prompt sử dụng cho phiên bản này
+            source_file: Tệp nguồnĐường dẫn (dùng để sao chép vào thư mục phiên bản)
+            **metadata: Dữ liệu meta bổ sung (như aspect_ratio, duration_seconds)
 
         Returns:
-            新版本号
+            Số phiên bản mới
         """
         if resource_type not in self.RESOURCE_TYPES:
-            raise ValueError(f"不支持的资源类型: {resource_type}")
+            raise ValueError(f"Loại tài nguyên không được hỗ trợ: {resource_type}")
 
         with self._lock:
             data = self._load_versions()
 
-            # 确保资源类型存在
+            # Đảm bảo Loại tài nguyên tồn tại
             if resource_type not in data:
                 data[resource_type] = {}
 
-            # 获取或创建资源记录
+            # Lấy hoặc Tạo bản ghi tài nguyên
             if resource_id not in data[resource_type]:
                 data[resource_type][resource_id] = {"current_version": 0, "versions": []}
 
@@ -164,18 +164,18 @@ class VersionManager:
             )
             new_version = max_version + 1
 
-            # 生成版本文件名和路径
+            # Tạo phiên bản tên tệp và đường dẫn
             timestamp = self._generate_timestamp()
             ext = self.EXTENSIONS.get(resource_type, ".png")
             version_filename = f"{resource_id}_v{new_version}_{timestamp}{ext}"
             version_rel_path = f"versions/{resource_type}/{version_filename}"
             version_abs_path = self.project_path / version_rel_path
 
-            # 如果有源文件，复制到版本目录
+            # Nếu có Tệp nguồn, sao chép vào thư mục phiên bản
             if source_file and Path(source_file).exists():
                 shutil.copy2(source_file, version_abs_path)
 
-            # 创建版本记录
+            # TạoGhi lại phiên bản
             version_record = {
                 "version": new_version,
                 "file": version_rel_path,
@@ -194,19 +194,19 @@ class VersionManager:
         self, resource_type: str, resource_id: str, current_file: Path, prompt: str, **metadata
     ) -> int | None:
         """
-        将当前文件备份到版本目录
+        Sao lưu tệp Hiện tại vào thư mục phiên bản
 
-        如果当前文件不存在，不执行任何操作。
+        Nếu tệp Hiện tại không tồn tại, không thực hiện hành động nào.
 
         Args:
-            resource_type: 资源类型
-            resource_id: 资源 ID
-            current_file: 当前文件路径
-            prompt: 当前版本的 prompt
-            **metadata: 额外的元数据
+            resource_type: Loại tài nguyên
+            resource_id: ID tài nguyên
+            current_file: Hiện tại文件路径
+            prompt: Hiện tạiPrompt của phiên bản
+            **metadata: Siêu dữ liệu bổ sung
 
         Returns:
-            备份的版本号，如果未备份则返回 None
+            Số phiên bản đã sao lưu, nếu chưa sao lưu thì trả về None
         """
         current_file = Path(current_file)
         if not current_file.exists():
@@ -220,27 +220,27 @@ class VersionManager:
         self, resource_type: str, resource_id: str, current_file: Path, prompt: str, **metadata
     ) -> int | None:
         """
-        确保“当前文件”至少有一个版本记录
+        Đảm bảo “Hiện tạiTệp ít nhất có một bản ghi phiên bản
 
-        用于升级/迁移场景：磁盘上已有 current_file，但 versions.json 还没有记录。
-        若该资源已存在版本记录（current_version > 0）则不会重复写入。
+        Dùng để nâng cấp/di chuyển Cảnh: trên đĩa đã có current_file, nhưng versions.json vẫn chưa ghi nhận.
+        Nếu tài nguyên đó Đã tồn tại bản ghi phiên bản (current_version > 0）thì sẽ không ghi lại lần nữa.
 
         Args:
-            resource_type: 资源类型
-            resource_id: 资源 ID
-            current_file: 当前文件路径
-            prompt: 当前文件对应的 prompt（用于记录）
-            **metadata: 额外元数据
+            resource_type: Loại tài nguyên
+            resource_id: ID tài nguyên
+            current_file: Hiện tại文件路径
+            prompt: Hiện tạiPrompt tương ứng với tệp (dùng để ghi lại)
+            **metadata: Metadata bổ sung
 
         Returns:
-            新增的版本号；若无需新增或文件不存在则返回 None
+            Số phiên bản mới; nếu không cần thêm hoặc tệp không tồn tại thì trả về None
         """
         current_file = Path(current_file)
         if not current_file.exists():
             return None
 
         if resource_type not in self.RESOURCE_TYPES:
-            raise ValueError(f"不支持的资源类型: {resource_type}")
+            raise ValueError(f"Loại tài nguyên không được hỗ trợ: {resource_type}")
 
         with self._lock:
             if self.get_current_version(resource_type, resource_id) > 0:
@@ -255,21 +255,21 @@ class VersionManager:
 
     def restore_version(self, resource_type: str, resource_id: str, version: int, current_file: Path) -> dict:
         """
-        切换到指定版本
+        Chuyển sang phiên bản được chỉ định
 
-        将指定版本复制到当前路径，并将 current_version 指向该版本。
+        Sao chép phiên bản được chỉ định vào đường dẫn Hiện tại, và đặt current_version trỏ tới phiên bản đó.
 
         Args:
-            resource_type: 资源类型
-            resource_id: 资源 ID
-            version: 要还原的版本号
-            current_file: 当前文件路径
+            resource_type: Loại tài nguyên
+            resource_id: ID tài nguyên
+            version: Số phiên bản cần khôi phục
+            current_file: Hiện tại文件路径
 
         Returns:
-            切换信息，包含 restored_version, current_version, prompt
+            Thông tin chuyển đổi, bao gồm restored_version, current_version, prompt
         """
         if resource_type not in self.RESOURCE_TYPES:
-            raise ValueError(f"不支持的资源类型: {resource_type}")
+            raise ValueError(f"Loại tài nguyên không được hỗ trợ: {resource_type}")
 
         current_file = Path(current_file)
 
@@ -278,7 +278,7 @@ class VersionManager:
             resource_data = data.get(resource_type, {}).get(resource_id)
 
             if not resource_data:
-                raise ValueError(f"资源不存在: {resource_type}/{resource_id}")
+                raise ValueError(f"Nguồn không tồn tại: {resource_type}/{resource_id}")
 
             target_version = None
             for v in resource_data["versions"]:
@@ -287,11 +287,11 @@ class VersionManager:
                     break
 
             if not target_version:
-                raise ValueError(f"版本不存在: {version}")
+                raise ValueError(f"Phiên bản không tồn tại: {version}")
 
             target_file = self.project_path / target_version["file"]
             if not target_file.exists():
-                raise FileNotFoundError(f"版本文件不存在: {target_file}")
+                raise FileNotFoundError(f"Tệp phiên bản không tồn tại: {target_file}")
 
             current_file.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(target_file, current_file)
@@ -308,15 +308,15 @@ class VersionManager:
 
     def get_version_file_url(self, resource_type: str, resource_id: str, version: int) -> str | None:
         """
-        获取指定版本的文件 URL
+        Lấy URL của tệp phiên bản được chỉ định
 
         Args:
-            resource_type: 资源类型
-            resource_id: 资源 ID
+            resource_type: Loại tài nguyên
+            resource_id: ID tài nguyên
             version: 版本号
 
         Returns:
-            文件 URL，不存在时返回 None
+            URL tệp, nếu không tồn tại thì trả về None
         """
         info = self.get_versions(resource_type, resource_id)
         for v in info["versions"]:
@@ -326,15 +326,15 @@ class VersionManager:
 
     def get_version_prompt(self, resource_type: str, resource_id: str, version: int) -> str | None:
         """
-        获取指定版本的 prompt
+        Lấy prompt của phiên bản được chỉ định
 
         Args:
-            resource_type: 资源类型
-            resource_id: 资源 ID
+            resource_type: Loại tài nguyên
+            resource_id: ID tài nguyên
             version: 版本号
 
         Returns:
-            prompt 文本，不存在时返回 None
+            prompt Văn bản，Trả về None nếu không tồn tại
         """
         info = self.get_versions(resource_type, resource_id)
         for v in info["versions"]:
@@ -344,13 +344,13 @@ class VersionManager:
 
     def has_versions(self, resource_type: str, resource_id: str) -> bool:
         """
-        检查资源是否有版本记录
+        Kiểm tra xem tài nguyên có bản ghi phiên bản hay không
 
         Args:
-            resource_type: 资源类型
-            resource_id: 资源 ID
+            resource_type: Loại tài nguyên
+            resource_id: ID tài nguyên
 
         Returns:
-            是否有版本记录
+            Có bản ghi phiên bản hay không
         """
         return self.get_current_version(resource_type, resource_id) > 0

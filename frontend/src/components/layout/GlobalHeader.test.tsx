@@ -39,10 +39,10 @@ vi.mock("./ExportScopeDialog", () => ({
     open ? (
       <div data-testid="export-scope-dialog">
         <button data-testid="scope-current" onClick={() => onSelect("current")}>
-          仅当前版本
+          Chỉ phiên bản hiện tại
         </button>
         <button data-testid="scope-full" onClick={() => onSelect("full")}>
-          全部数据
+          Tất cả dữ liệu
         </button>
       </div>
     ) : null,
@@ -79,7 +79,7 @@ describe("GlobalHeader", () => {
     useProjectsStore.setState({
       currentProjectName: "halou-92d19a04",
       currentProjectData: {
-        title: "哈喽项目",
+        title: "Xin chào Dự án",
         content_mode: "narration",
         style: "Anime",
         episodes: [],
@@ -90,7 +90,7 @@ describe("GlobalHeader", () => {
 
     renderHeader();
 
-    expect(screen.getByText("哈喽项目")).toBeInTheDocument();
+    expect(screen.getByText("Xin chào Dự án")).toBeInTheDocument();
     expect(screen.queryByText("halou-92d19a04")).not.toBeInTheDocument();
 
     await waitFor(() => {
@@ -110,18 +110,18 @@ describe("GlobalHeader", () => {
     });
 
     useAppStore.getState().pushWorkspaceNotification({
-      text: "AI 刚更新了线索「玉佩」，点击查看",
+      text: "AI Mạnh mối "Mặt Dây Ngọc" vừa được cập nhật, click để xem",
       target: {
         type: "clue",
-        id: "玉佩",
+        id: "mặt dây chuyền ngọc bích",
         route: "/clues",
       },
     });
 
     renderHeader();
 
-    expect(screen.getByTitle("会话通知: 1 条")).toBeInTheDocument();
-    screen.getByRole("button", { name: "打开通知中心" }).click();
+    expect(screen.getByTitle("Thông báo hội thoại: 1 mục")).toBeInTheDocument();
+    screen.getByRole("button", { name: "Mở trung tâm thông báo" }).click();
     expect(await screen.findByTestId("notifications-drawer")).toBeInTheDocument();
   });
 
@@ -138,7 +138,7 @@ describe("GlobalHeader", () => {
       expires_in: 300,
       diagnostics: {
         blocking: [],
-        auto_fixed: [{ code: "current_asset_restored_from_version", message: "修复视频引用" }],
+        auto_fixed: [{ code: "current_asset_restored_from_version", message: "Sửa chữa Video tham khảo" }],
         warnings: [],
       },
     });
@@ -147,7 +147,7 @@ describe("GlobalHeader", () => {
     useProjectsStore.setState({
       currentProjectName: "demo",
       currentProjectData: {
-        title: "导出项目",
+        title: "Xuất dự án",
         content_mode: "narration",
         style: "Anime",
         episodes: [],
@@ -158,9 +158,9 @@ describe("GlobalHeader", () => {
 
     renderHeader();
     // Click export button to open dialog
-    screen.getByRole("button", { name: "导出当前项目 ZIP" }).click();
+    screen.getByRole("button", { name: "Xuất dự án ZIP hiện tại" }).click();
 
-    // Wait for dialog to appear then click "仅当前版本"
+    // Wait for dialog to appear then click "Chỉ phiên bản hiện tại"
     const scopeBtn = await screen.findByTestId("scope-current");
     scopeBtn.click();
 
@@ -168,7 +168,7 @@ describe("GlobalHeader", () => {
       expect(API.requestExportToken).toHaveBeenCalledWith("demo", "current");
     });
     expect(anchorClick).toHaveBeenCalled();
-    expect(useAppStore.getState().toast?.text).toContain("包含 1 条诊断");
+    expect(useAppStore.getState().toast?.text).toContain("Chứa 1 chẩn đoán");
   });
 
   it("shows an error toast when exporting fails", async () => {
@@ -184,7 +184,7 @@ describe("GlobalHeader", () => {
     useProjectsStore.setState({
       currentProjectName: "demo",
       currentProjectData: {
-        title: "导出项目",
+        title: "Xuất dự án",
         content_mode: "narration",
         style: "Anime",
         episodes: [],
@@ -194,13 +194,13 @@ describe("GlobalHeader", () => {
     });
 
     renderHeader();
-    screen.getByRole("button", { name: "导出当前项目 ZIP" }).click();
+    screen.getByRole("button", { name: "Xuất dự án ZIP hiện tại" }).click();
 
     const scopeBtn = await screen.findByTestId("scope-full");
     scopeBtn.click();
 
     await waitFor(() => {
-      expect(useAppStore.getState().toast?.text).toContain("导出失败");
+      expect(useAppStore.getState().toast?.text).toContain("Xuất thất bại");
     });
   });
 });

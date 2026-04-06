@@ -1,7 +1,7 @@
 """
-供应商配置管理 API。
+nhà cung cấpCấu hình quản lý API.
 
-提供供应商列表查询、单个供应商配置读写和连接测试端点。
+Cung cấp danh sách nhà cung cấp truy vấn, đọc/ghi cấu hình nhà cung cấp đơn lẻ và điểm kiểm tra kết nối.
 """
 
 from __future__ import annotations
@@ -37,24 +37,24 @@ logger = logging.getLogger(__name__)
 
 MAX_VERTEX_CREDENTIALS_BYTES = 1024 * 1024  # 1 MiB
 
-router = APIRouter(prefix="/providers", tags=["供应商管理"])
+router = APIRouter(prefix="/providers", tags=["Quản lý nhà cung cấp"])
 
 _CREDENTIAL_KEYS = frozenset({"api_key", "credentials_path", "base_url"})
 
 # ---------------------------------------------------------------------------
-# 字段元数据映射（key → label/type/placeholder）
+# từBản đồ siêu dữ liệu trường (key → label/type/placeholder)
 # ---------------------------------------------------------------------------
 
 _FIELD_META: dict[str, dict[str, str]] = {
     "api_key": {"label": "API Key", "type": "secret"},
-    "base_url": {"label": "Base URL", "type": "url", "placeholder": "默认官方地址"},
-    "credentials_path": {"label": "Vertex 凭证路径", "type": "text"},
+    "base_url": {"label": "Base URL", "type": "url", "placeholder": "Địa chỉ chính thức mặc định"},
+    "credentials_path": {"label": "Vertex Đường dẫn chứng chỉ", "type": "text"},
     "gcs_bucket": {"label": "GCS Bucket", "type": "text"},
-    "image_rpm": {"label": "图片 RPM", "type": "number"},
-    "video_rpm": {"label": "视频 RPM", "type": "number"},
-    "request_gap": {"label": "请求间隔(秒)", "type": "number"},
-    "image_max_workers": {"label": "图片最大并发", "type": "number"},
-    "video_max_workers": {"label": "视频最大并发", "type": "number"},
+    "image_rpm": {"label": "Ảnh RPM", "type": "number"},
+    "video_rpm": {"label": "Video RPM", "type": "number"},
+    "request_gap": {"label": "Khoảng thời gian yêu cầu (giây)", "type": "number"},
+    "image_max_workers": {"label": "Ảnh最大并发", "type": "number"},
+    "video_max_workers": {"label": "Video最大并发", "type": "number"},
 }
 
 
@@ -140,14 +140,14 @@ class UpdateCredentialRequest(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# 辅助函数
+# Hàm hỗ trợ
 # ---------------------------------------------------------------------------
 
 
 def _validate_provider(provider_id: str) -> None:
-    """验证供应商 ID 是否存在，不存在则抛 404。"""
+    """Xác minh nhà cung cấp ID có tồn tại hay không, nếu không tồn tại thì ném 404."""
     if provider_id not in PROVIDER_REGISTRY:
-        raise HTTPException(status_code=404, detail=f"未知供应商: {provider_id}")
+        raise HTTPException(status_code=404, detail=f"Nhà cung cấp không xác định: {provider_id}")
 
 
 async def _get_credential_or_404(
@@ -155,10 +155,10 @@ async def _get_credential_or_404(
     provider_id: str,
     cred_id: int,
 ) -> ProviderCredential:
-    """获取凭证并校验归属，不存在则抛 404。"""
+    """Lấy chứng chỉ và kiểm tra quyền sở hữu, nếu không tồn tại thì ném 404."""
     cred = await repo.get_by_id(cred_id)
     if not cred or cred.provider != provider_id:
-        raise HTTPException(status_code=404, detail="凭证不存在")
+        raise HTTPException(status_code=404, detail="Chứng chỉ không tồn tại")
     return cred
 
 
@@ -189,7 +189,7 @@ def _build_field(
     required: bool,
     db_entry: dict[str, Any] | None,
 ) -> FieldInfo:
-    """根据 key、是否必填和 DB 取出的条目，构建 FieldInfo。"""
+    """Dựa trên key, bắt buộc hay không và các mục được lấy từ DB, xây dựng FieldInfo."""
     meta = _FIELD_META.get(key, {"label": key, "type": "text"})
     is_set = db_entry is not None and db_entry.get("is_set", False)
 
@@ -219,7 +219,7 @@ def _build_field(
 
 
 # ---------------------------------------------------------------------------
-# 端点
+# Điểm cuối
 # ---------------------------------------------------------------------------
 
 
@@ -227,7 +227,7 @@ def _build_field(
 async def list_providers(
     svc: Annotated[ConfigService, Depends(get_config_service)],
 ) -> ProvidersListResponse:
-    """返回所有供应商及其状态。"""
+    """Trả về tất cả nhà cung cấp và trạng thái của họ."""
     statuses = await svc.get_all_providers_status()
     providers = [
         ProviderSummary(
@@ -251,19 +251,19 @@ async def get_provider_config(
     provider_id: str,
     session: AsyncSession = Depends(get_async_session),
 ) -> ProviderConfigResponse:
-    """返回单个供应商的配置字段（registry 元数据与 DB 值合并）。"""
+    """Trả về cấu hình của một nhà cung cấp đơn lẻ từ đoạn (dữ liệu metadata registry và giá trị DB được hợp nhất)."""
     _validate_provider(provider_id)
 
     meta = PROVIDER_REGISTRY[provider_id]
     svc = ConfigService(session)
     db_values = await svc.get_provider_config_masked(provider_id)
 
-    # 计算状态：基于凭证表是否有活跃凭证
+    # Tính toán trạng thái: dựa trên bảng chứng chỉ có chứng chỉ hoạt động hay không
     cred_repo = CredentialRepository(session)
     has_active = await cred_repo.has_active_credential(provider_id)
     status = "ready" if has_active else "unconfigured"
 
-    # 构建字段列表：先必填，再可选，跳过凭证字段
+    # Xây dựng danh sách đoạn: bắt buộc trước, sau đó là tùy chọn, bỏ qua đoạn chứng chỉ
     fields: list[FieldInfo] = []
     for key in meta.required_keys:
         if key not in _CREDENTIAL_KEYS:
@@ -289,7 +289,7 @@ async def patch_provider_config(
     request: Request,
     session: AsyncSession = Depends(get_async_session),
 ) -> Response:
-    """更新供应商配置。值为 null 表示删除该键。"""
+    """Cập nhật cấu hình nhà cung cấp. Giá trị null nghĩa là Xóa khóa đó."""
     _validate_provider(provider_id)
 
     svc = ConfigService(session)
@@ -301,14 +301,14 @@ async def patch_provider_config(
 
     await session.commit()
 
-    # 配置变更后刷新缓存和并发池
+    # Làm mới cache và pool đồng thời sau khi thay đổi cấu hình
     await _invalidate_caches(request)
 
     return Response(status_code=204)
 
 
 # ---------------------------------------------------------------------------
-# 凭证 CRUD 端点
+# Điểm cuối CRUD chứng chỉ
 # ---------------------------------------------------------------------------
 
 
@@ -379,19 +379,19 @@ async def delete_credential(
     _validate_provider(provider_id)
     repo = CredentialRepository(session)
     cred = await _get_credential_or_404(repo, provider_id, cred_id)
-    cred_path = cred.credentials_path  # 在 delete 前保存，避免 ORM 对象过期后无法访问
+    cred_path = cred.credentials_path  # Lưu trước khi xóa, tránh việc đối tượng ORM hết hạn không thể truy cập
     await repo.delete(cred_id)
     await session.commit()
     await _invalidate_caches(request)
-    # 删除关联的凭证文件（如 vertex_keys/ 下的 JSON），放在 commit 之后确保数据一致性
+    # XóaCác tệp thông tin xác thực liên quan (như JSON trong vertex_keys/) đặt sau commit để đảm bảo tính nhất quán dữ liệu
     if cred_path:
         cred_file = Path(cred_path)
         if cred_file.is_file():
             try:
                 cred_file.unlink()
-                logger.info("已删除凭证文件: %s", cred_file)
+                logger.info("Đã XóaTệp thông tin xác thực: %s", cred_file)
             except OSError:
-                logger.warning("删除凭证文件失败: %s", cred_file, exc_info=True)
+                logger.warning("XóaTệp thông tin xác thựcThất bại: %s", cred_file, exc_info=True)
     return Response(status_code=204)
 
 
@@ -418,22 +418,22 @@ async def upload_vertex_credential(
     session: AsyncSession = Depends(get_async_session),
     file: UploadFile = File(...),
 ) -> CredentialResponse:
-    """上传 Vertex AI 服务账号 JSON 凭证文件，同时创建凭证记录。"""
+    """Tải lên tệp JSON thông tin xác thực dịch vụ Vertex AI, đồng thời tạo bản ghi chứng chỉ."""
     try:
         contents = await file.read(MAX_VERTEX_CREDENTIALS_BYTES + 1)
     except Exception:
-        raise HTTPException(status_code=400, detail="读取上传文件失败")
+        raise HTTPException(status_code=400, detail="đọcTải file thất bại")
 
     if len(contents) > MAX_VERTEX_CREDENTIALS_BYTES:
-        raise HTTPException(status_code=413, detail="凭证文件过大")
+        raise HTTPException(status_code=413, detail="Tệp thông tin xác thựcQuá lớn")
 
     try:
         payload = json.loads(contents.decode("utf-8"))
     except Exception:
-        raise HTTPException(status_code=400, detail="无效的 JSON 凭证文件")
+        raise HTTPException(status_code=400, detail="không hợp lệcủa tệp JSON thông tin xác thực")
 
     if not isinstance(payload, dict) or not payload.get("project_id"):
-        raise HTTPException(status_code=400, detail="凭证文件缺少 project_id")
+        raise HTTPException(status_code=400, detail="Tệp thông tin xác thựcThiếu project_id")
 
     repo = CredentialRepository(session)
     cred = await repo.create(provider="gemini-vertex", name=name)
@@ -445,12 +445,12 @@ async def upload_vertex_credential(
     try:
         os.chmod(tmp_path, 0o600)
     except OSError:
-        logger.warning("无法设置临时凭证文件权限: %s", tmp_path, exc_info=True)
+        logger.warning("Không thể cài đặt quyền tệp thông tin xác thực tạm thời: %s", tmp_path, exc_info=True)
     os.replace(tmp_path, dest)
     try:
         os.chmod(dest, 0o600)
     except OSError:
-        logger.warning("无法设置凭证文件权限: %s", dest, exc_info=True)
+        logger.warning("Không thể cài đặt một tệp quyền thông tin xác thực: %s", dest, exc_info=True)
 
     await repo.update(cred.id, credentials_path=str(dest))
     await session.commit()
@@ -461,14 +461,14 @@ async def upload_vertex_credential(
 
 
 # ---------------------------------------------------------------------------
-# 连接测试：各供应商实现
+# kết nốiKiểm tra: Các nhà cung cấp triển khai
 # ---------------------------------------------------------------------------
 
 _CONNECTION_TEST_TIMEOUT = 15  # 秒
 
 
 def _test_gemini_aistudio(config: dict[str, str]) -> ConnectionTestResponse:
-    """通过 models.list() 验证 Gemini AI Studio API Key。"""
+    """Xác minh Gemini AI Studio API Key thông qua models.list()."""
     from google import genai
 
     api_key = config["api_key"]
@@ -481,12 +481,12 @@ def _test_gemini_aistudio(config: dict[str, str]) -> ConnectionTestResponse:
     return ConnectionTestResponse(
         success=True,
         available_models=available,
-        message="连接成功",
+        message="kết nối成功",
     )
 
 
 def _test_gemini_vertex(config: dict[str, str]) -> ConnectionTestResponse:
-    """通过 Vertex AI 凭证验证连通性。"""
+    """Xác minh kết nối thông qua chứng chỉ Vertex AI."""
     from google import genai
     from google.oauth2 import service_account
 
@@ -495,7 +495,7 @@ def _test_gemini_vertex(config: dict[str, str]) -> ConnectionTestResponse:
         return ConnectionTestResponse(
             success=False,
             available_models=[],
-            message=f"凭证文件不存在: {credentials_path}",
+            message=f"Tệp thông tin xác thựcKhông tồn tại: {credentials_path}",
         )
 
     with open(credentials_path) as f:
@@ -506,7 +506,7 @@ def _test_gemini_vertex(config: dict[str, str]) -> ConnectionTestResponse:
         return ConnectionTestResponse(
             success=False,
             available_models=[],
-            message="凭证文件缺少 project_id",
+            message="Tệp thông tin xác thựcThiếu project_id",
         )
 
     credentials = service_account.Credentials.from_service_account_file(
@@ -525,40 +525,40 @@ def _test_gemini_vertex(config: dict[str, str]) -> ConnectionTestResponse:
     return ConnectionTestResponse(
         success=True,
         available_models=available,
-        message="连接成功",
+        message="kết nối成功",
     )
 
 
 def _extract_gemini_models(pager) -> list[str]:
-    """从 Gemini models.list() 结果中提取视频/图像相关模型，去除路径前缀。"""
+    """Trích xuất các mô hình liên quan đến Video/Hình ảnh từ kết quả models.list() của Gemini, loại bỏ tiền tố đường dẫn."""
     keywords = ("veo", "imagen", "image")
     models: set[str] = set()
     for m in pager:
         name = m.name or ""
         if not any(k in name.lower() for k in keywords):
             continue
-        # 去掉 "models/" 或 "publishers/google/models/" 前缀
+        # Loại bỏ "models/" 或 "publishers/google/models/" Tiền tố
         short = name.rsplit("/", 1)[-1]
         models.add(short)
     return sorted(models)
 
 
 def _test_ark(config: dict[str, str]) -> ConnectionTestResponse:
-    """通过 tasks.list 验证 Ark API Key。"""
+    """Xác minh Ark API Key thông qua tasks.list."""
     from lib.ark_shared import create_ark_client
 
     client = create_ark_client(api_key=config["api_key"])
-    # 轻量级调用验证连通性，不创建任何资源
+    # Gọi nhẹ để xác minh kết nối, không tạo bất kỳ tài nguyên nào
     client.content_generation.tasks.list(page_size=1)
     return ConnectionTestResponse(
         success=True,
         available_models=[],
-        message="连接成功",
+        message="kết nối成功",
     )
 
 
 def _test_grok(config: dict[str, str]) -> ConnectionTestResponse:
-    """通过 models.list_language_models() 验证 xAI API Key。"""
+    """Xác minh xAI API Key thông qua models.list_language_models()."""
     import xai_sdk
 
     client = xai_sdk.Client(api_key=config["api_key"])
@@ -567,7 +567,7 @@ def _test_grok(config: dict[str, str]) -> ConnectionTestResponse:
     return ConnectionTestResponse(
         success=True,
         available_models=available,
-        message="连接成功",
+        message="kết nối成功",
     )
 
 
@@ -575,7 +575,7 @@ _OPENAI_MODEL_KEYWORDS = ("gpt", "sora", "dall", "o1", "o3", "o4")
 
 
 def _test_openai(config: dict[str, str]) -> ConnectionTestResponse:
-    """通过 models.list() 验证 OpenAI API Key。"""
+    """Xác minh OpenAI API Key thông qua models.list()."""
     from openai import OpenAI
 
     kwargs: dict = {"api_key": config["api_key"]}
@@ -588,7 +588,7 @@ def _test_openai(config: dict[str, str]) -> ConnectionTestResponse:
     return ConnectionTestResponse(
         success=True,
         available_models=available,
-        message="连接成功",
+        message="kết nối成功",
     )
 
 
@@ -607,7 +607,7 @@ async def test_provider_connection(
     credential_id: int | None = None,
     session: AsyncSession = Depends(get_async_session),
 ) -> ConnectionTestResponse:
-    """调用供应商 API 验证连通性。可指定 credential_id 测试特定凭证。"""
+    """Gọi API của nhà cung cấp để xác minh kết nối. Có thể chỉ định credential_id để kiểm tra chứng chỉ cụ thể."""
     _validate_provider(provider_id)
 
     repo = CredentialRepository(session)
@@ -620,7 +620,7 @@ async def test_provider_connection(
         return ConnectionTestResponse(
             success=False,
             available_models=[],
-            message="缺少凭证配置，请先添加密钥",
+            message="Thiếu cấu hình chứng chỉ, vui lòng thêm khóa trước",
         )
 
     svc = ConfigService(session)
@@ -632,7 +632,7 @@ async def test_provider_connection(
         return ConnectionTestResponse(
             success=False,
             available_models=[],
-            message=f"供应商 {provider_id} 暂不支持连接测试",
+            message=f"nhà cung cấp {provider_id} Tạm thời không hỗ trợ kiểm tra kết nối",
         )
 
     try:
@@ -644,16 +644,16 @@ async def test_provider_connection(
         return ConnectionTestResponse(
             success=False,
             available_models=[],
-            message="连接超时，请检查网络或 API 配置",
+            message="kết nốiHết thời gian chờ, vui lòng kiểm tra mạng hoặc cấu hình API",
         )
     except Exception as exc:
         err_msg = str(exc)
         if len(err_msg) > 200:
             err_msg = err_msg[:200] + "..."
-        logger.warning("连接测试失败 [%s]: %s", provider_id, err_msg)
+        logger.warning("Kiểm tra kết nối không thành công [%s]: %s", provider_id, err_msg)
         return ConnectionTestResponse(
             success=False,
             available_models=[],
-            message=f"连接失败: {err_msg}",
+            message=f"kết nốiThất bại: {err_msg}",
         )
     return result

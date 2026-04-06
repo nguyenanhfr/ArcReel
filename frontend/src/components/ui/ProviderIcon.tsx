@@ -7,14 +7,14 @@ import VolcengineColor from "@lobehub/icons/es/Volcengine/components/Color";
 export const PROVIDER_NAMES: Record<string, string> = {
   "gemini-aistudio": "AI Studio",
   "gemini-vertex": "Vertex AI",
-  ark: "火山方舟",
+  ark: "Hòm núi lửa",
   grok: "Grok",
   openai: "OpenAI",
 };
 
 /**
- * 根据 providerId 渲染对应的供应商图标。
- * 支持 gemini-aistudio、gemini-vertex、grok、ark，其余显示首字母。
+ * Hiển thị biểu tượng nhà cung cấp tương ứng dựa trên Id nhà cung cấp.
+ * Hỗ trợ gemini-aistudio, gemini-vertex, grok, ark và phần còn lại hiển thị chữ cái đầu tiên.
  */
 export function ProviderIcon({ providerId, className }: { providerId: string; className?: string }) {
   const cls = className ?? "h-6 w-6";

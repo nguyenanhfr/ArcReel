@@ -1,7 +1,7 @@
-"""统一运行时配置解析器。
+"""Bộ phân tích cấu hình runtime đồng nhất.
 
-将散落在多个文件中的配置读取和默认值定义集中到一处。
-每次调用从 DB 读取，不缓存（本地 SQLite 开销可忽略）。
+Tập trung các cấu hình và giá trị mặc định phân tán trên nhiều tệp vào một nơi.
+Mỗi lần gọi sẽ đọc từ DB, không lưu trữ đệm (chi phí SQLite cục bộ có thể bỏ qua).
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ _project_manager: ProjectManager | None = None
 
 
 def get_project_manager() -> ProjectManager:
-    """返回共享的 ProjectManager 单例（使用标准项目根目录）。"""
+    """Trả về singleton ProjectManager chung (sử dụng thư mục gốc Dự án tiêu chuẩn)."""
     global _project_manager
     if _project_manager is None:
         _project_manager = ProjectManager(PROJECT_ROOT / "projects")
@@ -39,12 +39,12 @@ def get_project_manager() -> ProjectManager:
 
 logger = logging.getLogger(__name__)
 
-# 布尔字符串解析的 truthy 值集合
+# Tập hợp các giá trị truthy để phân tích chuỗi boolean
 _TRUTHY = frozenset({"true", "1", "yes"})
 
 
 def _parse_bool(raw: str) -> bool:
-    """将配置字符串解析为布尔值。"""
+    """Phân tích chuỗi cấu hình thành giá trị boolean."""
     return raw.strip().lower() in _TRUTHY
 
 
@@ -56,56 +56,56 @@ _TEXT_TASK_SETTING_KEYS: dict[TextTaskType, str] = {
 
 
 class ConfigResolver:
-    """运行时配置解析器。
+    """Trình phân tích cấu hình thời gian chạy.
 
-    作为 ConfigService 的上层薄封装，提供：
-    - 唯一的默认值定义点
-    - 类型化输出（bool / tuple / dict）
-    - 内置优先级解析（全局配置 → 项目级覆盖）
+    Là một lớp bọc mỏng bên trên ConfigService, cung cấp:
+    - Điểm định nghĩa giá trị mặc định duy nhất
+    - LoạiHóa đầu ra (bool / tuple / dict)
+    - Phân giải ưu tiên tích hợp sẵn (cấu hình toàn cục → ghi đè cấp dự án)
     """
 
-    # ── 唯一的默认值定义点 ──
+    # ── Điểm định nghĩa giá trị mặc định duy nhất ──
     _DEFAULT_VIDEO_GENERATE_AUDIO = False
 
     def __init__(self, session_factory: async_sessionmaker) -> None:
         self._session_factory = session_factory
 
-    # ── 公开 API：每次调用打开新 session ──
+    # ── API công khai: mở session mới mỗi lần gọi ──
 
     async def video_generate_audio(self, project_name: str | None = None) -> bool:
-        """解析 video_generate_audio。
+        """Phân giải video_generate_audio.
 
-        优先级：项目级覆盖 > 全局配置 > 默认值(False)。
+        Ưu tiên: ghi đè cấp dự án > Cấu hình toàn cục > Giá trị mặc định (False).
         """
         async with self._session_factory() as session:
             svc = ConfigService(session)
             return await self._resolve_video_generate_audio(svc, project_name)
 
     async def default_video_backend(self) -> tuple[str, str]:
-        """返回 (provider_id, model_id)。"""
+        """Trả về (provider_id, model_id)."""
         async with self._session_factory() as session:
             svc = ConfigService(session)
             return await self._resolve_default_video_backend(svc)
 
     async def default_image_backend(self) -> tuple[str, str]:
-        """返回 (provider_id, model_id)。"""
+        """Trả về (provider_id, model_id)."""
         async with self._session_factory() as session:
             svc = ConfigService(session)
             return await self._resolve_default_image_backend(svc)
 
     async def provider_config(self, provider_id: str) -> dict[str, str]:
-        """获取单个供应商配置。"""
+        """Lấy cấu hình của một nhà cung cấp duy nhất."""
         async with self._session_factory() as session:
             svc = ConfigService(session)
             return await self._resolve_provider_config(svc, session, provider_id)
 
     async def all_provider_configs(self) -> dict[str, dict[str, str]]:
-        """批量获取所有供应商配置。"""
+        """Lấy cấu hình của tất cả nhà cung cấp theo lô."""
         async with self._session_factory() as session:
             svc = ConfigService(session)
             return await self._resolve_all_provider_configs(svc, session)
 
-    # ── 内部解析方法（可独立测试，接收已创建的 svc） ──
+    # ── Phương thức phân giải nội bộ (có thể kiểm thử độc lập, nhận svc đã tạo) ──
 
     async def _resolve_video_generate_audio(
         self,
@@ -165,7 +165,7 @@ class ConfigResolver:
         return configs
 
     async def default_text_backend(self) -> tuple[str, str]:
-        """返回 (provider_id, model_id)。"""
+        """Trả về (provider_id, model_id)."""
         async with self._session_factory() as session:
             svc = ConfigService(session)
             return await svc.get_default_text_backend()
@@ -175,7 +175,7 @@ class ConfigResolver:
         task_type: TextTaskType,
         project_name: str | None = None,
     ) -> tuple[str, str]:
-        """解析文本 backend。优先级：项目级任务配置 → 全局任务配置 → 全局默认 → 自动推断"""
+        """Phân tích Văn bản backend. Ưu tiên: Cấu hình nhiệm vụ cấp Dự án → Cấu hình nhiệm vụ toàn cục → Mặc định toàn cục → Suy luận tự động"""
         async with self._session_factory() as session:
             svc = ConfigService(session)
             return await self._resolve_text_backend(svc, task_type, project_name)
@@ -213,7 +213,7 @@ class ConfigResolver:
         svc: ConfigService,
         media_type: str,
     ) -> tuple[str, str]:
-        """遍历 PROVIDER_REGISTRY（按注册顺序），找到第一个 ready 且支持该 media_type 的供应商。"""
+        """Duyệt qua PROVIDER_REGISTRY (theo thứ tự đăng ký), tìm một nhà cung cấp ready và hỗ trợ media_type đó."""
         statuses = await svc.get_all_providers_status()
         ready = {s.name for s in statuses if s.status == "ready"}
 
@@ -235,4 +235,4 @@ class ConfigResolver:
                     if model.is_default:
                         return make_provider_id(model.provider_id), model.model_id
 
-        raise ValueError(f"未找到可用的 {media_type} 供应商。请在「全局设置 → 供应商」页面配置至少一个供应商。")
+        raise ValueError(f"Không tìm thấy nhà cung cấp khả dụng {media_type} nhà cung cấp。Vui lòng cấu hình ít nhất một nhà cung cấp trên trang 「Cài đặt toàn cục → nhà cung cấp」.")

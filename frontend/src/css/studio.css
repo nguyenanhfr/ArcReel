@@ -1,37 +1,37 @@
-/* studio.css — 工作台专用样式 */
+/* studio.css — Kiểu dành riêng cho bàn làm việc */
 @reference "../index.css";
 
-/* Prompt 编辑器 */
+/* Prompt Chỉnh sửaThiết bị */
 .prompt-editor {
   @apply font-mono text-sm bg-gray-800 rounded-lg p-3 text-gray-200;
 }
 
-/* 统一焦点指示 — 键盘导航可见性 */
+/* Chỉ báo tiêu điểm thống nhất — khả năng hiển thị điều hướng bằng bàn phím */
 .focus-ring {
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40;
 }
 
-/* 强调色 — 低饱和度纯色 */
+/* Màu nhấn - màu đồng nhất có độ bão hòa thấp */
 .accent-gradient {
   @apply bg-indigo-600;
 }
 
-/* 强调色文字 */
+/* Văn bản màu nhấn */
 .accent-gradient-text {
   @apply text-indigo-400;
 }
 
-/* 片段卡片 */
+/* Đoạnthẻ */
 .segment-card {
   @apply bg-gray-900 border border-gray-800 rounded-xl;
 }
 
-/* 面板底色 */
+/* Màu nền của bảng điều khiển */
 .studio-panel {
   @apply bg-gray-900 border-gray-800;
 }
 
-/* 呼吸灯动画 — 用于任务雷达 */
+/* Hoạt hình ánh sáng thở - được sử dụng cho radar nhiệm vụ */
 @keyframes breathe {
   0%, 100% { opacity: 0.4; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.15); }
@@ -41,7 +41,7 @@
   animation: breathe 2s ease-in-out infinite;
 }
 
-/* 脉冲进度条 */
+/* Thanh tiến trình xung */
 @keyframes progress-pulse {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(200%); }

@@ -95,7 +95,7 @@ export function ProjectSettingsPage() {
   }, [isDirty]);
 
   const guardedNavigate = useCallback((path: string) => {
-    if (isDirty && !window.confirm("有未保存的修改，确定要离开吗？")) return;
+    if (isDirty && !window.confirm("Không có sửa đổi nào đối với Lưu, bạn có chắc chắn muốn rời đi không?")) return;
     navigate(path);
   }, [isDirty, navigate]);
 
@@ -111,9 +111,9 @@ export function ProjectSettingsPage() {
         text_backend_style: textStyle || null,
       });
       initialRef.current = { videoBackend, imageBackend, audioOverride, textScript, textOverview, textStyle };
-      useAppStore.getState().pushToast("已保存", "success");
+      useAppStore.getState().pushToast("Đã Lưu", "success");
     } catch (e: unknown) {
-      useAppStore.getState().pushToast(e instanceof Error ? e.message : "保存失败", "error");
+      useAppStore.getState().pushToast(e instanceof Error ? e.message : "Lưu thất bại", "error");
     } finally {
       setSaving(false);
     }
@@ -126,19 +126,19 @@ export function ProjectSettingsPage() {
         <button
           onClick={() => guardedNavigate(`/app/projects/${projectName}`)}
           className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-800 hover:text-gray-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-          aria-label="返回项目"
+          aria-label="Return to Project"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-lg font-semibold text-gray-100">项目设置</h1>
+        <h1 className="text-lg font-semibold text-gray-100">Dự ánCài đặt</h1>
       </div>
 
       {/* Content */}
       <div className="mx-auto max-w-2xl px-6 py-8 space-y-6">
         <div>
-          <h2 className="text-lg font-semibold text-gray-100">模型配置</h2>
+          <h2 className="text-lg font-semibold text-gray-100">Cấu hình mô hình</h2>
           <p className="mt-1 text-sm text-gray-500">
-            为此项目单独选择生成模型，留空则跟随全局默认
+            Với mục đích này, Dự án chọn riêng mô hình được tạo ra. Nếu để trống, nó sẽ tuân theo mặc định chung.
           </p>
         </div>
 
@@ -146,7 +146,7 @@ export function ProjectSettingsPage() {
           <>
             {/* Video model override */}
             <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4">
-              <div className="mb-3 text-sm font-medium text-gray-100">视频模型</div>
+              <div className="mb-3 text-sm font-medium text-gray-100">Video模型</div>
               <ProviderModelSelect
                 value={videoBackend}
                 options={options.video_backends}
@@ -154,14 +154,14 @@ export function ProjectSettingsPage() {
                 onChange={setVideoBackend}
                 allowDefault
                 defaultHint={
-                  globalDefaults.video ? `当前全局: ${globalDefaults.video}` : undefined
+                  globalDefaults.video ? `Hiện tạiToàn cầu: ${globalDefaults.video}` : undefined
                 }
               />
             </div>
 
             {/* Image model override */}
             <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4">
-              <div className="mb-3 text-sm font-medium text-gray-100">图片模型</div>
+              <div className="mb-3 text-sm font-medium text-gray-100">Ảnh模型</div>
               <ProviderModelSelect
                 value={imageBackend}
                 options={options.image_backends}
@@ -169,42 +169,42 @@ export function ProjectSettingsPage() {
                 onChange={setImageBackend}
                 allowDefault
                 defaultHint={
-                  globalDefaults.image ? `当前全局: ${globalDefaults.image}` : undefined
+                  globalDefaults.image ? `Hiện tạiToàn cầu: ${globalDefaults.image}` : undefined
                 }
               />
             </div>
 
             {/* Audio override */}
             <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4">
-              <div className="mb-3 text-sm font-medium text-gray-100">生成音频</div>
+              <div className="mb-3 text-sm font-medium text-gray-100">Tạo âm thanh</div>
               <fieldset className="flex gap-4">
-                <legend className="sr-only">生成音频设置</legend>
+                <legend className="sr-only">Tạo cài đặt âm thanh</legend>
                 <label className="flex items-center gap-2 text-sm text-gray-300">
                   <input type="radio" name="audio" value="" checked={audioOverride === null}
                     onChange={() => setAudioOverride(null)} />
-                  跟随全局默认
+                  Thực hiện theo mặc định toàn cầu
                 </label>
                 <label className="flex items-center gap-2 text-sm text-gray-300">
                   <input type="radio" name="audio" value="true" checked={audioOverride === true}
                     onChange={() => setAudioOverride(true)} />
-                  开启
+                  bật lên
                 </label>
                 <label className="flex items-center gap-2 text-sm text-gray-300">
                   <input type="radio" name="audio" value="false" checked={audioOverride === false}
                     onChange={() => setAudioOverride(false)} />
-                  关闭
+                  Đóng
                 </label>
               </fieldset>
             </div>
             {/* Text model overrides */}
             <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-4">
-              <div className="mb-3 text-sm font-medium text-gray-100">文本模型</div>
-              <p className="mb-2 text-xs text-gray-500">按任务类型覆盖，留空跟随全局默认</p>
+              <div className="mb-3 text-sm font-medium text-gray-100">Văn bản模型</div>
+              <p className="mb-2 text-xs text-gray-500">Ghi đè theo tác vụ Loại, để trống theo mặc định chung</p>
               <div className="space-y-3">
                 {([
-                  [textScript, setTextScript, "剧本生成"] as const,
-                  [textOverview, setTextOverview, "概述生成"] as const,
-                  [textStyle, setTextStyle, "风格分析"] as const,
+                  [textScript, setTextScript, "Kịch bản生成"] as const,
+                  [textOverview, setTextOverview, "Tạo tổng quan"] as const,
+                  [textStyle, setTextStyle, "Phong cách分析"] as const,
                 ]).map(([value, setter, label]) => (
                   <div key={label}>
                     <div className="mb-1 text-xs text-gray-400">{label}</div>
@@ -214,7 +214,7 @@ export function ProjectSettingsPage() {
                       providerNames={allProviderNames}
                       onChange={setter}
                       allowDefault
-                      defaultHint="跟随全局默认"
+                      defaultHint="Thực hiện theo mặc định toàn cầu"
                       aria-label={label}
                     />
                   </div>
@@ -225,7 +225,7 @@ export function ProjectSettingsPage() {
         )}
 
         {!options && (
-          <div className="text-sm text-gray-500">加载配置中…</div>
+          <div className="text-sm text-gray-500">Đang tải cấu hình...</div>
         )}
 
         {/* Actions */}
@@ -235,13 +235,13 @@ export function ProjectSettingsPage() {
             disabled={saving}
             className="rounded-lg bg-indigo-600 px-6 py-2 text-sm text-white hover:bg-indigo-500 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
           >
-            {saving ? "保存中…" : "保存"}
+            {saving ? "Lưu中…" : "Lưu"}
           </button>
           <button
             onClick={() => guardedNavigate(`/app/projects/${projectName}`)}
             className="rounded-lg border border-gray-700 px-6 py-2 text-sm text-gray-300 hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
           >
-            取消
+            Hủy
           </button>
         </div>
       </div>

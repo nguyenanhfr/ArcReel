@@ -25,7 +25,7 @@ export function StudioCanvasRouter() {
   const [addingCharacter, setAddingCharacter] = useState(false);
   const [addingClue, setAddingClue] = useState(false);
 
-  // 从任务队列派生 loading 状态（替代本地 state）
+  // Lấy trạng thái tải từ hàng đợi tác vụ (thay thế trạng thái cục bộ)
   const tasks = useTasksStore((s) => s.tasks);
   const generatingCharacterNames = useMemo(() => {
     const names = new Set<string>();
@@ -54,7 +54,7 @@ export function StudioCanvasRouter() {
     return names;
   }, [tasks, currentProjectName]);
 
-  // 刷新项目数据
+  // Làm mới dữ liệu dự án
   const refreshProject = useCallback(async (invalidateKeys: string[] = []) => {
     if (!currentProjectName) return;
     try {
@@ -69,7 +69,7 @@ export function StudioCanvasRouter() {
         useAppStore.getState().invalidateEntities(invalidateKeys);
       }
     } catch {
-      // 静默失败
+      // Im lặng thất bại
     }
   }, [currentProjectName]);
 
@@ -86,7 +86,7 @@ export function StudioCanvasRouter() {
       }
       await refreshProject();
     } catch (err) {
-      useAppStore.getState().pushToast(`更新 Prompt 失败: ${(err as Error).message}`, "error");
+      useAppStore.getState().pushToast(`Cập nhật Prompt thất bại: ${(err as Error).message}`, "error");
     }
   }, [currentProjectName, currentProjectData, refreshProject]);
 
@@ -105,9 +105,9 @@ export function StudioCanvasRouter() {
     const prompt = seg?.image_prompt ?? "";
     try {
       await API.generateStoryboard(currentProjectName, segmentId, prompt as string | Record<string, unknown>, resolvedFile);
-      useAppStore.getState().pushToast(`已提交分镜 "${segmentId}" 生成任务`, "success");
+      useAppStore.getState().pushToast(`Đã gửi Phân cảnh "${segmentId}" 生成任务`, "success");
     } catch (err) {
-      useAppStore.getState().pushToast(`生成分镜失败: ${(err as Error).message}`, "error");
+      useAppStore.getState().pushToast(`Tạo phân cảnh thất bại: ${(err as Error).message}`, "error");
     }
   }, [currentProjectName, currentScripts]);
 
@@ -127,9 +127,9 @@ export function StudioCanvasRouter() {
     const duration = seg?.duration_seconds ?? 4;
     try {
       await API.generateVideo(currentProjectName, segmentId, prompt as string | Record<string, unknown>, resolvedFile, duration);
-      useAppStore.getState().pushToast(`已提交视频 "${segmentId}" 生成任务`, "success");
+      useAppStore.getState().pushToast(`Đã gửi video "${segmentId}" 生成任务`, "success");
     } catch (err) {
-      useAppStore.getState().pushToast(`生成视频失败: ${(err as Error).message}`, "error");
+      useAppStore.getState().pushToast(`Tạo video thất bại: ${(err as Error).message}`, "error");
     }
   }, [currentProjectName, currentScripts]);
 
@@ -163,9 +163,9 @@ export function StudioCanvasRouter() {
           ? [buildEntityRevisionKey("character", name)]
           : [],
       );
-      useAppStore.getState().pushToast(`角色 "${name}" 已更新`, "success");
+      useAppStore.getState().pushToast(`Nhân vật "${name}" 已更新`, "success");
     } catch (err) {
-      useAppStore.getState().pushToast(`更新角色失败: ${(err as Error).message}`, "error");
+      useAppStore.getState().pushToast(`Cập nhật nhân vật thất bại: ${(err as Error).message}`, "error");
     }
   }, [currentProjectName, refreshProject]);
 
@@ -179,9 +179,9 @@ export function StudioCanvasRouter() {
       );
       useAppStore
         .getState()
-        .pushToast(`角色 "${name}" 生成任务已提交`, "success");
+        .pushToast(`Nhân vật "${name}" Tác vụ tạo đã được gửi`, "success");
     } catch (err) {
-      useAppStore.getState().pushToast(`提交失败: ${(err as Error).message}`, "error");
+      useAppStore.getState().pushToast(`Gửi thất bại: ${(err as Error).message}`, "error");
     }
   }, [currentProjectName, currentProjectData]);
 
@@ -205,9 +205,9 @@ export function StudioCanvasRouter() {
           : [],
       );
       setAddingCharacter(false);
-      useAppStore.getState().pushToast(`角色 "${name}" 已添加`, "success");
+      useAppStore.getState().pushToast(`Nhân vật "${name}" Thêm`, "success");
     } catch (err) {
-      useAppStore.getState().pushToast(`添加失败: ${(err as Error).message}`, "error");
+      useAppStore.getState().pushToast(`Thêm thất bại: ${(err as Error).message}`, "error");
     }
   }, [currentProjectName, refreshProject]);
 
@@ -218,7 +218,7 @@ export function StudioCanvasRouter() {
       await API.updateClue(currentProjectName, name, updates);
       await refreshProject();
     } catch (err) {
-      useAppStore.getState().pushToast(`更新线索失败: ${(err as Error).message}`, "error");
+      useAppStore.getState().pushToast(`Cập nhật manh mối thất bại: ${(err as Error).message}`, "error");
     }
   }, [currentProjectName, refreshProject]);
 
@@ -232,9 +232,9 @@ export function StudioCanvasRouter() {
       );
       useAppStore
         .getState()
-        .pushToast(`线索 "${name}" 生成任务已提交`, "success");
+        .pushToast(`Manh mối "${name}" Tác vụ tạo đã được gửi`, "success");
     } catch (err) {
-      useAppStore.getState().pushToast(`提交失败: ${(err as Error).message}`, "error");
+      useAppStore.getState().pushToast(`Gửi thất bại: ${(err as Error).message}`, "error");
     }
   }, [currentProjectName, currentProjectData]);
 
@@ -244,9 +244,9 @@ export function StudioCanvasRouter() {
       await API.addClue(currentProjectName, name, clueType, description, importance);
       await refreshProject();
       setAddingClue(false);
-      useAppStore.getState().pushToast(`线索 "${name}" 已添加`, "success");
+      useAppStore.getState().pushToast(`Manh mối "${name}" Thêm`, "success");
     } catch (err) {
-      useAppStore.getState().pushToast(`添加失败: ${(err as Error).message}`, "error");
+      useAppStore.getState().pushToast(`Thêm thất bại: ${(err as Error).message}`, "error");
     }
   }, [currentProjectName, refreshProject]);
 
@@ -259,7 +259,7 @@ export function StudioCanvasRouter() {
   if (!currentProjectName) {
     return (
       <div className="flex h-full items-center justify-center text-gray-500">
-        加载中...
+        Đang tải...
       </div>
     );
   }

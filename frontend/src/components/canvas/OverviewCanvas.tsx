@@ -59,7 +59,7 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
   const handleUpload = useCallback(
     async (file: File) => {
       await API.uploadFile(projectName, "source", file);
-      useAppStore.getState().pushToast(`源文件 "${file.name}" 上传成功`, "success");
+      useAppStore.getState().pushToast(`Tệp nguồn "${file.name}" Tải lên thành công`, "success");
     },
     [projectName],
   );
@@ -74,11 +74,11 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
     try {
       await API.generateOverview(projectName);
       await refreshProject();
-      useAppStore.getState().pushToast("项目概述已重新生成", "success");
+      useAppStore.getState().pushToast("Mô tả dự án đã được tạo lại", "success");
     } catch (err) {
       useAppStore
         .getState()
-        .pushToast(`重新生成失败: ${(err as Error).message}`, "error");
+        .pushToast(`Tạo lại thất bại: ${(err as Error).message}`, "error");
     } finally {
       setRegenerating(false);
     }
@@ -94,11 +94,11 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
       try {
         await API.uploadStyleImage(projectName, file);
         await refreshProject();
-        useAppStore.getState().pushToast("风格参考图已更新", "success");
+        useAppStore.getState().pushToast("Ảnh tham chiếu phong cách đã được cập nhật", "success");
       } catch (err) {
         useAppStore
           .getState()
-          .pushToast(`上传失败: ${(err as Error).message}`, "error");
+          .pushToast(`Tải lên thất bại: ${(err as Error).message}`, "error");
       } finally {
         setUploadingStyleImage(false);
       }
@@ -108,17 +108,17 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
 
   const handleDeleteStyleImage = useCallback(async () => {
     if (deletingStyleImage || !projectData?.style_image) return;
-    if (!confirm("确定删除当前风格参考图吗？")) return;
+    if (!confirm("Bạn có chắc muốn xóa ảnh tham chiếu phong cách hiện tại không?")) return;
 
     setDeletingStyleImage(true);
     try {
       await API.deleteStyleImage(projectName);
       await refreshProject();
-      useAppStore.getState().pushToast("风格参考图已删除", "success");
+      useAppStore.getState().pushToast("Ảnh tham chiếu phong cách đã bị xóa", "success");
     } catch (err) {
       useAppStore
         .getState()
-        .pushToast(`删除失败: ${(err as Error).message}`, "error");
+        .pushToast(`Xóa thất bại: ${(err as Error).message}`, "error");
     } finally {
       setDeletingStyleImage(false);
     }
@@ -130,11 +130,11 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
     try {
       await API.updateStyleDescription(projectName, styleDescriptionDraft.trim());
       await refreshProject();
-      useAppStore.getState().pushToast("风格描述已保存", "success");
+      useAppStore.getState().pushToast("Mô tả phong cách đã lưu", "success");
     } catch (err) {
       useAppStore
         .getState()
-        .pushToast(`保存失败: ${(err as Error).message}`, "error");
+        .pushToast(`Lưu thất bại: ${(err as Error).message}`, "error");
     } finally {
       setSavingStyleDescription(false);
     }
@@ -143,7 +143,7 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
   if (!projectData) {
     return (
       <div className="flex h-full items-center justify-center text-gray-500">
-        加载项目数据中...
+        Đang tải dữ liệu Dự án...
       </div>
     );
   }
@@ -161,24 +161,24 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
     <section className="rounded-2xl border border-gray-800 bg-gray-900/90 p-4 sm:p-5">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-gray-200">项目风格</h3>
+          <h3 className="text-sm font-semibold text-gray-200">Phong cách dự án</h3>
           <p className="max-w-2xl text-xs leading-5 text-gray-500">
-            参考图会参与后续画面生成；风格描述用于补充视觉规则，校准整体调性、材质和镜头气质。
+            Ảnh tham chiếuSẽ tham gia vào việc tạo hình ảnh tiếp theo; Mô tả phong cách được sử dụng để bổ sung các quy tắc trực quan và hiệu chỉnh tông màu tổng thể, chất liệu và khí chất của Góc máy.
           </p>
         </div>
         <div className="inline-flex items-center rounded-full border border-gray-700 bg-gray-800 px-3 py-1 text-xs text-gray-300">
-          {projectData.style || "未设置风格标签"}
+          {projectData.style || "Chưa đặt nhãn phong cách"}
         </div>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
         <div className="space-y-3">
           {styleImageUrl ? (
-            <PreviewableImageFrame src={styleImageUrl} alt="项目风格参考图">
+            <PreviewableImageFrame src={styleImageUrl} alt="Ảnh tham chiếu phong cách dự án">
               <div className="overflow-hidden rounded-xl border border-gray-700 bg-gray-950/70">
                 <img
                   src={styleImageUrl}
-                  alt="项目风格参考图"
+                  alt="Ảnh tham chiếu phong cách dự án"
                   className="aspect-[4/3] w-full object-cover"
                 />
               </div>
@@ -191,17 +191,17 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
               className={`flex aspect-[4/3] w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-gray-700 bg-gray-950/40 px-4 text-sm text-gray-500 transition-colors hover:border-gray-500 hover:text-gray-300 disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
             >
               <Upload className="h-4 w-4" />
-              <span>{uploadingStyleImage ? "上传中..." : "上传风格参考图"}</span>
-              <span className="text-xs text-gray-600">支持 PNG / JPG / WEBP</span>
+              <span>{uploadingStyleImage ? "Đang tải lên..." : "Tải lên ảnh tham chiếu phong cách"}</span>
+              <span className="text-xs text-gray-600">Hỗ trợ PNG/JPG/WEBP</span>
             </button>
           )}
 
           <div className="rounded-xl border border-gray-800 bg-gray-950/40 p-3">
-            <p className="text-xs font-medium text-gray-400">使用说明</p>
+            <p className="text-xs font-medium text-gray-400">Hướng dẫn sử dụng</p>
             <p className="mt-1 text-sm leading-6 text-gray-300">
               {styleImageUrl
-                ? "当前参考图会作为统一视觉基线，用于角色图、分镜图和视频生成。"
-                : "还没有绑定项目级参考图，可以先上传一张目标风格样片作为统一基线。"}
+                ? "Hiện tạiẢnh tham chiếuNó sẽ được sử dụng làm đường cơ sở trực quan thống nhất cho sơ đồ Nhân vật, Ảnh phân cảnh và tạo Video."
+                : "Nếu bạn chưa ràng buộc Ảnh tham chiếu cấp độ Dự án, trước tiên bạn có thể tải lên mẫu Phong cách mục tiêu làm đường cơ sở thống nhất."}
             </p>
 
             <div className="mt-3 flex flex-wrap gap-2">
@@ -212,7 +212,7 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
                 className={`inline-flex items-center gap-1.5 rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-300 transition-colors hover:border-gray-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
               >
                 <ImagePlus className="h-4 w-4" />
-                {styleImageUrl ? "替换参考图" : "上传参考图"}
+                {styleImageUrl ? "Thay thế ảnh tham chiếu" : "Tải lên ảnh tham chiếu"}
               </button>
               {styleImageUrl && (
                 <button
@@ -222,7 +222,7 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
                   className={`inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-2 text-sm text-red-300 transition-colors hover:border-red-400/50 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
                 >
                   <Trash2 className="h-4 w-4" />
-                  {deletingStyleImage ? "删除中..." : "删除参考图"}
+                  {deletingStyleImage ? "Đang xóa..." : "Xóa ảnh tham chiếu"}
                 </button>
               )}
             </div>
@@ -234,19 +234,19 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
             accept=".png,.jpg,.jpeg,.webp"
             onChange={handleStyleImageChange}
             className="hidden"
-            aria-label="上传风格参考图"
+            aria-label="Tải lên ảnh tham chiếu phong cách"
           />
         </div>
 
         <div className="rounded-xl border border-gray-800 bg-gray-950/35 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <label htmlFor="style-description-textarea" className="text-xs font-medium text-gray-400">风格描述</label>
+            <label htmlFor="style-description-textarea" className="text-xs font-medium text-gray-400">Mô tả phong cách</label>
             <span className="text-[11px] text-gray-600">
-              {styleDescriptionDraft.trim().length} 字
+              {styleDescriptionDraft.trim().length} từ
             </span>
           </div>
           <p className="mt-1 text-xs leading-5 text-gray-500">
-            上传参考图后系统会自动分析并填充风格描述；你也可以继续手动校准。
+            Tải lên ảnh tham chiếuSau đó, Hệ thống sẽ tự động phân tích và điền vào Mô tả phong cách; Bạn cũng có thể tiếp tục hiệu chỉnh thủ công.
           </p>
 
           <textarea
@@ -255,14 +255,14 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
             onChange={(e) => setStyleDescriptionDraft(e.target.value)}
             rows={8}
             className={`mt-3 min-h-44 w-full rounded-xl border border-gray-700 bg-gray-800/80 px-4 py-3 text-sm leading-relaxed text-gray-200 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`}
-            placeholder="上传风格参考图后，系统会自动分析并填充风格描述；也可以手动编辑。"
+            placeholder="Tải lên ảnh tham chiếu phong cáchCuối cùng, Hệ thống sẽ tự động phân tích và điền vào Mô tả phong cách; bạn cũng có thể Chỉnh sửa thủ công."
           />
 
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs leading-5 text-gray-500">
               {styleImageUrl
-                ? "建议把风格描述用于补充光线、色彩、材质与镜头语言。"
-                : "没有参考图时，也可以先用文字明确画面风格和审美约束。"}
+                ? "Nên sử dụng Mô tả phong cách để bổ sung cho ánh sáng, màu sắc, chất liệu và ngôn ngữ Góc máy."
+                : "Khi không có Ảnh tham chiếu, trước tiên bạn cũng có thể dùng từ ngữ để làm rõ phong cách và những hạn chế về mặt thẩm mỹ của bức tranh."}
             </p>
             {styleDescriptionDirty && (
               <button
@@ -271,7 +271,7 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
                 disabled={savingStyleDescription}
                 className={`rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
               >
-                {savingStyleDescription ? "保存中..." : "保存风格描述"}
+                {savingStyleDescription ? "Đang lưu..." : "Lưu mô tả phong cách"}
               </button>
             )}
           </div>
@@ -287,9 +287,9 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
           <h1 className="text-2xl font-bold text-gray-100">{projectData.title}</h1>
           <p className="mt-1 text-sm text-gray-400">
             {projectData.content_mode === "narration"
-              ? "说书+画面模式"
-              : "剧集动画模式"}{" "}
-            · {projectData.style || "未设置风格"}
+              ? "Chế độ kể chuyện + hình ảnh"
+              : "Chế độ hoạt hình phim"}{" "}
+            · {projectData.style || "Chưa đặt phong cách"}
           </p>
         </div>
 
@@ -305,24 +305,24 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
             {overview && (
               <div className="space-y-3 rounded-xl border border-gray-800 bg-gray-900 p-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-gray-300">项目概述</h3>
+                  <h3 className="text-sm font-semibold text-gray-300">Mô tả dự án</h3>
                   <button
                     type="button"
                     onClick={() => void handleRegenerate()}
                     disabled={regenerating}
                     className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200 disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
-                    title="重新生成概述"
+                    title="Tạo lại mô tả"
                   >
                     <RefreshCw
                       className={`h-3 w-3 ${regenerating ? "animate-spin" : ""}`}
                     />
-                    <span>{regenerating ? "生成中..." : "重新生成"}</span>
+                    <span>{regenerating ? "Đang tạo..." : "Tạo lại"}</span>
                   </button>
                 </div>
                 <p className="text-sm text-gray-400">{overview.synopsis}</p>
                 <div className="flex gap-4 text-xs text-gray-500">
-                  <span>题材: {overview.genre}</span>
-                  <span>主题: {overview.theme}</span>
+                  <span>Thể loại: {overview.genre}</span>
+                  <span>Chủ đề: {overview.theme}</span>
                 </div>
               </div>
             )}
@@ -340,8 +340,8 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
                         ? Math.round((cat.completed / cat.total) * 100)
                         : 0;
                     const labels: Record<string, string> = {
-                      characters: "角色",
-                      clues: "线索",
+                      characters: "Nhân vật",
+                      clues: "Manh mối",
                     };
                     return (
                       <div
@@ -375,45 +375,45 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
 
             {costLoading && (
               <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-                <p className="text-sm text-gray-500 animate-pulse">正在计算费用...</p>
+                <p className="text-sm text-gray-500 animate-pulse">Đang tính toán chi phí...</p>
               </div>
             )}
             {costError && (
               <div className="rounded-xl border border-red-900/50 bg-red-950/30 p-4">
-                <p className="text-sm text-red-400">费用估算失败: {costError}</p>
+                <p className="text-sm text-red-400">Ước tính chi phí thất bại: {costError}</p>
               </div>
             )}
 
             {projectTotals && (
               <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 tabular-nums">
-                <p className="mb-3 text-sm font-semibold text-gray-300">项目总费用</p>
+                <p className="mb-3 text-sm font-semibold text-gray-300">Tổng chi phí dự án</p>
                 <dl className="flex flex-wrap items-start justify-between gap-6">
                   <div className="min-w-0">
-                    <dt className="mb-1 text-[11px] text-gray-600">预估</dt>
+                    <dt className="mb-1 text-[11px] text-gray-600">Ước tính</dt>
                     <dd className="text-sm text-gray-400">
-                      <span className="text-gray-500">分镜 </span>
+                      <span className="text-gray-500">Phân cảnh </span>
                       <span className="text-gray-200">{formatCost(projectTotals.estimate.image)}</span>
-                      <span className="ml-3 text-gray-500">视频 </span>
+                      <span className="ml-3 text-gray-500">Video </span>
                       <span className="text-gray-200">{formatCost(projectTotals.estimate.video)}</span>
-                      <span className="ml-3 text-gray-500">总计 </span>
+                      <span className="ml-3 text-gray-500">Tổng cộng </span>
                       <span className="font-semibold text-amber-400">{formatCost(totalBreakdown(projectTotals.estimate))}</span>
                     </dd>
                   </div>
                   <div role="separator" className="h-8 w-px bg-gray-800" />
                   <div className="min-w-0">
-                    <dt className="mb-1 text-[11px] text-gray-600">实际</dt>
+                    <dt className="mb-1 text-[11px] text-gray-600">Thực tế</dt>
                     <dd className="text-sm text-gray-400">
-                      <span className="text-gray-500">分镜 </span>
+                      <span className="text-gray-500">Phân cảnh </span>
                       <span className="text-gray-200">{formatCost(projectTotals.actual.image)}</span>
-                      <span className="ml-3 text-gray-500">视频 </span>
+                      <span className="ml-3 text-gray-500">Video </span>
                       <span className="text-gray-200">{formatCost(projectTotals.actual.video)}</span>
                       {projectTotals.actual.character_and_clue && (
                         <>
-                          <span className="ml-3 text-gray-500">角色/线索 </span>
+                          <span className="ml-3 text-gray-500">Nhân vật/Manh mối </span>
                           <span className="text-gray-200">{formatCost(projectTotals.actual.character_and_clue)}</span>
                         </>
                       )}
-                      <span className="ml-3 text-gray-500">总计 </span>
+                      <span className="ml-3 text-gray-500">Tổng cộng </span>
                       <span className="font-semibold text-emerald-400">{formatCost(totalBreakdown(projectTotals.actual))}</span>
                     </dd>
                   </div>
@@ -422,10 +422,10 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
             )}
 
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-gray-300">剧集</h3>
+              <h3 className="text-sm font-semibold text-gray-300">Tập phim</h3>
               {(projectData.episodes?.length ?? 0) === 0 ? (
                 <p className="text-sm text-gray-500">
-                  暂无剧集。使用 AI 助手生成剧本。
+                  Chưa có tập phim. Dùng trợ lý AI để tạo kịch bản.
                 </p>
               ) : (
                 (projectData.episodes ?? []).map((ep) => {
@@ -440,22 +440,22 @@ export function OverviewCanvas({ projectName, projectData }: OverviewCanvasProps
                       </span>
                       <span className="text-sm text-gray-200">{ep.title}</span>
                       <span className="text-xs text-gray-500">
-                        {ep.scenes_count ?? "?"} 片段 · {ep.status ?? "draft"}
+                        {ep.scenes_count ?? "?"} Đoạn · {ep.status ?? "draft"}
                       </span>
                       {epCost && (
                         <span className="ml-auto flex min-w-0 flex-shrink flex-wrap gap-4 text-xs text-gray-400">
                           <span>
-                            <span className="text-gray-500">预估 </span>
-                            <span className="text-gray-500">分镜 </span><span className="text-gray-300">{formatCost(epCost.totals.estimate.image)}</span>
-                            <span className="ml-2 text-gray-500">视频 </span><span className="text-gray-300">{formatCost(epCost.totals.estimate.video)}</span>
-                            <span className="ml-2 text-gray-500">总计 </span><span className="font-medium text-amber-400">{formatCost(totalBreakdown(epCost.totals.estimate))}</span>
+                            <span className="text-gray-500">Ước tính </span>
+                            <span className="text-gray-500">Phân cảnh </span><span className="text-gray-300">{formatCost(epCost.totals.estimate.image)}</span>
+                            <span className="ml-2 text-gray-500">Video </span><span className="text-gray-300">{formatCost(epCost.totals.estimate.video)}</span>
+                            <span className="ml-2 text-gray-500">Tổng cộng </span><span className="font-medium text-amber-400">{formatCost(totalBreakdown(epCost.totals.estimate))}</span>
                           </span>
                           <span className="text-gray-700">|</span>
                           <span>
-                            <span className="text-gray-500">实际 </span>
-                            <span className="text-gray-500">分镜 </span><span className="text-gray-300">{formatCost(epCost.totals.actual.image)}</span>
-                            <span className="ml-2 text-gray-500">视频 </span><span className="text-gray-300">{formatCost(epCost.totals.actual.video)}</span>
-                            <span className="ml-2 text-gray-500">总计 </span><span className="font-medium text-emerald-400">{formatCost(totalBreakdown(epCost.totals.actual))}</span>
+                            <span className="text-gray-500">Thực tế </span>
+                            <span className="text-gray-500">Phân cảnh </span><span className="text-gray-300">{formatCost(epCost.totals.actual.image)}</span>
+                            <span className="ml-2 text-gray-500">Video </span><span className="text-gray-300">{formatCost(epCost.totals.actual.video)}</span>
+                            <span className="ml-2 text-gray-500">Tổng cộng </span><span className="font-medium text-emerald-400">{formatCost(totalBreakdown(epCost.totals.actual))}</span>
                           </span>
                         </span>
                       )}

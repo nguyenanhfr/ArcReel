@@ -1,7 +1,7 @@
 """
-环境初始化模块
+Môi trườngKhởi tạo module
 
-加载 .env 文件。
+Tải file .env.
 """
 
 import logging
@@ -12,16 +12,16 @@ logger = logging.getLogger(__name__)
 
 def init_environment():
     """
-    初始化项目环境
+    Khởi tạo môi trường dự án
 
-    1. 定位项目根目录
-    2. 加载 .env 文件
+    1. Xác định thư mục gốc Dự án
+    2. Tải tập tin .env
     """
-    # 获取项目根目录（lib 的父目录）
+    # Lấy thư mục gốc Dự án (thư mục cha của lib)
     lib_dir = Path(__file__).parent
     project_root = lib_dir.parent
 
-    # 加载 .env 文件
+    # Tải tập tin .env
     try:
         from dotenv import load_dotenv
 
@@ -31,10 +31,10 @@ def init_environment():
         else:
             load_dotenv()
     except ImportError:
-        pass  # python-dotenv 未安装时跳过
+        pass  # python-dotenv Bỏ qua nếu chưa cài đặt
 
     return project_root
 
 
-# 模块导入时自动初始化
+# Tự động khởi tạo khi nhập module
 PROJECT_ROOT = init_environment()

@@ -1,7 +1,7 @@
 """
-自定义供应商管理 API。
+nhà cung cấp tùy chỉnhQuản lý API.
 
-提供自定义供应商 CRUD、模型管理、模型发现和连接测试端点。
+Cung cấp các nhà cung cấp tùy chỉnh CRUD, quản lý mô hình, khám phá mô hình và kiểm tra kết nối endpoint.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from server.auth import CurrentUser
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/custom-providers", tags=["自定义供应商"])
+router = APIRouter(prefix="/custom-providers", tags=["nhà cung cấp tùy chỉnh"])
 
 _CONNECTION_TEST_TIMEOUT = 15  # 秒
 
@@ -54,7 +54,7 @@ class ModelInput(BaseModel):
     @model_validator(mode="after")
     def _check_price_consistency(self):
         if self.price_output is not None and self.price_input is None:
-            raise ValueError("设置 price_output 时必须同时设置 price_input")
+            raise ValueError("Cài đặt price_output Khi sử dụng phải đồng thời cài đặt price_input")
         return self
 
 
@@ -73,11 +73,11 @@ class UpdateProviderRequest(BaseModel):
 
 
 class FullUpdateProviderRequest(BaseModel):
-    """PUT 全量更新：provider 元数据 + 模型列表在同一事务中。"""
+    """PUT Cập nhật toàn bộ: metadata của provider + danh sách người mẫu trong cùng một giao dịch."""
 
     display_name: str
     base_url: str
-    api_key: str | None = None  # None = 不修改
+    api_key: str | None = None  # None = Không sửa đổi
     models: list[ModelInput]
 
 
@@ -125,7 +125,7 @@ class DiscoverResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# 辅助函数
+# Hàm hỗ trợ
 # ---------------------------------------------------------------------------
 
 
@@ -157,7 +157,7 @@ def _provider_to_response(provider, models) -> ProviderResponse:
 
 
 def _cleanup_project_refs(prefix: str, setting_keys: tuple[str, ...]) -> None:
-    """删除 provider 后，清理所有项目 project.json 中的悬空引用。"""
+    """Xóa provider Sau đó, dọn dẹp tất cả các tham chiếu treo trong project.json của Dự án."""
     from lib.config.resolver import get_project_manager
 
     pm = get_project_manager()
@@ -172,23 +172,23 @@ def _cleanup_project_refs(prefix: str, setting_keys: tuple[str, ...]) -> None:
 
             pm.update_project(proj_name, _mutate)
         except Exception:
-            pass  # 读取失败或项目不可写，跳过（非致命）
+            pass  # đọcThất bạiHoặc Dự án không thể ghi, bỏ qua (không gây lỗi nghiêm trọng)
 
 
 def _check_duplicate_model_ids(models: list[ModelInput]) -> None:
-    """校验模型列表中无重复 model_id 且启用模型有合法 model_id。"""
+    """Kiểm tra trong danh sách người mẫu không có model_id trùng lặp và các mô hình kích hoạt có model_id hợp lệ."""
     seen: set[str] = set()
     for m in models:
         if m.is_enabled and not m.model_id.strip():
-            raise HTTPException(status_code=422, detail="已启用的模型必须填写 model_id")
+            raise HTTPException(status_code=422, detail="Model_id là bắt buộc đối với các mô hình đã bật")
         if m.model_id in seen:
-            raise HTTPException(status_code=422, detail=f"model_id 重复: {m.model_id}")
+            raise HTTPException(status_code=422, detail=f"model_id Trùng lặp: {m.model_id}")
         if m.model_id:
             seen.add(m.model_id)
 
 
 def _check_unique_defaults(models: list[ModelInput]) -> None:
-    """校验每个 media_type 最多只有一个 is_default=True 的模型。"""
+    """Kiểm tra mỗi media_type có nhiều nhất chỉ một mô hình is_default=True."""
     defaults_by_type: dict[str, list[str]] = {}
     for m in models:
         if m.is_default:
@@ -198,12 +198,12 @@ def _check_unique_defaults(models: list[ModelInput]) -> None:
         parts = [f"{mt}({', '.join(ids)})" for mt, ids in duplicates.items()]
         raise HTTPException(
             status_code=422,
-            detail=f"每个 media_type 最多只能有一个默认模型，冲突: {'; '.join(parts)}",
+            detail=f"Mỗi media_type chỉ có thể có tối đa một mô hình mặc định, xung đột: {'; '.join(parts)}",
         )
 
 
 async def _invalidate_caches(request: Request) -> None:
-    """清空 backend 实例缓存 + 刷新 worker 限流配置。"""
+    """Xóa bộ nhớ đệm instance backend + làm mới cấu hình giới hạn chuyển đổi worker."""
     from server.services.generation_tasks import invalidate_backend_cache
 
     invalidate_backend_cache()
@@ -222,7 +222,7 @@ async def list_providers(
     _user: CurrentUser,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """列出所有自定义供应商（含模型列表）。"""
+    """Liệt kê tất cả các nhà cung cấp tùy chỉnh (bao gồm danh sách người mẫu)."""
     repo = CustomProviderRepository(session)
     pairs = await repo.list_providers_with_models()
     return {"providers": [_provider_to_response(p, models) for p, models in pairs]}
@@ -235,7 +235,7 @@ async def create_provider(
     _user: CurrentUser,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """创建自定义供应商，可同时创建模型列表。"""
+    """Tạonhà cung cấp tùy chỉnh，Có thể đồng thời tạo danh sách người mẫu."""
     if body.models:
         _check_duplicate_model_ids(body.models)
         _check_unique_defaults(body.models)
@@ -261,11 +261,11 @@ async def get_provider(
     _user: CurrentUser,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """获取单个自定义供应商详情。"""
+    """Lấy chi tiết một nhà cung cấp tùy chỉnh."""
     repo = CustomProviderRepository(session)
     provider = await repo.get_provider(provider_id)
     if provider is None:
-        raise HTTPException(status_code=404, detail="供应商不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
     models = await repo.list_models(provider_id)
     return _provider_to_response(provider, models)
 
@@ -278,7 +278,7 @@ async def update_provider(
     _user: CurrentUser,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """更新自定义供应商配置。"""
+    """Cập nhật cấu hình nhà cung cấp tùy chỉnh."""
     repo = CustomProviderRepository(session)
     kwargs = {}
     if body.display_name is not None:
@@ -289,11 +289,11 @@ async def update_provider(
         kwargs["api_key"] = body.api_key
 
     if not kwargs:
-        raise HTTPException(status_code=400, detail="至少需要提供一个更新字段")
+        raise HTTPException(status_code=400, detail="Cần cung cấp ít nhất một trường để cập nhật")
 
     provider = await repo.update_provider(provider_id, **kwargs)
     if provider is None:
-        raise HTTPException(status_code=404, detail="供应商不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
 
     await session.commit()
     await _invalidate_caches(request)
@@ -310,7 +310,7 @@ async def full_update_provider(
     _user: CurrentUser,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """原子更新供应商元数据 + 模型列表（单一事务）。"""
+    """Cập nhật nguyên tử metadata nhà cung cấp + Danh sách mẫu (giao dịch đơn)."""
     _check_duplicate_model_ids(body.models)
     _check_unique_defaults(body.models)
     repo = CustomProviderRepository(session)
@@ -319,7 +319,7 @@ async def full_update_provider(
         kwargs["api_key"] = body.api_key
     provider = await repo.update_provider(provider_id, **kwargs)
     if provider is None:
-        raise HTTPException(status_code=404, detail="供应商不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
     model_dicts = [m.model_dump() for m in body.models]
     await repo.replace_models(provider_id, model_dicts)
     await session.commit()
@@ -336,14 +336,14 @@ async def delete_provider(
     _user: CurrentUser,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """删除自定义供应商（级联删除模型，清理悬空默认配置）。"""
+    """Xóanhà cung cấp tùy chỉnh（Xóa mẫu theo chuỗi, làm sạch cấu hình mặc định treo."""
     repo = CustomProviderRepository(session)
     provider = await repo.get_provider(provider_id)
     if provider is None:
-        raise HTTPException(status_code=404, detail="供应商不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
     prefix = f"{make_provider_id(provider_id)}/"
     await repo.delete_provider(provider_id)
-    # 清理引用该 provider 的全局默认 backend 配置
+    # Làm sạch cấu hình backend mặc định toàn cục tham chiếu đến nhà cung cấp này
     from lib.config.service import ConfigService
 
     svc = ConfigService(session)
@@ -353,7 +353,7 @@ async def delete_provider(
             await svc.set_setting(key, "")
     await session.commit()
     await _invalidate_caches(request)
-    # 清理引用该 provider 的项目级配置（同步文件 I/O，放到线程池避免阻塞事件循环）
+    # Làm sạch cấu hình cấp dự án tham chiếu đến nhà cung cấp này (I/O tệp đồng bộ, đưa vào thread pool để tránh chặn vòng lặp sự kiện)
     await asyncio.to_thread(_cleanup_project_refs, prefix, _BACKEND_SETTING_KEYS)
 
 
@@ -370,14 +370,14 @@ async def replace_models(
     _user: CurrentUser,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """替换供应商的整个模型列表。"""
+    """Thay thếnhà cung cấpToàn bộ Danh sách mẫu."""
     _check_duplicate_model_ids(body.models)
     _check_unique_defaults(body.models)
     repo = CustomProviderRepository(session)
     provider = await repo.get_provider(provider_id)
     if provider is None:
-        raise HTTPException(status_code=404, detail="供应商不存在")
-    # 记录旧模型 ID，用于清理悬空引用
+        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
+    # Ghi lại Mã mẫu cũ, dùng để làm sạch tham chiếu treo
     old_models = await repo.list_models(provider_id)
     old_model_ids = {m.model_id for m in old_models}
     new_model_ids = {m.model_id for m in body.models}
@@ -386,7 +386,7 @@ async def replace_models(
     model_dicts = [m.model_dump() for m in body.models]
     new_models = await repo.replace_models(provider_id, model_dicts)
 
-    # 清理引用已删除模型的全局配置
+    # Làm sạch cấu hình toàn cục tham chiếu tới mô hình đã xóa
     if deleted_model_ids:
         from lib.config.service import ConfigService
 
@@ -405,7 +405,7 @@ async def replace_models(
 
 
 # ---------------------------------------------------------------------------
-# 无状态操作
+# Hoạt động vô trạng thái
 # ---------------------------------------------------------------------------
 
 
@@ -414,7 +414,7 @@ async def discover_models_endpoint(
     body: ProviderConnectionRequest,
     _user: CurrentUser,
 ):
-    """模型发现：根据 api_format + base_url + api_key 查询可用模型。"""
+    """Khám phá mẫu: Dựa trên api_format + base_url + api_key truy vấn các mẫu có sẵn."""
     from lib.custom_provider.discovery import discover_models
 
     try:
@@ -430,8 +430,8 @@ async def discover_models_endpoint(
         err_msg = str(exc)
         if len(err_msg) > 200:
             err_msg = err_msg[:200] + "..."
-        logger.warning("模型发现失败: %s", err_msg)
-        raise HTTPException(status_code=502, detail=f"模型发现失败: {err_msg}")
+        logger.warning("Khám phá mẫu thất bại: %s", err_msg)
+        raise HTTPException(status_code=502, detail=f"Khám phá mẫu thất bại: {err_msg}")
 
 
 @router.post("/test")
@@ -439,7 +439,7 @@ async def test_connection(
     body: ProviderConnectionRequest,
     _user: CurrentUser,
 ):
-    """连接测试：验证 api_format + base_url + api_key 的连通性。"""
+    """kết nốiKiểm tra: Xác thực kết nối của api_format + base_url + api_key."""
     return await _run_connection_test(body.api_format, body.base_url, body.api_key)
 
 
@@ -449,16 +449,16 @@ async def test_connection_by_id(
     _user: CurrentUser,
     session: AsyncSession = Depends(get_async_session),
 ):
-    """使用已存储凭证测试指定供应商的连通性。"""
+    """Sử dụng thông tin đăng nhập đã lưu để kiểm tra kết nối với nhà cung cấp được chỉ định."""
     repo = CustomProviderRepository(session)
     provider = await repo.get_provider(provider_id)
     if provider is None:
-        raise HTTPException(status_code=404, detail="供应商不存在")
+        raise HTTPException(status_code=404, detail="nhà cung cấp不存在")
     return await _run_connection_test(provider.api_format, provider.base_url, provider.api_key)
 
 
 async def _run_connection_test(api_format: str, base_url: str, api_key: str) -> ConnectionTestResponse:
-    """共用的连接测试逻辑。"""
+    """Chia sẻ logic kiểm tra kết nối."""
     try:
         if api_format == "openai":
             result = await asyncio.wait_for(
@@ -473,27 +473,27 @@ async def _run_connection_test(api_format: str, base_url: str, api_key: str) -> 
         else:
             return ConnectionTestResponse(
                 success=False,
-                message=f"不支持的 api_format: {api_format}",
+                message=f"Định dạng api không được hỗ trợ: {api_format}",
             )
         return result
     except TimeoutError:
         return ConnectionTestResponse(
             success=False,
-            message="连接超时，请检查网络或 API 配置",
+            message="kết nốiHết thời gian chờ, vui lòng kiểm tra mạng hoặc cấu hình API",
         )
     except Exception as exc:
         err_msg = str(exc)
         if len(err_msg) > 200:
             err_msg = err_msg[:200] + "..."
-        logger.warning("连接测试失败 [%s]: %s", api_format, err_msg)
+        logger.warning("Kiểm tra kết nối không thành công [%s]: %s", api_format, err_msg)
         return ConnectionTestResponse(
             success=False,
-            message=f"连接失败: {err_msg}",
+            message=f"kết nốiThất bại: {err_msg}",
         )
 
 
 def _test_openai(base_url: str, api_key: str) -> ConnectionTestResponse:
-    """通过 models.list() 验证 OpenAI 兼容 API。"""
+    """Xác minh API tương thích OpenAI thông qua models.list()."""
     from openai import OpenAI
 
     from lib.config.url_utils import ensure_openai_base_url
@@ -503,13 +503,13 @@ def _test_openai(base_url: str, api_key: str) -> ConnectionTestResponse:
     count = sum(1 for _ in models)
     return ConnectionTestResponse(
         success=True,
-        message="连接成功",
+        message="kết nối成功",
         model_count=count,
     )
 
 
 def _test_google(base_url: str, api_key: str) -> ConnectionTestResponse:
-    """通过 models.list() 验证 Google genai API。"""
+    """Xác minh API Google genai thông qua models.list()."""
     from google import genai
 
     from lib.config.url_utils import ensure_google_base_url
@@ -521,6 +521,6 @@ def _test_google(base_url: str, api_key: str) -> ConnectionTestResponse:
     count = sum(1 for _ in pager)
     return ConnectionTestResponse(
         success=True,
-        message="连接成功",
+        message="kết nối成功",
         model_count=count,
     )

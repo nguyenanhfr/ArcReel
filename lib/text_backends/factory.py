@@ -1,4 +1,4 @@
-"""文本 backend 工厂。"""
+"""Văn bản backend Nhà máy."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ async def create_text_backend_for_task(
     task_type: TextTaskType,
     project_name: str | None = None,
 ) -> TextBackend:
-    """从 DB 配置创建文本 backend。"""
+    """Tạo văn bản backend từ cấu hình DB."""
     resolver = ConfigResolver(async_session_factory)
     provider_id, model_id = await resolver.text_backend_for_task(task_type, project_name)
 
@@ -39,9 +39,9 @@ async def create_text_backend_for_task(
             db_id = parse_provider_id(provider_id)
             provider = await repo.get_provider(db_id)
             if provider is None:
-                raise ValueError("配置的自定义供应商已被删除，请到项目设置中重新选择文本模型")
+                raise ValueError("Nhà cung cấp tùy chỉnh đã cấu hình bị xóa, vui lòng chọn lại mô hình văn bản trong Cài đặt Dự án")
             name = provider.display_name
-            # 校验 model_id 仍存在且已启用，否则回退默认模型
+            # Xác nhận model_id vẫn tồn tại và đã được bật, nếu không sẽ quay về Mô hình mặc định
             if model_id:
                 stmt = select(CustomProviderModel).where(
                     CustomProviderModel.provider_id == db_id,
@@ -57,7 +57,7 @@ async def create_text_backend_for_task(
                 if default_model:
                     model_id = default_model.model_id
                 else:
-                    raise ValueError(f"供应商「{name}」没有可用的文本模型，请到项目设置中重新选择")
+                    raise ValueError(f"nhà cung cấp「{name}」Không có mô hình văn bản có sẵn, vui lòng chọn lại trong Cài đặt Dự án")
             return create_custom_backend(provider=provider, model_id=model_id, media_type="text")
 
     provider_config = await resolver.provider_config(provider_id)

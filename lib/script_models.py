@@ -1,9 +1,9 @@
 """
-script_models.py - 剧本数据模型
+script_models.py - Kịch bảnMô hình dữ liệu
 
-使用 Pydantic 定义剧本的数据结构，用于：
-1. Gemini API 的 response_schema（Structured Outputs）
-2. 输出验证
+Sử dụng Pydantic để định nghĩa cấu trúc dữ liệu kịch bản, dùng cho:
+1. Gemini API response_schema (Đầu ra có cấu trúc)
+2. Đầu ra验证
 """
 
 from typing import Literal
@@ -14,9 +14,9 @@ from pydantic_core import core_schema
 
 
 class DurationSeconds(int):
-    """片段/场景时长（秒），限定为 4、6、8。
+    """Đoạn/CảnhThời lượng (giây)，Giới hạn ở 4, 6, 8.
 
-    运行时为 int，JSON Schema 生成字符串枚举以兼容 Gemini API。
+    Thời gian chạy là int, JSON Schema tạo chuỗi enum để tương thích với Gemini API.
     """
 
     @classmethod
@@ -38,7 +38,7 @@ class DurationSeconds(int):
         return {"enum": ["4", "6", "8"]}
 
 
-# ============ 枚举类型定义 ============
+# ============ Định nghĩa Loại liệt kê ============
 
 ShotType = Literal[
     "Extreme Close-up",
@@ -65,110 +65,110 @@ CameraMotion = Literal[
 
 
 class Dialogue(BaseModel):
-    """对话条目"""
+    """Đối thoại条目"""
 
-    speaker: str = Field(description="说话人名称")
-    line: str = Field(description="对话内容")
+    speaker: str = Field(description="Người nói Tên")
+    line: str = Field(description="Đối thoại内容")
 
 
 class Composition(BaseModel):
-    """构图信息"""
+    """Thông tin bố cục"""
 
-    shot_type: ShotType = Field(description="镜头类型")
-    lighting: str = Field(description="光线描述，包含光源、方向和氛围")
-    ambiance: str = Field(description="整体氛围，与情绪基调匹配")
+    shot_type: ShotType = Field(description="Góc máyLoại")
+    lighting: str = Field(description="Ánh sángMô tả，Bao gồm nguồn sáng, hướng và Không khí")
+    ambiance: str = Field(description="Không khí tổng thể, phù hợp với giai điệu cảm xúc")
 
 
 class ImagePrompt(BaseModel):
-    """分镜图生成 Prompt"""
+    """Ảnh phân cảnhTạo Prompt"""
 
-    scene: str = Field(description="场景描述：角色位置、表情、动作、环境细节")
-    composition: Composition = Field(description="构图信息")
+    scene: str = Field(description="CảnhMô tả：Nhân vậtVị trí, biểu cảm, hành động, chi tiết Môi trường")
+    composition: Composition = Field(description="Thông tin bố cục")
 
 
 class VideoPrompt(BaseModel):
-    """视频生成 Prompt"""
+    """VideoTạo Prompt"""
 
-    action: str = Field(description="动作描述：角色在该片段内的具体动作")
-    camera_motion: CameraMotion = Field(description="镜头运动")
-    ambiance_audio: str = Field(description="环境音效：仅描述场景内的声音，禁止 BGM")
-    dialogue: list[Dialogue] = Field(default_factory=list, description="对话列表，仅当原文有引号对话时填写")
+    action: str = Field(description="Mô tả hành động: Nhân vật thực hiện hành động cụ thể trong Đoạn này")
+    camera_motion: CameraMotion = Field(description="Chuyển động máy quay")
+    ambiance_audio: str = Field(description="Âm thanh môi trường：Chỉ mô tả âm thanh trong Cảnh, cấm BGM")
+    dialogue: list[Dialogue] = Field(default_factory=list, description="Đối thoạidanh sách，Chỉ điền khi Văn gốc có dấu ngoặc kép Đối thoại")
 
 
 class GeneratedAssets(BaseModel):
-    """生成资源状态（初始化为空）"""
+    """Trạng thái tài nguyên tạo ra (khởi tạo trống)"""
 
-    storyboard_image: str | None = Field(default=None, description="分镜图路径")
-    video_clip: str | None = Field(default=None, description="视频片段路径")
-    video_uri: str | None = Field(default=None, description="视频 URI")
-    status: Literal["pending", "storyboard_ready", "completed"] = Field(default="pending", description="生成状态")
+    storyboard_image: str | None = Field(default=None, description="Ảnh phân cảnh路径")
+    video_clip: str | None = Field(default=None, description="VideoĐoạn路径")
+    video_uri: str | None = Field(default=None, description="Video URI")
+    status: Literal["pending", "storyboard_ready", "completed"] = Field(default="pending", description="Trạng thái tạo")
 
 
-# ============ 说书模式（Narration） ============
+# ============ Chế độ kể chuyện (Narration) ============
 
 
 class NarrationSegment(BaseModel):
-    """说书模式的片段"""
+    """Đoạn trong chế độ kể chuyện"""
 
-    segment_id: str = Field(description="片段 ID，格式 E{集}S{序号} 或 E{集}S{序号}_{子序号}")
-    episode: int = Field(description="所属剧集")
-    duration_seconds: DurationSeconds = Field(description="片段时长（秒）")
-    segment_break: bool = Field(default=False, description="是否为场景切换点")
-    novel_text: str = Field(description="小说原文（必须原样保留，用于后期配音）")
-    characters_in_segment: list[str] = Field(description="出场角色名称列表")
-    clues_in_segment: list[str] = Field(default_factory=list, description="出场线索名称列表")
-    image_prompt: ImagePrompt = Field(description="分镜图生成提示词")
-    video_prompt: VideoPrompt = Field(description="视频生成提示词")
-    transition_to_next: Literal["cut", "fade", "dissolve"] = Field(default="cut", description="转场类型")
-    note: str | None = Field(default=None, description="用户备注（不参与生成）")
-    generated_assets: GeneratedAssets = Field(default_factory=GeneratedAssets, description="生成资源状态")
+    segment_id: str = Field(description="Đoạn ID，định dạng E{集}S{Số thứ tự} hoặc E{集}S{Số thứ tự}_{Số Thứ Tự Con}")
+    episode: int = Field(description="Thuộc Tập Phim")
+    duration_seconds: DurationSeconds = Field(description="ĐoạnThời lượng (giây)")
+    segment_break: bool = Field(default=False, description="Có phải là Điểm Chuyển Cảnh")
+    novel_text: str = Field(description="Nguyên tác Tiểu thuyết (phải giữ nguyên, dùng cho lồng tiếng sau)")
+    characters_in_segment: list[str] = Field(description="Danh sách Nhân vật xuất hiện")
+    clues_in_segment: list[str] = Field(default_factory=list, description="Danh sách Manh mối xuất hiện")
+    image_prompt: ImagePrompt = Field(description="Ảnh phân cảnhTạo Prompt")
+    video_prompt: VideoPrompt = Field(description="VideoTạo Prompt")
+    transition_to_next: Literal["cut", "fade", "dissolve"] = Field(default="cut", description="Loại Chuyển cảnh")
+    note: str | None = Field(default=None, description="Ghi chú Người dùng (không tham gia sinh sản)")
+    generated_assets: GeneratedAssets = Field(default_factory=GeneratedAssets, description="Trạng thái Tài nguyên được tạo")
 
 
 class NovelInfo(BaseModel):
-    """小说来源信息"""
+    """Thông tin Nguồn tiểu thuyết"""
 
-    title: str = Field(description="小说标题")
-    chapter: str = Field(description="章节名称")
+    title: str = Field(description="Tiểu thuyết Tiêu đề")
+    chapter: str = Field(description="chươngTên")
 
 
 class NarrationEpisodeScript(BaseModel):
-    """说书模式剧集脚本"""
+    """Kịch bản Tập phim theo chế độ Kể chuyện"""
 
-    episode: int = Field(description="剧集编号")
-    title: str = Field(description="剧集标题")
-    content_mode: Literal["narration"] = Field(default="narration", description="内容模式")
-    duration_seconds: int = Field(default=0, description="总时长（秒）")
-    summary: str = Field(description="剧集摘要")
-    novel: NovelInfo = Field(description="小说来源信息")
-    segments: list[NarrationSegment] = Field(description="片段列表")
+    episode: int = Field(description="Tập phim编号")
+    title: str = Field(description="Tập phimTiêu đề")
+    content_mode: Literal["narration"] = Field(default="narration", description="chế độ nội dung")
+    duration_seconds: int = Field(default=0, description="Tổng Thời lượng (giây)")
+    summary: str = Field(description="Tập phimTóm tắt")
+    novel: NovelInfo = Field(description="Thông tin Nguồn tiểu thuyết")
+    segments: list[NarrationSegment] = Field(description="Đoạndanh sách")
 
 
-# ============ 剧集动画模式（Drama） ============
+# ============ Chế độ hoạt hình phim（Drama） ============
 
 
 class DramaScene(BaseModel):
-    """剧集动画模式的场景"""
+    """Chế độ hoạt hình phimCác Cảnh"""
 
-    scene_id: str = Field(description="场景 ID，格式 E{集}S{序号} 或 E{集}S{序号}_{子序号}")
-    duration_seconds: DurationSeconds = Field(default=8, description="场景时长（秒）")
-    segment_break: bool = Field(default=False, description="是否为场景切换点")
-    scene_type: str = Field(default="剧情", description="场景类型")
-    characters_in_scene: list[str] = Field(description="出场角色名称列表")
-    clues_in_scene: list[str] = Field(default_factory=list, description="出场线索名称列表")
-    image_prompt: ImagePrompt = Field(description="分镜图生成提示词（16:9 横屏）")
-    video_prompt: VideoPrompt = Field(description="视频生成提示词")
-    transition_to_next: Literal["cut", "fade", "dissolve"] = Field(default="cut", description="转场类型")
-    note: str | None = Field(default=None, description="用户备注（不参与生成）")
-    generated_assets: GeneratedAssets = Field(default_factory=GeneratedAssets, description="生成资源状态")
+    scene_id: str = Field(description="Cảnh ID，định dạng E{集}S{Số thứ tự} hoặc E{集}S{Số thứ tự}_{Số Thứ Tự Con}")
+    duration_seconds: DurationSeconds = Field(default=8, description="CảnhThời lượng (giây)")
+    segment_break: bool = Field(default=False, description="Có phải là Điểm Chuyển Cảnh")
+    scene_type: str = Field(default="Cốt truyện", description="CảnhLoại")
+    characters_in_scene: list[str] = Field(description="Danh sách Nhân vật xuất hiện")
+    clues_in_scene: list[str] = Field(default_factory=list, description="Danh sách Manh mối xuất hiện")
+    image_prompt: ImagePrompt = Field(description="Ảnh phân cảnhPrompt Tạo (16:9 ngang)")
+    video_prompt: VideoPrompt = Field(description="VideoTạo Prompt")
+    transition_to_next: Literal["cut", "fade", "dissolve"] = Field(default="cut", description="Loại Chuyển cảnh")
+    note: str | None = Field(default=None, description="Ghi chú Người dùng (không tham gia sinh sản)")
+    generated_assets: GeneratedAssets = Field(default_factory=GeneratedAssets, description="Trạng thái Tài nguyên được tạo")
 
 
 class DramaEpisodeScript(BaseModel):
-    """剧集动画模式剧集脚本"""
+    """Chế độ hoạt hình phimTập phim脚本"""
 
-    episode: int = Field(description="剧集编号")
-    title: str = Field(description="剧集标题")
-    content_mode: Literal["drama"] = Field(default="drama", description="内容模式")
-    duration_seconds: int = Field(default=0, description="总时长（秒）")
-    summary: str = Field(description="剧集摘要")
-    novel: NovelInfo = Field(description="小说来源信息")
-    scenes: list[DramaScene] = Field(description="场景列表")
+    episode: int = Field(description="Tập phim编号")
+    title: str = Field(description="Tập phimTiêu đề")
+    content_mode: Literal["drama"] = Field(default="drama", description="chế độ nội dung")
+    duration_seconds: int = Field(default=0, description="Tổng Thời lượng (giây)")
+    summary: str = Field(description="Tập phimTóm tắt")
+    novel: NovelInfo = Field(description="Thông tin Nguồn tiểu thuyết")
+    scenes: list[DramaScene] = Field(description="Cảnhdanh sách")

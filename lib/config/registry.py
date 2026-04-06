@@ -32,7 +32,7 @@ class ProviderMeta:
 PROVIDER_REGISTRY: dict[str, ProviderMeta] = {
     "gemini-aistudio": ProviderMeta(
         display_name="AI Studio",
-        description="Google AI Studio 提供 Gemini 系列模型，支持图片和视频生成，适合快速原型和个人项目。",
+        description="Google AI Studio Cung cấp các mô hình dòng Gemini, hỗ trợ tạo Ảnh và Video, phù hợp cho nguyên mẫu nhanh và Dự án cá nhân.",
         required_keys=["api_key"],
         optional_keys=["base_url", "image_rpm", "video_rpm", "request_gap", "image_max_workers", "video_max_workers"],
         secret_keys=["api_key"],
@@ -87,7 +87,7 @@ PROVIDER_REGISTRY: dict[str, ProviderMeta] = {
     ),
     "gemini-vertex": ProviderMeta(
         display_name="Vertex AI",
-        description="Google Cloud Vertex AI 企业级平台，支持 Gemini 和 Imagen 模型，提供更高配额和音频生成能力。",
+        description="Google Cloud Vertex AI Nền tảng cấp doanh nghiệp, hỗ trợ mô hình Gemini và Imagen, cung cấp hạn mức cao hơn và khả năng tạo âm thanh.",
         required_keys=["credentials_path"],
         optional_keys=["gcs_bucket", "image_rpm", "video_rpm", "request_gap", "image_max_workers", "video_max_workers"],
         secret_keys=[],
@@ -136,31 +136,31 @@ PROVIDER_REGISTRY: dict[str, ProviderMeta] = {
         },
     ),
     "ark": ProviderMeta(
-        display_name="火山方舟",
-        description="字节跳动火山方舟 AI 平台，支持 Seedance 视频生成和 Seedream 图片生成，具备音频生成和种子控制能力。",
+        display_name="Hòm núi lửa",
+        description="từNền tảng AI Hòm núi lửa của ByteDance, hỗ trợ tạo Video Seedance và tạo Ảnh Seedream, có khả năng tạo âm thanh và kiểm soát hạt giống.",
         required_keys=["api_key"],
         optional_keys=["video_rpm", "image_rpm", "request_gap", "video_max_workers", "image_max_workers"],
         secret_keys=["api_key"],
         models={
             # --- text ---
             "doubao-seed-2-0-pro-260215": ModelInfo(
-                display_name="豆包 Seed 2.0 Pro",
+                display_name="Đậu Bao Seed 2.0 Pro",
                 media_type="text",
                 capabilities=["text_generation", "vision"],
             ),
             "doubao-seed-2-0-lite-260215": ModelInfo(
-                display_name="豆包 Seed 2.0 Lite",
+                display_name="Đậu Bao Seed 2.0 Lite",
                 media_type="text",
                 capabilities=["text_generation", "vision"],
                 default=True,
             ),
             "doubao-seed-2-0-mini-260215": ModelInfo(
-                display_name="豆包 Seed 2.0 Mini",
+                display_name="Đậu Bao Seed 2.0 Mini",
                 media_type="text",
                 capabilities=["text_generation", "vision"],
             ),
             "doubao-seed-1-8-251228": ModelInfo(
-                display_name="豆包 Seed 1.8",
+                display_name="Đậu Bao Seed 1.8",
                 media_type="text",
                 capabilities=["text_generation", "structured_output", "vision"],
             ),
@@ -207,7 +207,7 @@ PROVIDER_REGISTRY: dict[str, ProviderMeta] = {
     ),
     "grok": ProviderMeta(
         display_name="Grok",
-        description="xAI Grok 模型，支持视频和图片生成。",
+        description="xAI Grok Mô hình, hỗ trợ tạo Video và Ảnh.",
         required_keys=["api_key"],
         optional_keys=["video_rpm", "image_rpm", "request_gap", "video_max_workers", "image_max_workers"],
         secret_keys=["api_key"],
@@ -257,7 +257,7 @@ PROVIDER_REGISTRY: dict[str, ProviderMeta] = {
     ),
     "openai": ProviderMeta(
         display_name="OpenAI",
-        description="OpenAI 官方平台，支持 GPT-5.4 文本、GPT Image 图片和 Sora 视频生成。",
+        description="OpenAI Nền tảng chính thức, hỗ trợ tạo Văn bản GPT-5.4, tạo Ảnh GPT Image và tạo Video Sora.",
         required_keys=["api_key"],
         optional_keys=["base_url", "image_rpm", "video_rpm", "request_gap", "image_max_workers", "video_max_workers"],
         secret_keys=["api_key"],

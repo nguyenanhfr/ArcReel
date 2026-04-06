@@ -1,4 +1,4 @@
-"""文本生成服务层公共 API。"""
+"""Văn bảnTạo lớp API công cộng của dịch vụ."""
 
 from lib.text_backends.base import (
     ImageInput,

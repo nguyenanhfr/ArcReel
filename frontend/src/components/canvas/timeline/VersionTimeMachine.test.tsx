@@ -74,17 +74,17 @@ describe("VersionTimeMachine", () => {
     expect(API.getVersions).not.toHaveBeenCalled();
 
     // Open the panel
-    fireEvent.click(screen.getByRole("button", { name: /版本管理/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Quản lý phiên bản/i }));
 
     // Click v1 pill to preview
     expect(await screen.findByRole("button", { name: "v1" })).toBeInTheDocument();
     expect(API.getVersions).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole("button", { name: "v1" }));
-    expect(await screen.findByAltText("版本 v1 预览")).toBeInTheDocument();
+    expect(await screen.findByAltText("Xem trước phiên bản v1")).toBeInTheDocument();
     expect(screen.getByText("old prompt")).toBeInTheDocument();
 
     // Click restore button in header
-    fireEvent.click(screen.getByRole("button", { name: /切换到此版本/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Chuyển sang phiên bản này/ }));
 
     await waitFor(() => {
       expect(API.restoreVersion).toHaveBeenCalledWith(
@@ -95,7 +95,7 @@ describe("VersionTimeMachine", () => {
       );
       expect(onRestore).toHaveBeenCalledWith(1);
       expect(API.getVersions).toHaveBeenCalledTimes(2);
-      expect(useAppStore.getState().toast?.text).toBe("已切换到 v1");
+      expect(useAppStore.getState().toast?.text).toBe("Đã chuyển sang v1");
     });
   });
 
@@ -133,13 +133,13 @@ describe("VersionTimeMachine", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: /版本管理/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Quản lý phiên bản/i }));
     expect(await screen.findByRole("button", { name: "v1" })).toBeInTheDocument();
 
     // Click v1 pill to preview
     fireEvent.click(screen.getByRole("button", { name: "v1" }));
 
-    const previewImage = await screen.findByAltText("版本 v1 预览");
+    const previewImage = await screen.findByAltText("Xem trước phiên bản v1");
     expect(previewImage).toHaveClass("object-contain");
     expect(previewImage.parentElement).toHaveClass("h-80");
   });

@@ -77,7 +77,7 @@ describe("OverviewCanvas", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "删除参考图" }));
+    fireEvent.click(screen.getByRole("button", { name: "Xóa ảnh tham chiếu" }));
 
     await waitFor(() => {
       expect(API.deleteStyleImage).toHaveBeenCalledWith("demo");
@@ -97,19 +97,19 @@ describe("OverviewCanvas", () => {
     );
 
     expect(
-      screen.queryByRole("button", { name: "保存风格描述" }),
+      screen.queryByRole("button", { name: "Lưu mô tả phong cách" }),
     ).not.toBeInTheDocument();
 
     fireEvent.change(
       screen.getByPlaceholderText(
-        "上传风格参考图后，系统会自动分析并填充风格描述；也可以手动编辑。",
+        "Tải lên ảnh tham chiếu phong cáchCuối cùng, Hệ thống sẽ tự động phân tích và điền vào Mô tả phong cách; bạn cũng có thể Chỉnh sửa thủ công.",
       ),
       {
         target: { value: "new description" },
       },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "保存风格描述" }));
+    fireEvent.click(screen.getByRole("button", { name: "Lưu mô tả phong cách" }));
 
     await waitFor(() => {
       expect(API.updateStyleDescription).toHaveBeenCalledWith(

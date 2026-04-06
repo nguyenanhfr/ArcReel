@@ -79,13 +79,13 @@ async def send_message(
     except SessionCapacityError as exc:
         raise HTTPException(status_code=503, detail=str(exc))
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="会话或项目不存在")
+        raise HTTPException(status_code=404, detail="Phiên hoặc Dự án không tồn tại")
     except TimeoutError:
-        raise HTTPException(status_code=504, detail="SDK 会话创建超时")
+        raise HTTPException(status_code=504, detail="SDK Hết thời gian tạo phiên")
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -105,7 +105,7 @@ async def list_sessions(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -118,7 +118,7 @@ async def get_session(project_name: str, session_id: str, _user: CurrentUser):
     except HTTPException:
         raise
     except Exception as exc:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -134,7 +134,7 @@ async def delete_session(project_name: str, session_id: str, _user: CurrentUser)
     except HTTPException:
         raise
     except Exception as exc:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -142,7 +142,7 @@ async def delete_session(project_name: str, session_id: str, _user: CurrentUser)
 async def list_messages(project_name: str, session_id: str, _user: CurrentUser):
     raise HTTPException(
         status_code=410,
-        detail="messages 接口已下线，请使用 /snapshot 与 SSE stream 协议。",
+        detail="messages Giao diện đã ngừng hoạt động, vui lòng sử dụng /snapshot và giao thức SSE stream.",
     )
 
 
@@ -158,7 +158,7 @@ async def get_snapshot(project_name: str, session_id: str, _user: CurrentUser):
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"会话 '{session_id}' 不存在")
     except Exception as exc:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -176,7 +176,7 @@ async def interrupt_session(project_name: str, session_id: str, _user: CurrentUs
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -203,7 +203,7 @@ async def answer_question(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -221,7 +221,7 @@ async def stream_events(
     except HTTPException:
         raise
     except Exception as exc:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -231,9 +231,9 @@ async def list_skills(project_name: str, _user: CurrentUser):
         skills = get_assistant_service().list_available_skills(project_name=project_name)
         return {"skills": skills}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"项目 '{project_name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{project_name}' 不存在")
     except HTTPException:
         raise
     except Exception as exc:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(exc))

@@ -5,11 +5,11 @@ import { useTasksStore } from "@/stores/tasks-store";
 const POLL_INTERVAL_MS = 3000;
 
 /**
- * 轮询任务队列状态的 Hook。
- * 挂载时立即拉取一次，之后每 3 秒轮询，卸载时清理。
+ * Móc trạng thái hàng đợi nhiệm vụ bỏ phiếu.
+ * Kéo ngay lập tức một lần khi lắp, thăm dò cứ sau 3 giây và làm sạch khi tháo.
  *
- * 替代原先的 EventSource SSE 长连接，释放浏览器连接槽位
- * （Chrome HTTP/1.1 同域名 6 连接限制）。
+ * Thay thế kết nối dài EventSource SSE ban đầu và giải phóng khe kết nối trình duyệt
+ * （Chrome HTTP/1.1 Cùng tên miền 6 giới hạn kết nối).
  */
 export function useTasksSSE(projectName?: string | null): void {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);

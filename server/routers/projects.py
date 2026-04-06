@@ -1,7 +1,7 @@
 """
-项目管理路由
+Dự ánQuản lý tuyến đường
 
-处理项目的 CRUD 操作，复用 lib/project_manager.py
+Xử lý các thao tác CRUD của Dự án, tái sử dụng lib/project_manager.py
 """
 
 from __future__ import annotations
@@ -38,7 +38,7 @@ from server.services.project_archive import (
 
 router = APIRouter()
 
-# 初始化项目管理器和状态计算器
+# Khởi tạo Trình quản lý Dự án và bộ tính trạng thái
 pm = ProjectManager(PROJECT_ROOT / "projects")
 calc = StatusCalculator(pm)
 
@@ -92,7 +92,7 @@ async def import_project_archive(
     file: UploadFile = File(...),
     conflict_policy: str = Form("prompt"),
 ):
-    """从 ZIP 导入项目。"""
+    """Nhập Dự án từ ZIP."""
     upload_path: str | None = None
     try:
         fd, upload_path = tempfile.mkstemp(prefix="arcreel-upload-", suffix=".zip")
@@ -134,7 +134,7 @@ async def import_project_archive(
             },
         )
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         return JSONResponse(
             status_code=500,
             content={"detail": str(e), "errors": [], "warnings": []},
@@ -151,12 +151,12 @@ async def create_export_token(
     current_user: CurrentUser,
     scope: str = Query("full"),
 ):
-    """签发短时效下载 token，用于浏览器原生下载认证。"""
+    """Phát hành mã thông báo tải xuống ngắn hạn để xác thực tải xuống gốc của trình duyệt。"""
     try:
         if not get_project_manager().project_exists(name):
-            raise HTTPException(status_code=404, detail=f"项目 '{name}' 不存在或未初始化")
+            raise HTTPException(status_code=404, detail=f"Dự án '{name}' Không tồn tại hoặc chưa được khởi tạo")
         if scope not in ("full", "current"):
-            raise HTTPException(status_code=422, detail="scope 必须为 full 或 current")
+            raise HTTPException(status_code=422, detail="scope Phải là full hoặc current")
 
         username = current_user.sub
         download_token = create_download_token(username, name)
@@ -169,7 +169,7 @@ async def create_export_token(
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -179,21 +179,21 @@ async def export_project_archive(
     download_token: str = Query(...),
     scope: str = Query("full"),
 ):
-    """将项目导出为 ZIP。需要 download_token 认证（通过 POST /export/token 获取）。"""
+    """Xuất Dự án thành ZIP. Cần xác thực download_token (lấy qua POST /export/token)."""
     if scope not in ("full", "current"):
-        raise HTTPException(status_code=422, detail="scope 必须为 full 或 current")
+        raise HTTPException(status_code=422, detail="scope Phải là full hoặc current")
 
-    # 验证 download_token
+    # Xác minh download_token
     import jwt as pyjwt
 
     try:
         verify_download_token(download_token, name)
     except pyjwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="下载链接已过期，请重新导出")
+        raise HTTPException(status_code=401, detail="Liên kết tải xuống đã hết hạn, vui lòng xuất lại")
     except ValueError:
-        raise HTTPException(status_code=403, detail="下载 token 与目标项目不匹配")
+        raise HTTPException(status_code=403, detail="Download token không khớp với Dự án mục tiêu")
     except pyjwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="下载 token 无效")
+        raise HTTPException(status_code=401, detail="Download token không hợp lệ")
 
     try:
         archive_path, download_name = get_archive_service().export_project(name, scope=scope)
@@ -204,15 +204,15 @@ async def export_project_archive(
             background=BackgroundTask(_cleanup_temp_file, str(archive_path)),
         )
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"项目 '{name}' 不存在或未初始化")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' Không tồn tại hoặc chưa được khởi tạo")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# --- 剪映草稿导出 ---
+# --- Xuất bản nháp Jianying ---
 
 
 def get_jianying_draft_service() -> JianyingDraftService:
@@ -222,41 +222,41 @@ def get_jianying_draft_service() -> JianyingDraftService:
 
 
 def _validate_draft_path(draft_path: str) -> str:
-    """校验 draft_path 合法性"""
+    """Kiểm tra tính hợp pháp của draft_path"""
     if not draft_path or not draft_path.strip():
-        raise HTTPException(status_code=422, detail="请提供有效的剪映草稿目录路径")
+        raise HTTPException(status_code=422, detail="Vui lòng cung cấp Đường dẫn thư mục bản nháp Jianying hợp lệ")
     if len(draft_path) > 1024:
-        raise HTTPException(status_code=422, detail="草稿目录路径过长")
+        raise HTTPException(status_code=422, detail="Đường dẫn thư mục bản nhápQuá dài")
     if any(ord(c) < 32 for c in draft_path):
-        raise HTTPException(status_code=422, detail="草稿目录路径包含非法字符")
+        raise HTTPException(status_code=422, detail="Đường dẫn thư mục bản nhápChứa ký tự bất hợp pháp")
     return draft_path.strip()
 
 
 @router.get("/projects/{name}/export/jianying-draft")
 def export_jianying_draft(
     name: str,
-    episode: int = Query(..., description="集数编号"),
-    draft_path: str = Query(..., description="用户本地剪映草稿目录"),
+    episode: int = Query(..., description="Số tập"),
+    draft_path: str = Query(..., description="Thư mục bản nháp Jianying của người dùng trên máy"),
     download_token: str = Query(..., description="下载 token"),
-    jianying_version: str = Query("6", description="剪映版本：6 或 5"),
+    jianying_version: str = Query("6", description="Phiên bản Jianying：6 Hoặc 5"),
 ):
-    """导出指定集的剪映草稿 ZIP"""
+    """Xuất bản nháp Jianying dưới dạng ZIP của tập được chỉ định"""
     import jwt as pyjwt
 
-    # 1. 验证 download_token
+    # 1. Xác minh download_token
     try:
         verify_download_token(download_token, name)
     except pyjwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="下载链接已过期，请重新导出")
+        raise HTTPException(status_code=401, detail="Liên kết tải xuống đã hết hạn, vui lòng xuất lại")
     except ValueError:
-        raise HTTPException(status_code=403, detail="下载 token 与项目不匹配")
+        raise HTTPException(status_code=403, detail="Tải token và Dự án không có trận đấu")
     except pyjwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="下载 token 无效")
+        raise HTTPException(status_code=401, detail="Download token không hợp lệ")
 
-    # 2. 校验 draft_path
+    # 2. Kiểm tra draft_path
     draft_path = _validate_draft_path(draft_path)
 
-    # 3. 调用服务
+    # 3. Gọi dịch vụ
     svc = get_jianying_draft_service()
     try:
         zip_path = svc.export_episode_draft(
@@ -270,10 +270,10 @@ def export_jianying_draft(
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
     except Exception:
-        logger.exception("剪映草稿导出失败: project=%s episode=%d", name, episode)
-        raise HTTPException(status_code=500, detail="剪映草稿导出失败，请稍后重试")
+        logger.exception("Xuất bản nháp Jianying thất bại: project=%s episode=%d", name, episode)
+        raise HTTPException(status_code=500, detail="Xuất bản nháp Jianying thất bại，请稍后Thử lại")
 
-    download_name = f"{name}_第{episode}集_剪映草稿.zip"
+    download_name = f"{name}_Không.{episode}Tập_Đoạn ghép Jingying.zip"
 
     return FileResponse(
         path=str(zip_path),
@@ -285,16 +285,16 @@ def export_jianying_draft(
 
 @router.get("/projects")
 async def list_projects(_user: CurrentUser):
-    """列出所有项目"""
+    """Liệt kê tất cả Dự án"""
     manager = get_project_manager()
     calculator = get_status_calculator()
     projects = []
     for name in manager.list_projects():
         try:
-            # 尝试加载项目元数据
+            # Thử tải metadata Dự án
             if manager.project_exists(name):
                 project = manager.load_project(name)
-                # 获取缩略图（第一个分镜图）
+                # Lấy hình thu nhỏ (Không. một Ảnh phân cảnh)
                 project_dir = manager.get_project_path(name)
                 storyboards_dir = project_dir / "storyboards"
                 thumbnail = None
@@ -303,7 +303,7 @@ async def list_projects(_user: CurrentUser):
                     if scene_images:
                         thumbnail = f"/api/v1/files/{name}/storyboards/{scene_images[0].name}"
 
-                # 使用 StatusCalculator 计算进度（读时计算）
+                # Sử dụng StatusCalculator tính Tiến độ (tính khi đọc)
                 status = calculator.calculate_project_status(name, project)
 
                 projects.append(
@@ -316,7 +316,7 @@ async def list_projects(_user: CurrentUser):
                     }
                 )
             else:
-                # 没有 project.json 的项目
+                # Dự án không có project.json
                 projects.append(
                     {
                         "name": name,
@@ -327,8 +327,8 @@ async def list_projects(_user: CurrentUser):
                     }
                 )
         except Exception as e:
-            # 出错时返回基本信息
-            logger.warning("加载项目 '%s' 元数据失败: %s", name, e)
+            # Trả về thông tin cơ bản khi xảy ra lỗi
+            logger.warning("加载Dự án '%s' Metadata Thất bại: %s", name, e)
             projects.append(
                 {"name": name, "title": name, "style": "", "thumbnail": None, "status": {}, "error": str(e)}
             )
@@ -338,18 +338,18 @@ async def list_projects(_user: CurrentUser):
 
 @router.post("/projects")
 async def create_project(req: CreateProjectRequest, _user: CurrentUser):
-    """创建新项目"""
+    """Tạo新Dự án"""
     try:
         manager = get_project_manager()
         title = (req.title or "").strip()
         manual_name = (req.name or "").strip()
         if not title and not manual_name:
-            raise HTTPException(status_code=400, detail="项目标题不能为空")
+            raise HTTPException(status_code=400, detail="Dự ánTiêu đề không thể trống")
         project_name = manual_name or manager.generate_project_name(title)
 
-        # 创建项目目录结构
+        # TạoDự ánCấu trúc thư mục
         manager.create_project(project_name)
-        # 创建项目元数据
+        # TạoDự án元数据
         with project_change_source("webui"):
             project = manager.create_project_metadata(
                 project_name,
@@ -359,31 +359,31 @@ async def create_project(req: CreateProjectRequest, _user: CurrentUser):
             )
         return {"success": True, "name": project_name, "project": project}
     except FileExistsError:
-        raise HTTPException(status_code=400, detail=f"项目 '{project_name}' 已存在")
+        raise HTTPException(status_code=400, detail=f"Dự án '{project_name}' Đã tồn tại")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/projects/{name}")
 async def get_project(name: str, _user: CurrentUser):
-    """获取项目详情（含实时计算字段）"""
+    """Lấy chi tiết Dự án (bao gồm tính toán từ đoạn thời gian thực)"""
     try:
         manager = get_project_manager()
         calculator = get_status_calculator()
         if not manager.project_exists(name):
-            raise HTTPException(status_code=404, detail=f"项目 '{name}' 不存在或未初始化")
+            raise HTTPException(status_code=404, detail=f"Dự án '{name}' Không tồn tại hoặc chưa được khởi tạo")
 
         project = manager.load_project(name)
 
-        # 注入计算字段（不写入 JSON，仅用于 API 响应）
+        # Tiêm tính toán từ đoạn (không ghi vào JSON, chỉ dùng cho phản hồi API)
         project = calculator.enrich_project(name, project)
 
-        # 加载所有剧本并注入计算字段
+        # Tải tất cả Kịch bản và tiêm tính toán từ đoạn
         scripts = {}
         for ep in project.get("episodes", []):
             script_file = ep.get("script_file", "")
@@ -391,13 +391,13 @@ async def get_project(name: str, _user: CurrentUser):
                 try:
                     script = manager.load_script(name, script_file)
                     script = calculator.enrich_script(script)
-                    # 使用纯文件名作为 key（去掉 scripts/ 前缀）
+                    # Sử dụng tên tệp thuần túy làm khóa (bỏ tiền tố scripts/)
                     key = script_file.replace("scripts/", "", 1) if script_file.startswith("scripts/") else script_file
                     scripts[key] = script
                 except FileNotFoundError:
                     pass
 
-        # 计算媒体文件指纹（用于前端内容寻址缓存）
+        # Tính vân tay tệp phương tiện (dùng cho bộ nhớ đệm định vị nội dung frontend)
         project_path = manager.get_project_path(name)
         fingerprints = compute_asset_fingerprints(project_path)
 
@@ -407,17 +407,17 @@ async def get_project(name: str, _user: CurrentUser):
             "asset_fingerprints": fingerprints,
         }
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"项目 '{name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.patch("/projects/{name}")
 async def update_project(name: str, req: UpdateProjectRequest, _user: CurrentUser):
-    """更新项目元数据"""
+    """Cập nhật metadata Dự án"""
     try:
         manager = get_project_manager()
         project = manager.load_project(name)
@@ -425,7 +425,7 @@ async def update_project(name: str, req: UpdateProjectRequest, _user: CurrentUse
         if req.content_mode is not None or req.aspect_ratio is not None:
             raise HTTPException(
                 status_code=400,
-                detail="项目创建后不支持修改 content_mode 或 aspect_ratio",
+                detail="Không thể sửa content_mode hoặc aspect_ratio sau khi tạo dự án",
             )
 
         if req.title is not None:
@@ -456,42 +456,42 @@ async def update_project(name: str, req: UpdateProjectRequest, _user: CurrentUse
             manager.save_project(name, project)
         return {"success": True, "project": project}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"项目 '{name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/projects/{name}")
 async def delete_project(name: str, _user: CurrentUser):
-    """删除项目"""
+    """XóaDự án"""
     try:
         project_dir = get_project_manager().get_project_path(name)
         shutil.rmtree(project_dir)
-        return {"success": True, "message": f"项目 '{name}' 已删除"}
+        return {"success": True, "message": f"Dự án '{name}' Đã Xóa"}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"项目 '{name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/projects/{name}/scripts/{script_file}")
 async def get_script(name: str, script_file: str, _user: CurrentUser):
-    """获取剧本内容"""
+    """Lấy nội dung Kịch bản"""
     try:
         script = get_project_manager().load_script(name, script_file)
         return {"script": script}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"剧本 '{script_file}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Kịch bản '{script_file}' 不存在")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -502,17 +502,17 @@ class UpdateSceneRequest(BaseModel):
 
 @router.patch("/projects/{name}/scenes/{scene_id}")
 async def update_scene(name: str, scene_id: str, req: UpdateSceneRequest, _user: CurrentUser):
-    """更新场景"""
+    """Cập nhật Cảnh"""
     try:
         manager = get_project_manager()
         script = manager.load_script(name, req.script_file)
 
-        # 找到并更新场景
+        # Tìm và cập nhật Cảnh
         scene_found = False
         for scene in script.get("scenes", []):
             if scene.get("scene_id") == scene_id:
                 scene_found = True
-                # 更新允许的字段
+                # Cập nhật các đoạn từ được phép
                 for key, value in req.updates.items():
                     if key in [
                         "duration_seconds",
@@ -529,17 +529,17 @@ async def update_scene(name: str, scene_id: str, req: UpdateSceneRequest, _user:
                 break
 
         if not scene_found:
-            raise HTTPException(status_code=404, detail=f"场景 '{scene_id}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Cảnh '{scene_id}' 不存在")
 
         with project_change_source("webui"):
             manager.save_script(name, script, req.script_file)
         return {"success": True, "scene": scene}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="剧本不存在")
+        raise HTTPException(status_code=404, detail="Kịch bản不存在")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -562,21 +562,21 @@ class UpdateOverviewRequest(BaseModel):
 
 @router.patch("/projects/{name}/segments/{segment_id}")
 async def update_segment(name: str, segment_id: str, req: UpdateSegmentRequest, _user: CurrentUser):
-    """更新说书模式片段"""
+    """Cập nhật Đoạn chế độ kể chuyện"""
     try:
         manager = get_project_manager()
         script = manager.load_script(name, req.script_file)
 
-        # 检查是否为说书模式
+        # Kiểm tra có phải chế độ kể chuyện không
         if script.get("content_mode") != "narration" and "segments" not in script:
-            raise HTTPException(status_code=400, detail="该剧本不是说书模式，请使用场景更新接口")
+            raise HTTPException(status_code=400, detail="Kịch bản này không phải chế độ kể chuyện, vui lòng sử dụng giao diện cập nhật Cảnh")
 
-        # 找到并更新片段
+        # Tìm và cập nhật Đoạn
         segment_found = False
         for segment in script.get("segments", []):
             if segment.get("segment_id") == segment_id:
                 segment_found = True
-                # 更新字段
+                # Cập nhật đoạn từ
                 if req.duration_seconds is not None:
                     segment["duration_seconds"] = req.duration_seconds
                 if req.segment_break is not None:
@@ -592,21 +592,21 @@ async def update_segment(name: str, segment_id: str, req: UpdateSegmentRequest, 
                 break
 
         if not segment_found:
-            raise HTTPException(status_code=404, detail=f"片段 '{segment_id}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Đoạn '{segment_id}' 不存在")
 
         with project_change_source("webui"):
             manager.save_script(name, script, req.script_file)
         return {"success": True, "segment": segment}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="剧本不存在")
+        raise HTTPException(status_code=404, detail="Kịch bản不存在")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ==================== 源文件管理 ====================
+# ==================== Tệp nguồnQuản lý ======================
 
 
 @router.post("/projects/{name}/source")
@@ -617,60 +617,60 @@ async def set_project_source(
     content: Annotated[str | None, Form()] = None,
     file: Annotated[UploadFile | None, File()] = None,
 ):
-    """上传小说源文件或直接提交文本内容，可选触发 AI 概述生成。
+    """Tải lên Tệp nguồn tiểu thuyết hoặc gửi trực tiếp nội dung Văn bản, tùy chọn kích hoạt AI Tạo tổng quan.
 
-    两种输入方式（互斥，均使用 multipart/form-data）：
-    - file：上传 .txt/.md 文件，文件名取自上传文件
-    - content：直接提交文本内容，自动命名为 novel.txt
+    Hai cách đầu vào (tương tranh, đều sử dụng multipart/form-data):
+    - file：Tải lên tệp .txt/.md, tên tệp lấy từ tệp đã tải lên
+    - content：Gửi trực tiếp nội dung Văn bản, tự động đặt tên là novel.txt
 
-    最大 200000 字符（约 10 万汉字）。
+    Tối đa 200000 ký tự (khoảng 100000 từ Hán).
     """
     MAX_CHARS = 200_000
     ALLOWED_SUFFIXES = {".txt", ".md"}
 
     if not content and not file:
-        raise HTTPException(status_code=400, detail="需要提供 content（文本内容）或 file（文件上传）其中之一")
+        raise HTTPException(status_code=400, detail="Cần cung cấp một trong hai: content (nội dung Văn bản) hoặc file (tải tập tin lên)")
     if content and file:
-        raise HTTPException(status_code=400, detail="content 和 file 不能同时提供，请选择其一")
+        raise HTTPException(status_code=400, detail="content Không được cung cấp cả content và file đồng thời, vui lòng chọn một")
 
     try:
         manager = get_project_manager()
         if not manager.project_exists(name):
-            raise HTTPException(status_code=404, detail=f"项目 '{name}' 不存在")
+            raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
 
         project_dir = manager.get_project_path(name)
         source_dir = project_dir / "source"
         source_dir.mkdir(parents=True, exist_ok=True)
 
         if file:
-            # 文件上传模式：文件名取自上传文件
+            # Chế độ tải tập tin: tên tập tin lấy từ tệp đã tải lên
             original_name = file.filename or "novel.txt"
             suffix = Path(original_name).suffix.lower()
             if suffix not in ALLOWED_SUFFIXES:
-                raise HTTPException(status_code=400, detail=f"仅支持 .txt / .md 文件，收到: {original_name!r}")
+                raise HTTPException(status_code=400, detail=f"Chỉ hỗ trợ tệp .txt / .md, nhận được: {original_name!r}")
 
-            safe_filename = Path(original_name).name  # 防止路径穿越
-            # 若 Content-Length 可用则提前拒绝超大文件，避免读入内存后才检查
+            safe_filename = Path(original_name).name  # Ngăn chặn lỗ hổng đường dẫn
+            # Nếu Content-Length khả dụng, từ chối trước các tệp quá lớn để tránh đọc vào bộ nhớ rồi mới kiểm tra
             if file.size is not None and file.size > MAX_CHARS * 4:
-                raise HTTPException(status_code=400, detail=f"文件大小超出限制（最大约 {MAX_CHARS} 字符）")
+                raise HTTPException(status_code=400, detail=f"Kích thước tệp vượt quá giới hạn (tối đa khoảng {MAX_CHARS} từký tự)")
             raw = await file.read()
             try:
                 text = raw.decode("utf-8")
             except UnicodeDecodeError:
-                raise HTTPException(status_code=400, detail="文件编码错误，请使用 UTF-8 编码的文本文件")
+                raise HTTPException(status_code=400, detail="Lỗi mã hóa tệp, vui lòng sử dụng tệp Văn bản mã hóa UTF-8")
 
             if len(text) > MAX_CHARS:
                 raise HTTPException(
-                    status_code=400, detail=f"文件内容超出最大限制 {MAX_CHARS} 字符（当前 {len(text)}）"
+                    status_code=400, detail=f"Nội dung tệp vượt quá giới hạn tối đa {MAX_CHARS} từký tự (Hiện tại {len(text)}）"
                 )
 
             (source_dir / safe_filename).write_text(text, encoding="utf-8")
             chars = len(text)
         else:
-            # 文本内容模式：固定命名为 novel.txt
+            # Văn bảnChế độ nội dung:Đặt tên cố định là novel.txt
             if len(content) > MAX_CHARS:
                 raise HTTPException(
-                    status_code=400, detail=f"content 超出最大长度 {MAX_CHARS} 字符（当前 {len(content)}）"
+                    status_code=400, detail=f"content Vượt quá độ dài tối đa {MAX_CHARS} từký tự (Hiện tại {len(content)}）"
                 )
 
             safe_filename = "novel.txt"
@@ -685,7 +685,7 @@ async def set_project_source(
                     overview = await manager.generate_overview(name)
                 result["overview"] = overview
             except Exception as ov_err:
-                # 概述生成失败不影响文件写入成功
+                # Tạo tổng quanThất bạiKhông ảnh hưởng đến việc ghi tệp thành công
                 result["overview"] = None
                 result["overview_error"] = str(ov_err)
 
@@ -693,46 +693,46 @@ async def set_project_source(
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if file:
             await file.close()
 
 
-# ==================== 项目概述管理 ====================
+# ==================== Mô tả dự ánQuản lý ======================
 
 
 @router.post("/projects/{name}/generate-overview")
 async def generate_overview(name: str, _user: CurrentUser):
-    """使用 AI 生成项目概述"""
+    """Sử dụng AI để tạo dự án Mô tả"""
     try:
         with project_change_source("webui"):
             overview = await get_project_manager().generate_overview(name)
         return {"success": True, "overview": overview}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"项目 '{name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.patch("/projects/{name}/overview")
 async def update_overview(name: str, req: UpdateOverviewRequest, _user: CurrentUser):
-    """更新项目概述（手动编辑）"""
+    """Cập nhật dự án mô tả (Chỉnh sửa thủ công)"""
     try:
         manager = get_project_manager()
         project = manager.load_project(name)
 
-        # 确保 overview 字段存在
+        # Đảm bảo overview từ đoạn tồn tại
         if "overview" not in project:
             project["overview"] = {}
 
-        # 更新非空字段
+        # Cập nhật trường không trống
         if req.synopsis is not None:
             project["overview"]["synopsis"] = req.synopsis
         if req.genre is not None:
@@ -746,9 +746,9 @@ async def update_overview(name: str, req: UpdateOverviewRequest, _user: CurrentU
             manager.save_project(name, project)
         return {"success": True, "overview": project["overview"]}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"项目 '{name}' 不存在")
+        raise HTTPException(status_code=404, detail=f"Dự án '{name}' 不存在")
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))

@@ -1,7 +1,7 @@
 """
-视频项目管理 WebUI - FastAPI 主应用
+VideoDự ánQuản trị WebUI - Ứng dụng chính FastAPI
 
-启动方式:
+Phương pháp bắt đầu:
     cd ArcReel
     uv run uvicorn server.app:app --reload --port 1241
 """
@@ -43,14 +43,14 @@ from server.routers import (
 from server.routers import auth as auth_router
 from server.services.project_events import ProjectEventService
 
-# 初始化日志
+# Nhật ký khởi tạo
 setup_logging()
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期管理"""
+    """Quản lý vòng đời ứng dụng"""
     # Startup
     ensure_auth_password()
 
@@ -78,50 +78,50 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logger.warning("DB→env Anthropic config sync failed (non-fatal): %s", exc)
 
-    # 修复存量项目的 agent_runtime 软连接
+    # Sửa chữa kết nối mềm Agent_runtime của Dự án hiện có
     from lib.project_manager import ProjectManager
 
     _pm = ProjectManager(PROJECT_ROOT / "projects")
     _symlink_stats = _pm.repair_all_symlinks()
     if any(v > 0 for v in _symlink_stats.values()):
-        logger.info("agent_runtime 软连接修复完成: %s", _symlink_stats)
+        logger.info("agent_runtime Sửa chữa kết nối mềm Hoàn thành: %s", _symlink_stats)
 
     # Initialize async services
     await assistant.assistant_service.startup()
     assistant.assistant_service.session_manager.start_patrol()
 
-    logger.info("启动 GenerationWorker...")
+    logger.info("Bắt đầu GenerationWorker...")
     worker = create_generation_worker()
     app.state.generation_worker = worker
     await worker.start()
-    logger.info("GenerationWorker 已启动")
+    logger.info("GenerationWorker Đã bắt đầu")
 
-    logger.info("启动 ProjectEventService...")
+    logger.info("Bắt đầu ProjectEventService...")
     project_event_service = ProjectEventService(PROJECT_ROOT)
     app.state.project_event_service = project_event_service
     await project_event_service.start()
-    logger.info("ProjectEventService 已启动")
+    logger.info("ProjectEventService Đã bắt đầu")
 
     yield
 
     # Shutdown
     project_event_service = getattr(app.state, "project_event_service", None)
     if project_event_service:
-        logger.info("正在停止 ProjectEventService...")
+        logger.info("Đang dừng ProjectEventService...")
         await project_event_service.shutdown()
-        logger.info("ProjectEventService 已停止")
+        logger.info("ProjectEventService Đã dừng")
     worker = getattr(app.state, "generation_worker", None)
     if worker:
-        logger.info("正在停止 GenerationWorker...")
+        logger.info("Đang dừng GenerationWorker...")
         await worker.stop()
-        logger.info("GenerationWorker 已停止")
+        logger.info("GenerationWorker Đã dừng")
     await close_db()
 
 
-# 创建 FastAPI 应用
+# Tạo FastAPI ứng dụng
 app = FastAPI(
-    title="视频项目管理 WebUI",
-    description="AI 视频生成工作空间的 Web 管理界面",
+    title="VideoDự ánWebUI quản lý",
+    description="AI VideoTạo giao diện quản lý web cho không gian làm việc",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -165,23 +165,23 @@ async def request_logging_middleware(request: Request, call_next):
     return response
 
 
-# 注册 API 路由
+# Đăng ký lộ trình API
 app.include_router(auth_router.router, prefix="/api/v1", tags=["认证"])
-app.include_router(projects.router, prefix="/api/v1", tags=["项目管理"])
-app.include_router(characters.router, prefix="/api/v1", tags=["角色管理"])
-app.include_router(clues.router, prefix="/api/v1", tags=["线索管理"])
-app.include_router(files.router, prefix="/api/v1", tags=["文件管理"])
+app.include_router(projects.router, prefix="/api/v1", tags=["Dự án管理"])
+app.include_router(characters.router, prefix="/api/v1", tags=["Nhân vật管理"])
+app.include_router(clues.router, prefix="/api/v1", tags=["Manh mối管理"])
+app.include_router(files.router, prefix="/api/v1", tags=["Quản lý tập tin"])
 app.include_router(generate.router, prefix="/api/v1", tags=["生成"])
-app.include_router(versions.router, prefix="/api/v1", tags=["版本管理"])
-app.include_router(usage.router, prefix="/api/v1", tags=["费用统计"])
-app.include_router(assistant.router, prefix="/api/v1/projects/{project_name}/assistant", tags=["助手会话"])
-app.include_router(tasks.router, prefix="/api/v1", tags=["任务队列"])
-app.include_router(project_events.router, prefix="/api/v1", tags=["项目变更流"])
-app.include_router(providers.router, prefix="/api/v1", tags=["供应商管理"])
-app.include_router(system_config.router, prefix="/api/v1", tags=["系统配置"])
+app.include_router(versions.router, prefix="/api/v1", tags=["Quản lý phiên bản"])
+app.include_router(usage.router, prefix="/api/v1", tags=["Thống kê chi phí"])
+app.include_router(assistant.router, prefix="/api/v1/projects/{project_name}/assistant", tags=["Trợ lý会话"])
+app.include_router(tasks.router, prefix="/api/v1", tags=["hàng đợi nhiệm vụ"])
+app.include_router(project_events.router, prefix="/api/v1", tags=["Dự ánthay đổi dòng chảy"])
+app.include_router(providers.router, prefix="/api/v1", tags=["Quản lý nhà cung cấp"])
+app.include_router(system_config.router, prefix="/api/v1", tags=["Hệ thống配置"])
 app.include_router(api_keys.router, prefix="/api/v1", tags=["API Key 管理"])
-app.include_router(agent_chat.router, prefix="/api/v1", tags=["Agent 对话"])
-app.include_router(custom_providers.router, prefix="/api/v1", tags=["自定义供应商"])
+app.include_router(agent_chat.router, prefix="/api/v1", tags=["Agent Đối thoại"])
+app.include_router(custom_providers.router, prefix="/api/v1", tags=["nhà cung cấp tùy chỉnh"])
 app.include_router(cost_estimation.router, prefix="/api/v1", tags=["费用估算"])
 
 
@@ -191,23 +191,23 @@ def create_generation_worker() -> GenerationWorker:
 
 @app.get("/health")
 async def health_check():
-    """健康检查"""
-    return {"status": "ok", "message": "视频项目管理 WebUI 运行正常"}
+    """kiểm tra sức khỏe"""
+    return {"status": "ok", "message": "VideoDự ánQuản lý WebUI hoạt động tốt"}
 
 
 @app.get("/skill.md", include_in_schema=False)
 async def serve_skill_md(request: Request) -> Response:
-    """动态渲染 skill.md 模板，将 {{BASE_URL}} 替换为实际服务地址（无需认证）。"""
+    """Tự động hiển thị mẫu Skill.md thành {{BASE_URL}} Thay thếĐịa chỉ dịch vụ của Thực tế (không cần xác thực)."""
     from starlette.responses import PlainTextResponse
 
     template_path = PROJECT_ROOT / "public" / "skill.md.template"
     if not template_path.exists():
-        return PlainTextResponse("skill.md 模板不存在", status_code=404)
+        return PlainTextResponse("skill.md Mẫu không tồn tại", status_code=404)
 
     template = template_path.read_text(encoding="utf-8")
 
-    # 从请求推断 base URL；仅信任 x-forwarded-proto（反向代理标准头），
-    # host 使用连接实际目标地址，不接受可被用户伪造的 x-forwarded-host。
+    # Suy ra URL cơ sở từ yêu cầu; chỉ tin tưởng x-forwarded-proto (tiêu đề tiêu chuẩn proxy ngược),
+    # host Sử dụng địa chỉ đích kết nối Thực tế và không chấp nhận x-forwarded-host vì người dùng có thể giả mạo.
     forwarded_proto = request.headers.get("x-forwarded-proto")
     scheme = forwarded_proto or request.url.scheme or "http"
     host = request.url.netloc
@@ -217,12 +217,12 @@ async def serve_skill_md(request: Request) -> Response:
     return PlainTextResponse(content, media_type="text/markdown; charset=utf-8")
 
 
-# 前端构建产物：SPA 静态文件服务（必须在所有显式路由之后挂载）
+# Sản phẩm xây dựng giao diện người dùng: Dịch vụ tệp tĩnh SPA (phải được gắn sau tất cả các tuyến rõ ràng)
 frontend_dist_dir = PROJECT_ROOT / "frontend" / "dist"
 
 
 class SPAStaticFiles(StaticFiles):
-    """服务 Vite 构建产物，未匹配的路径回退到 index.html（SPA 路由）。"""
+    """Cung cấp các tạo phẩm của bản dựng Vite, các đường dẫn chưa khớp sẽ quay trở lại index.html (định tuyến SPA)."""
 
     async def get_response(self, path: str, scope):
         try:

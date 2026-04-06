@@ -1,8 +1,8 @@
-"""剪映草稿导出服务
+"""Dịch vụ xuất bản nháp từ Jianying
 
-将 ArcReel 单集已生成的视频片段导出为剪映草稿 ZIP。
-使用 pyJianYingDraft 库生成 draft_content.json，
-后处理路径替换使草稿指向用户本地剪映目录。
+Đưa Video đã tạo của ArcReel từng tập làm bản nháp Jianying ZIP.
+Sử dụng thư viện pyJianYingDraft để tạo draft_content.json,
+Đường dẫn xử lý hậu kỳ thay thế để bản nháp trỏ tới thư mục cục bộ của người dùng trên Jianying.
 """
 
 import json
@@ -33,21 +33,21 @@ logger = logging.getLogger(__name__)
 
 
 class JianyingDraftService:
-    """剪映草稿导出服务"""
+    """Dịch vụ xuất bản nháp từ Jianying"""
 
     def __init__(self, project_manager: ProjectManager):
         self.pm = project_manager
 
     # ------------------------------------------------------------------
-    # 内部方法：数据提取
+    # Phương pháp nội bộ: Trích xuất dữ liệu
     # ------------------------------------------------------------------
 
     def _find_episode_script(self, project_name: str, project: dict, episode: int) -> tuple[dict, str]:
-        """定位指定集的剧本文件，返回 (script_dict, filename)"""
+        """Định vị tệp Kịch bản của tập chỉ định, trả về (script_dict, filename)"""
         episodes = project.get("episodes", [])
         ep_entry = next((e for e in episodes if e.get("episode") == episode), None)
         if ep_entry is None:
-            raise FileNotFoundError(f"第 {episode} 集不存在")
+            raise FileNotFoundError(f"Không. {episode} Tập không tồn tại")
 
         script_file = ep_entry.get("script_file", "")
         filename = Path(script_file).name
@@ -55,7 +55,7 @@ class JianyingDraftService:
         return script_data, filename
 
     def _collect_video_clips(self, script: dict, project_dir: Path) -> list[dict[str, Any]]:
-        """从剧本中提取已完成视频的片段列表"""
+        """Trích xuất danh sách ĐoạnVideo đã hoàn thành từ Kịch bản"""
         content_mode = script.get("content_mode", "narration")
         items = script.get("segments" if content_mode == "narration" else "scenes", [])
         id_field = "segment_id" if content_mode == "narration" else "scene_id"
@@ -69,7 +69,7 @@ class JianyingDraftService:
 
             abs_path = (project_dir / video_clip).resolve()
             if not abs_path.is_relative_to(project_dir.resolve()):
-                logger.warning("video_clip 路径越界，已跳过: %s", video_clip)
+                logger.warning("video_clip Vượt quá giới hạn đường dẫn, đã bỏ qua: %s", video_clip)
                 continue
             if not abs_path.exists():
                 continue
@@ -87,7 +87,7 @@ class JianyingDraftService:
         return clips
 
     def _resolve_canvas_size(self, project: dict, first_video_path: Path | None = None) -> tuple[int, int]:
-        """根据项目 aspect_ratio 确定画布尺寸，缺失时从首个视频自动检测"""
+        """Xác định kích thước khung theo tỷ lệ khung hình Dự án, nếu thiếu thì tự động phát hiện từ Video đầu tiên"""
         aspect = project.get("aspect_ratio", {}).get("video")
         if aspect is None and first_video_path is not None:
             mat = VideoMaterial(str(first_video_path))
@@ -97,7 +97,7 @@ class JianyingDraftService:
         return 1920, 1080
 
     # ------------------------------------------------------------------
-    # 内部方法：草稿生成
+    # Phương thức nội bộ: tạo bản nháp
     # ------------------------------------------------------------------
 
     def _generate_draft(
@@ -110,15 +110,15 @@ class JianyingDraftService:
         height: int,
         content_mode: str,
     ) -> None:
-        """使用 pyJianYingDraft 在 draft_dir 中生成草稿文件"""
+        """Sử dụng pyJianYingDraft để tạo tệp nháp trong draft_dir"""
         draft_dir.parent.mkdir(parents=True, exist_ok=True)
         folder = draft.DraftFolder(str(draft_dir.parent))
         script_file = folder.create_draft(draft_name, width=width, height=height, allow_replace=True)
 
-        # 视频轨
+        # VideoĐường ray
         script_file.add_track(TrackType.video)
 
-        # 字幕轨（仅 narration 模式）
+        # từĐường ray cảnh (chỉ chế độ narration)
         has_subtitle = content_mode == "narration"
         text_style: TextStyle | None = None
         text_border: TextBorder | None = None
@@ -126,7 +126,7 @@ class JianyingDraftService:
         subtitle_position: ClipSettings | None = None
         is_portrait = height > width
         if has_subtitle:
-            script_file.add_track(TrackType.text, "字幕")
+            script_file.add_track(TrackType.text, "từCảnh")
             text_style = TextStyle(
                 size=12.0 if is_portrait else 8.0,
                 color=(1.0, 1.0, 1.0),
@@ -150,21 +150,21 @@ class JianyingDraftService:
                 transform_y=-0.75 if is_portrait else -0.8,
             )
 
-        # 逐片段添加
+        # Thêm theo đoạn
         offset_us = 0
         for clip in clips:
-            # 预读实际视频时长
+            # Đọc trước thời lượng Video thực tế
             material = VideoMaterial(clip["local_path"])
             actual_duration_us = material.duration
 
-            # 视频片段
+            # VideoĐoạn
             video_seg = VideoSegment(
                 material,
                 trange(offset_us, actual_duration_us),
             )
             script_file.add_segment(video_seg)
 
-            # 字幕片段
+            # từCảnh đoạn
             if has_subtitle and clip.get("novel_text"):
                 text_seg = TextSegment(
                     text=clip["novel_text"],
@@ -181,11 +181,11 @@ class JianyingDraftService:
         script_file.save()
 
     def _replace_paths_in_draft(self, *, json_path: Path, tmp_prefix: str, target_prefix: str) -> None:
-        """JSON 安全地替换 draft_content.json 中的临时路径"""
+        """JSON Thay thế an toàn đường dẫn tạm trong draft_content.json"""
         real = os.path.realpath(json_path)
         tmp = os.path.realpath(tempfile.gettempdir()) + os.sep
         if not real.startswith(tmp):
-            raise ValueError(f"路径越界，拒绝写入: {real}")
+            raise ValueError(f"Vượt quá giới hạn đường dẫn, từ chối ghi: {real}")
 
         with open(real, encoding="utf-8") as f:  # noqa: PTH123
             data = json.load(f)
@@ -204,7 +204,7 @@ class JianyingDraftService:
             json.dump(data, f, ensure_ascii=False)
 
     # ------------------------------------------------------------------
-    # 公开方法
+    # Phương pháp công khai
     # ------------------------------------------------------------------
 
     def export_episode_draft(
@@ -216,34 +216,34 @@ class JianyingDraftService:
         use_draft_info_name: bool = True,
     ) -> Path:
         """
-        导出指定集的剪映草稿 ZIP。
+        Xuất bản nháp Clip Studio của tập được chỉ định dưới dạng ZIP.
 
         Returns:
-            ZIP 文件路径（临时文件，调用方负责清理）
+            ZIP Đường dẫn tệp (tệp tạm thời, bên gọi chịu trách nhiệm dọn dẹp)
 
         Raises:
-            FileNotFoundError: 项目或剧本不存在
-            ValueError: 无可导出的视频片段
+            FileNotFoundError: Dự ánHoặc kịch bản không tồn tại
+            ValueError: Không có Video Đoạn nào có thể xuất
         """
         project = self.pm.load_project(project_name)
         project_dir = self.pm.get_project_path(project_name)
 
-        # 1. 定位剧本
+        # 1. Định vị kịch bản
         script_data, _ = self._find_episode_script(project_name, project, episode)
 
-        # 2. 收集已完成视频
+        # 2. Thu thập các Video đã hoàn thành của tập
         content_mode = script_data.get("content_mode", "narration")
         clips = self._collect_video_clips(script_data, project_dir)
         if not clips:
-            raise ValueError(f"第 {episode} 集没有已完成的视频片段，请先生成视频")
+            raise ValueError(f"Không. {episode} Tập không có Video Đoạn nào đã hoàn thành, vui lòng tạo video trước")
 
-        # 3. 画布尺寸（项目未设 aspect_ratio 时从首个视频自动检测）
+        # 3. Kích thước khung vẽ (nếu dự án chưa đặt tỉ lệ khung hình, tự động phát hiện từ video đầu tiên)
         width, height = self._resolve_canvas_size(project, clips[0]["abs_path"])
 
-        # 4. 创建临时目录 + 复制素材到暂存区
+        # 4. TạoThư mục tạm thời + sao chép nguyên liệu vào khu vực tạm
         raw_title = project.get("title", project_name)
         safe_title = raw_title.replace("/", "_").replace("\\", "_").replace("..", "_")
-        draft_name = f"{safe_title}_第{episode}集"
+        draft_name = f"{safe_title}_Không.{episode}集"
         tmp_dir = Path(tempfile.mkdtemp(prefix="arcreel_jy_"))
         try:
             staging_dir = tmp_dir / "staging"
@@ -259,7 +259,7 @@ class JianyingDraftService:
                     shutil.copy2(src, dst)
                 local_clips.append({**clip, "local_path": str(dst)})
 
-            # 5. 生成草稿（create_draft 会重建 draft_dir）
+            # 5. Tạo bản nháp (create_draft sẽ xây dựng lại thư mục draft_dir)
             draft_dir = tmp_dir / draft_name
             self._generate_draft(
                 draft_dir=draft_dir,
@@ -270,7 +270,7 @@ class JianyingDraftService:
                 content_mode=content_mode,
             )
 
-            # 6. 将素材移入草稿目录
+            # 6. Di chuyển nguyên liệu vào thư mục nháp
             assets_dir = draft_dir / "assets"
             assets_dir.mkdir(exist_ok=True)
             for clip in local_clips:
@@ -278,7 +278,7 @@ class JianyingDraftService:
                 dst = assets_dir / src.name
                 shutil.move(str(src), str(dst))
 
-            # 7. 路径后处理：staging 路径 → 用户本地路径
+            # 7. Xử lý đường dẫn hậu kỳ: đường dẫn staging → đường dẫn cục bộ người dùng
             draft_content_path = draft_dir / "draft_content.json"
             self._replace_paths_in_draft(
                 json_path=draft_content_path,
@@ -286,11 +286,11 @@ class JianyingDraftService:
                 target_prefix=f"{draft_path}/{draft_name}/assets",
             )
 
-            # 8. 剪映 6+ 使用 draft_info.json，低版本使用 draft_content.json
+            # 8. Clip Studio 6+ sử dụng draft_info.json, các phiên bản thấp hơn sử dụng draft_content.json
             if use_draft_info_name:
                 draft_content_path.rename(draft_dir / "draft_info.json")
 
-            # 9. 打包 ZIP
+            # 9. Đóng gói ZIP
             zip_path = tmp_dir / f"{draft_name}.zip"
             video_suffixes = {".mp4", ".webm", ".mov", ".avi", ".mkv"}
             with zipfile.ZipFile(zip_path, "w") as zf:

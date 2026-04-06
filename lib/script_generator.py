@@ -1,7 +1,7 @@
 """
-script_generator.py - 剧本生成器
+script_generator.py - Kịch bảnBộ tạo
 
-读取 Step 1/2 的 Markdown 中间文件，调用文本生成 Backend 生成最终 JSON 剧本
+đọc Step 1/2 Tệp trung gian Markdown, gọi Backend tạo Văn bản để tạo JSON Kịch bản cuối cùng
 """
 
 import json
@@ -28,29 +28,29 @@ logger = logging.getLogger(__name__)
 
 class ScriptGenerator:
     """
-    剧本生成器
+    Kịch bảnBộ tạo
 
-    读取 Step 1/2 的 Markdown 中间文件，调用 TextBackend 生成最终 JSON 剧本
+    đọc Step 1/2 Tệp trung gian Markdown, gọi TextBackend để tạo JSON Kịch bản cuối cùng
     """
 
     def __init__(self, project_path: str | Path, generator: Optional["TextGenerator"] = None):
         """
-        初始化生成器
+        Khởi tạo bộ tạo
 
         Args:
-            project_path: 项目目录路径，如 projects/test0205
-            generator: TextGenerator 实例（可选）。若为 None 则仅支持 build_prompt() dry-run。
+            project_path: Dự ánĐường dẫn thư mục, ví dụ projects/test0205
+            generator: TextGenerator Ví dụ (tùy chọn). Nếu là None thì chỉ hỗ trợ build_prompt() dry-run.
         """
         self.project_path = Path(project_path)
         self.generator = generator
 
-        # 加载 project.json
+        # Tải project.json
         self.project_json = self._load_project_json()
         self.content_mode = self.project_json.get("content_mode", "narration")
 
     @classmethod
     async def create(cls, project_path: str | Path) -> "ScriptGenerator":
-        """异步工厂方法，自动从 DB 加载供应商配置创建 TextGenerator。"""
+        """Phương thức nhà máy bất đồng bộ, tự động tải cấu hình nhà cung cấp từ DB để tạo TextGenerator."""
         project_name = Path(project_path).name
         generator = await TextGenerator.create(TextTaskType.SCRIPT, project_name)
         return cls(project_path, generator)
@@ -61,26 +61,26 @@ class ScriptGenerator:
         output_path: Path | None = None,
     ) -> Path:
         """
-        异步生成剧集剧本
+        Tạo Kịch bản Tập phim bất đồng bộ
 
         Args:
-            episode: 剧集编号
-            output_path: 输出路径，默认为 scripts/episode_{episode}.json
+            episode: Tập phim编号
+            output_path: Đầu raĐường dẫn, mặc định là scripts/episode_{episode}.json
 
         Returns:
-            生成的 JSON 文件路径
+            Đường dẫn tệp JSON tạo ra
         """
         if self.generator is None:
-            raise RuntimeError("TextGenerator 未初始化，请使用 ScriptGenerator.create() 工厂方法")
+            raise RuntimeError("TextGenerator Chưa khởi tạo, vui lòng sử dụng phương thức nhà máy ScriptGenerator.create()")
 
-        # 1. 加载中间文件
+        # 1. Đang tải tệp trung gian
         step1_md = self._load_step1(episode)
 
-        # 2. 提取角色和线索（从 project.json）
+        # 2. Trích xuất Nhân vật và Manh mối (từ project.json)
         characters = self.project_json.get("characters", {})
         clues = self.project_json.get("clues", {})
 
-        # 3. 构建 Prompt
+        # 3. Xây dựng Prompt
         if self.content_mode == "narration":
             prompt = build_narration_prompt(
                 project_overview=self.project_json.get("overview", {}),
@@ -102,8 +102,8 @@ class ScriptGenerator:
             )
             schema = DramaEpisodeScript
 
-        # 4. 调用 TextBackend
-        logger.info("正在生成第 %d 集剧本...", episode)
+        # 4. Gọi TextBackend
+        logger.info("Đang tạo Không. %d tập Kịch bản...", episode)
         project_name = self.project_path.name
         result = await self.generator.generate(
             TextGenerationRequest(prompt=prompt, response_schema=schema),
@@ -111,13 +111,13 @@ class ScriptGenerator:
         )
         response_text = result.text
 
-        # 5. 解析并验证响应
+        # 5. Phân tích và xác thực phản hồi
         script_data = self._parse_response(response_text, episode)
 
-        # 6. 补充元数据
+        # 6. Bổ sung một số siêu dữ liệu
         script_data = self._add_metadata(script_data, episode)
 
-        # 7. 保存文件
+        # 7. Lưu文件
         if output_path is None:
             output_path = self.project_path / "scripts" / f"episode_{episode}.json"
 
@@ -125,18 +125,18 @@ class ScriptGenerator:
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(script_data, f, ensure_ascii=False, indent=2)
 
-        logger.info("剧本已保存至 %s", output_path)
+        logger.info("Kịch bảnĐã LưuĐến %s", output_path)
         return output_path
 
     def build_prompt(self, episode: int) -> str:
         """
-        构建 Prompt（用于 dry-run 模式）
+        Xây dựng Prompt (dành cho chế độ dry-run)
 
         Args:
-            episode: 剧集编号
+            episode: Tập phim编号
 
         Returns:
-            构建好的 Prompt 字符串
+            Prompt đã xây dựng
         """
         step1_md = self._load_step1(episode)
         characters = self.project_json.get("characters", {})
@@ -162,16 +162,16 @@ class ScriptGenerator:
             )
 
     def _load_project_json(self) -> dict:
-        """加载 project.json"""
+        """Tải project.json"""
         path = self.project_path / "project.json"
         if not path.exists():
-            raise FileNotFoundError(f"未找到 project.json: {path}")
+            raise FileNotFoundError(f"Không tìm thấy project.json: {path}")
 
         with open(path, encoding="utf-8") as f:
             return json.load(f)
 
     def _load_step1(self, episode: int) -> str:
-        """加载 Step 1 的 Markdown 文件，支持两种文件命名"""
+        """Tải file Markdown của Bước 1, hỗ trợ hai cách đặt tên file"""
         drafts_path = self.project_path / "drafts" / f"episode_{episode}"
         if self.content_mode == "narration":
             primary_path = drafts_path / "step1_segments.md"
@@ -182,26 +182,26 @@ class ScriptGenerator:
 
         if not primary_path.exists():
             if fallback_path.exists():
-                logger.warning("未找到 Step 1 文件: %s，改用 %s", primary_path, fallback_path)
+                logger.warning("Không tìm thấy file Bước 1: %s, chuyển sang %s", primary_path, fallback_path)
                 primary_path = fallback_path
             else:
-                raise FileNotFoundError(f"未找到 Step 1 文件: {primary_path}")
+                raise FileNotFoundError(f"Không tìm thấy file Bước 1: {primary_path}")
 
         with open(primary_path, encoding="utf-8") as f:
             return f.read()
 
     def _parse_response(self, response_text: str, episode: int) -> dict:
         """
-        解析并验证 TextBackend 响应
+        Phân tích và xác thực phản hồi của TextBackend
 
         Args:
-            response_text: API 返回的 JSON 文本
-            episode: 剧集编号
+            response_text: API Trả về JSON Văn bản
+            episode: Tập phim编号
 
         Returns:
-            验证后的剧本数据字典
+            Dữ liệu Kịch bản đã được xác thực từ điển
         """
-        # 清理可能的 markdown 包装
+        # Dọn dẹp có thể có bao bọc markdown
         text = response_text.strip()
         if text.startswith("```json"):
             text = text[7:]
@@ -211,11 +211,11 @@ class ScriptGenerator:
             text = text[:-3]
         text = text.strip()
 
-        # 解析 JSON
+        # Phân tích JSON
         try:
             data = json.loads(text)
         except json.JSONDecodeError as e:
-            raise ValueError(f"JSON 解析失败: {e}")
+            raise ValueError(f"JSON Phân tích thất bại: {e}")
 
         # Pydantic 验证
         try:
@@ -225,44 +225,44 @@ class ScriptGenerator:
                 validated = DramaEpisodeScript.model_validate(data)
             return validated.model_dump()
         except ValidationError as e:
-            logger.warning("数据验证警告: %s", e)
-            # 返回原始数据，允许部分不符合 schema
+            logger.warning("Cảnh báo xác thực dữ liệu: %s", e)
+            # Trả lại dữ liệu gốc, cho phép một phần không phù hợp với schema
             return data
 
     def _add_metadata(self, script_data: dict, episode: int) -> dict:
         """
-        补充剧本元数据
+        Bổ sung siêu dữ liệu kịch bản
 
         Args:
-            script_data: 剧本数据
-            episode: 剧集编号
+            script_data: Kịch bản数据
+            episode: Tập phim编号
 
         Returns:
-            补充元数据后的剧本数据
+            Dữ liệu kịch bản sau khi bổ sung siêu dữ liệu
         """
-        # 确保基本字段存在
+        # Đảm bảo các đoạn cơ bản tồn tại
         script_data.setdefault("episode", episode)
         script_data.setdefault("content_mode", self.content_mode)
 
-        # 添加小说信息
+        # ThêmThông tin tiểu thuyết
         if "novel" not in script_data:
             script_data["novel"] = {
                 "title": self.project_json.get("title", ""),
-                "chapter": f"第{episode}集",
+                "chapter": f"Không.{episode}集",
             }
-        # 剥离已废弃的 source_file（AI 可能虚构）
+        # Loại bỏ source_file đã bị bỏ (AI có thể tưởng tượng)
         novel = script_data.get("novel")
         if isinstance(novel, dict):
             novel.pop("source_file", None)
 
-        # 添加时间戳
+        # Thêm时间戳
         now = datetime.now().isoformat()
         script_data.setdefault("metadata", {})
         script_data["metadata"]["created_at"] = now
         script_data["metadata"]["updated_at"] = now
         script_data["metadata"]["generator"] = self.generator.model if self.generator else "unknown"
 
-        # 计算统计信息 + 聚合 episode 级角色/线索（从 segment/scene 中收集）
+        # Tính toán thống kê + tổng hợp nhân vật/gợi ý theo tập (thu thập từ đoạn/cảnh)
         if self.content_mode == "narration":
             segments = script_data.get("segments", [])
             script_data["metadata"]["total_segments"] = len(segments)

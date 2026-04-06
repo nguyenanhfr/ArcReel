@@ -1,4 +1,4 @@
-"""OpenAITextBackend — OpenAI 文本生成后端。"""
+"""OpenAITextBackend — OpenAI Văn bảnTạo backend."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ DEFAULT_MODEL = "gpt-5.4-mini"
 
 
 class OpenAITextBackend:
-    """OpenAI 文本生成后端，支持 Chat Completions API。"""
+    """OpenAI Văn bảnTạo backend, hỗ trợ Chat Completions API."""
 
     def __init__(
         self,
@@ -31,7 +31,7 @@ class OpenAITextBackend:
         model: str | None = None,
         base_url: str | None = None,
     ):
-        # 禁用 SDK 内置重试，由本层 generate() 统一管理重试策略
+        # Vô hiệu hóa Thử lại tích hợp sẵn trong SDK, quản lý chiến lược Thử lại thống nhất tại lớp generate() này
         self._client = create_openai_client(api_key=api_key, base_url=base_url, max_retries=0)
         self._model = model or DEFAULT_MODEL
         self._capabilities: set[TextCapability] = {
@@ -54,14 +54,14 @@ class OpenAITextBackend:
 
     @with_retry_async(max_attempts=4, backoff_seconds=(2, 4, 8), retryable_errors=OPENAI_RETRYABLE_ERRORS)
     async def generate(self, request: TextGenerationRequest) -> TextGenerationResult:
-        """生成文本回复。
+        """Sinh Văn bản phản hồi.
 
-        单一重试循环包裹整个流程：
-        1. 尝试原生 response_format 调用
-        2. 若遇 schema 不兼容错误 → 本次 attempt 内降级到 Instructor
-        3. 若遇瞬态错误（429/500/503/网络）→ 由装饰器自动重试整个流程
+        Vòng lặp Thử lại đơn bọc trọn quy trình:
+        1. Thử gọi response_format gốc
+        2. Nếu gặp lỗi không tương thích schema → hạ cấp xuống Instructor trong lần thử này
+        3. Nếu gặp lỗi tạm thời (429/500/503/mạng) → decorator tự động Thử lại toàn bộ quá trình
 
-        这样无论是原生调用还是降级路径遇到瞬态错误，都统一由外层重试处理。
+        Như vậy, dù gọi gốc hay đường hạ cấp gặp lỗi tạm thời, đều được xử lý Thử lại thống nhất từ bên ngoài.
         """
         messages = _build_messages(request)
         kwargs: dict = {"model": self._model, "messages": messages}
@@ -82,7 +82,7 @@ class OpenAITextBackend:
         except Exception as exc:
             if request.response_schema and _is_schema_error(exc):
                 logger.warning(
-                    "原生 response_format 失败 (%s)，降级到 Instructor 路径",
+                    "response_format gốc thất bại (%s), hạ cấp xuống đường Instructor",
                     exc,
                 )
                 return await _instructor_fallback(self._client, self._model, request, messages)
@@ -99,13 +99,13 @@ class OpenAITextBackend:
 
 
 def _build_messages(request: TextGenerationRequest) -> list[dict]:
-    """将 TextGenerationRequest 转为 OpenAI messages 格式。"""
+    """Chuyển TextGenerationRequest thành định dạng OpenAI messages."""
     messages: list[dict] = []
 
     if request.system_prompt:
         messages.append({"role": "system", "content": request.system_prompt})
 
-    # 构建 user message
+    # Tạo user message
     if request.images:
         from lib.image_backends.base import image_to_base64_data_uri
 
@@ -134,15 +134,15 @@ _SCHEMA_ERROR_KEYWORDS = (
 
 
 def _is_schema_error(exc: BaseException) -> bool:
-    """判断异常是否为 JSON Schema 不兼容导致的错误。
+    """Xác định bất thường có phải là lỗi do không tương thích JSON Schema hay không.
 
-    除了标准的 400 BadRequestError，一些 OpenAI 兼容代理（如 Gemini
-    兼容端点）会将上游 schema 错误包装成其他状态码（如 429），
-    因此也检查错误信息中是否包含 schema 相关关键字。
+    Ngoài lỗi 400 BadRequestError tiêu chuẩn, một số proxy tương thích OpenAI (như Gemini
+    endpoint tương thích) sẽ đóng gói lỗi schema upstream thành các mã trạng thái khác (như 429),
+    Do đó cũng kiểm tra xem thông tin lỗi có chứa từ khóa liên quan đến schema hay không.
     """
     if isinstance(exc, BadRequestError):
         return True
-    # 代理可能把上游 schema 错误包装成非 400 状态码
+    # Proxy có thể gói lỗi schema từ upstream thành mã trạng thái không phải 400
     error_str = str(exc)
     return any(kw in error_str for kw in _SCHEMA_ERROR_KEYWORDS)
 
@@ -153,12 +153,12 @@ async def _instructor_fallback(
     request: TextGenerationRequest,
     messages: list[dict],
 ) -> TextGenerationResult:
-    """Instructor 降级：当原生 response_format 不可用时的备选路径。
+    """Instructor Hạ cấp: đường dẫn thay thế khi response_format gốc không khả dụng.
 
-    本函数不做重试，瞬态错误会抛出到调用方的重试循环中统一处理。
+    Hàm này không thực hiện Thử lại, lỗi tạm thời sẽ được ném ra cho vòng lặp Thử lại của bên gọi xử lý统一。
 
-    - response_schema 为 Pydantic 类：使用 instructor 的 create_with_completion
-    - response_schema 为 dict：回退到无结构化输出的普通调用
+    - response_schema Cho lớp Pydantic: sử dụng create_with_completion của instructor
+    - response_schema Cho dict: quay lại cuộc gọi thông thường không có đầu ra có cấu trúc
     """
     from lib.text_backends.instructor_support import (
         generate_structured_via_instructor_async,
@@ -180,7 +180,7 @@ async def _instructor_fallback(
             output_tokens=output_tokens,
         )
     else:
-        logger.info("response_schema 为 dict，无法使用 Instructor，回退到 json_object 模式")
+        logger.info("response_schema Cho dict, không thể sử dụng Instructor, quay lại chế độ json_object")
         fb_messages = inject_json_instruction(messages)
         response = await client.chat.completions.create(
             model=model,

@@ -10,8 +10,8 @@ interface UseScrollTargetOptions {
  * Hook that watches for scroll target events and scrolls to the matching element.
  * Each element that should be scrollable must have an id matching the pattern:
  * - Segments: id="segment-E1S01"
- * - Characters: id="character-林克"
- * - Clues: id="clue-玉佩"
+ * - Characters: id="character-liên kết"
+ * - Clues: id="clue-mặt dây chuyền ngọc bích"
  *
  * When a scroll target is triggered via `useAppStore.triggerScrollTo()`,
  * this hook retries until the target element is mounted, then scrolls it into
@@ -78,7 +78,7 @@ export function useScrollTarget(
         }
         if (Date.now() >= currentTarget.expires_at) {
           clearScrollTarget(requestId);
-          pushToast(`未找到可定位的内容：${currentTarget.id}`, "warning");
+          pushToast(`Không tìm thấy nội dung có thể nhắm mục tiêu: ${currentTarget.id}`, "warning");
           return;
         }
         retryTimerRef.current = setTimeout(tryResolveTarget, 50);

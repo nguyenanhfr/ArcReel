@@ -1,4 +1,4 @@
-"""费用估算服务 — 计算预估 + 汇总实际费用。"""
+"""Dịch vụ ước tính chi phí — Tính Ước tính + Tóm tắt chi phí thực tế."""
 
 from __future__ import annotations
 
@@ -58,16 +58,16 @@ class CostEstimationService:
         except Exception:
             generate_audio = False
 
-        # 项目级视频配置覆盖
+        # Dự ánGhi đè cấu hình Video cấp độ
         project_video_provider = project_data.get("video_provider")
         if project_video_provider:
             video_provider = project_video_provider
-            # 项目级可能有自己的模型设置
+            # Dự ánCấp độ có thể có cài đặt mô hình riêng
             project_video_settings = project_data.get("video_provider_settings", {}).get(project_video_provider, {})
             if project_video_settings.get("model"):
                 video_model = project_video_settings["model"]
 
-        # 项目级图片配置覆盖
+        # Dự ánGhi đè cấu hình Ảnh cấp độ
         project_image_provider = project_data.get("image_provider")
         if project_image_provider:
             image_provider = project_image_provider
@@ -79,7 +79,7 @@ class CostEstimationService:
         # Get actual costs
         actual_by_segment = await self._tracker.get_actual_costs_by_segment(project_name)
 
-        # 预计算图片单价（所有 segment 相同）
+        # Ước tính giá đơn vị Ảnh đã được tính trước (tất cả các phân đoạn giống nhau)
         image_unit_cost: tuple[float, str] | None = None
         try:
             image_unit_cost = cost_calculator.calculate_cost(
@@ -89,7 +89,7 @@ class CostEstimationService:
                 resolution="1K",
             )
         except Exception:
-            logger.debug("无法计算 image 预估单价", exc_info=True)
+            logger.debug("Không thể tính Ước tính giá đơn vị ảnh", exc_info=True)
 
         episodes_result = []
         proj_est: dict[str, CostBreakdown] = {}
@@ -128,7 +128,7 @@ class CostEstimationService:
                     )
                     _add_cost(est_video, vid_amount, vid_currency)
                 except Exception:
-                    logger.debug("无法计算 video 预估 for %s", seg_id, exc_info=True)
+                    logger.debug("Không thể tính Ước tính video cho %s", seg_id, exc_info=True)
 
                 seg_actual = actual_by_segment.get(seg_id, {})
                 act_image: CostBreakdown = seg_actual.get("image", {})

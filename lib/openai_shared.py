@@ -1,11 +1,11 @@
 """
-OpenAI 共享工具模块
+OpenAI Chia sẻ mô-đun Công cụ
 
-供 text_backends / image_backends / video_backends / providers 复用。
+Dành cho text_backends / image_backends / video_backends / providers tái sử dụng.
 
-包含：
-- OPENAI_RETRYABLE_ERRORS — 可重试错误类型
-- create_openai_client — AsyncOpenAI 客户端工厂
+Bao gồm:
+- OPENAI_RETRYABLE_ERRORS — Có Thử lại lỗi Loại
+- create_openai_client — AsyncOpenAI Nhà máy khách hàng
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ try:
         RateLimitError,
     )
 except ImportError:
-    pass  # openai 是必装依赖，此分支仅作防御性保护；回退到空 tuple
+    pass  # openai Là phụ thuộc bắt buộc cài đặt, nhánh này chỉ để bảo vệ phòng ngừa; quay lại tuple rỗng
 
 
 def create_openai_client(
@@ -42,7 +42,7 @@ def create_openai_client(
     base_url: str | None = None,
     max_retries: int | None = None,
 ) -> AsyncOpenAI:
-    """创建 AsyncOpenAI 客户端，统一处理 api_key 和 base_url。"""
+    """Tạo AsyncOpenAI Khách hàng, xử lý thống nhất api_key và base_url."""
     kwargs: dict = {}
     if api_key:
         kwargs["api_key"] = api_key

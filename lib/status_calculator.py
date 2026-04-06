@@ -1,8 +1,8 @@
 """
-状态和统计字段的实时计算器
+Trạng thái và thống kê bộ đếm trực tiếp theo đoạn
 
-提供读时计算的统计字段，避免存储冗余数据。
-配合 ProjectManager 使用，在 API 响应时注入计算字段。
+Cung cấp các thống kê khi đọc để tính toán từ đoạn, tránh lưu trữ dữ liệu thừa.
+Sử dụng cùng với ProjectManager, chèn tính toán từ đoạn khi phản hồi API.
 """
 
 import logging
@@ -12,14 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 class StatusCalculator:
-    """状态和统计字段的实时计算器"""
+    """Trạng thái và thống kê bộ đếm trực tiếp theo đoạn"""
 
     def __init__(self, project_manager):
         """
-        初始化状态计算器
+        Khởi tạo bộ tính trạng thái
 
         Args:
-            project_manager: ProjectManager 实例
+            project_manager: ProjectManager Ví dụ
         """
         self.pm = project_manager
 
@@ -41,24 +41,24 @@ class StatusCalculator:
 
     def calculate_episode_stats(self, project_name: str, script: dict) -> dict:
         """
-        计算单个剧集的统计信息
+        Tính toán thống kê cho một tập phim
 
         Args:
-            project_name: 项目名称
-            script: 剧本数据
+            project_name: Dự ánTên
+            script: Kịch bản数据
 
         Returns:
-            统计信息字典
+            Thống kê từ điển
         """
         content_mode, items = self._select_content_mode_and_items(script)
         default_duration = 4 if content_mode == "narration" else 8
 
-        # 统计资源完成情况
+        # Thống kê tình trạng hoàn thành nguồn lực
         storyboard_done = sum(1 for i in items if i.get("generated_assets", {}).get("storyboard_image"))
         video_done = sum(1 for i in items if i.get("generated_assets", {}).get("video_clip"))
         total = len(items)
 
-        # 计算状态
+        # Tính trạng thái
         if video_done == total and total > 0:
             status = "completed"
         elif storyboard_done > 0 or video_done > 0:
@@ -76,7 +76,7 @@ class StatusCalculator:
 
     @staticmethod
     def _safe_exists(base: Path, rel_path: str) -> bool:
-        """检查 rel_path 是否为 base 目录内的合法相对路径且文件存在（防止路径穿越）"""
+        """Kiểm tra rel_path có phải là đường dẫn tương đối hợp pháp trong thư mục cơ sở và tệp có tồn tại (ngăn chặn tràn đường dẫn)"""
         if not rel_path:
             return False
         try:
@@ -88,7 +88,7 @@ class StatusCalculator:
     def _load_episode_script(
         self, project_name: str, episode_num: int, script_file: str, *, content_mode: str = "narration"
     ) -> tuple:
-        """加载单集剧本，返回 (script_status, script|None)，避免重复读取文件。
+        """Tải kịch bản từng tập, trả về (script_status, script|None), tránh đọc tệp trùng lặp.
         script_status: 'generated' | 'segmented' | 'none'
         """
         try:
@@ -105,7 +105,7 @@ class StatusCalculator:
             return ("segmented" if draft_file.exists() else "none"), None
         except ValueError as e:
             logger.warning(
-                "剧本 JSON 损坏或路径无效，跳过状态计算 project=%s file=%s: %s",
+                "Kịch bản JSON Hỏng hoặc đường dẫn không hợp lệ, bỏ qua tính trạng thái project=%s file=%s: %s",
                 project_name,
                 script_file,
                 e,
@@ -113,7 +113,7 @@ class StatusCalculator:
             return "generated", None
 
     def calculate_current_phase(self, project: dict, episodes_stats: list[dict]) -> str:
-        """根据项目和集状态推断当前阶段"""
+        """Suy luận giai đoạn hiện tại dựa trên Dự án và trạng thái tập"""
         if not project.get("overview"):
             return "setup"
         if not episodes_stats:
@@ -128,7 +128,7 @@ class StatusCalculator:
         return "completed" if all_completed else "production"
 
     def _calculate_phase_progress(self, project: dict, phase: str, episodes_stats: list[dict]) -> float:
-        """计算当前阶段完成率 0.0–1.0"""
+        """Tính toán tỷ lệ hoàn thành giai đoạn hiện tại 0.0–1.0"""
         if phase == "setup":
             return 0.0
         if phase == "worldbuilding":
@@ -147,24 +147,24 @@ class StatusCalculator:
 
     def calculate_project_status(self, project_name: str, project: dict) -> dict:
         """
-        计算项目整体状态（用于列表 API）。
+        Tính trạng thái tổng thể của Dự án (dùng cho danh sách API).
 
         Returns:
-            ProjectStatus 字典：current_phase, phase_progress, characters, clues, episodes_summary
+            ProjectStatus từVí dụ: current_phase, phase_progress, characters, clues, episodes_summary
         """
         project_dir = self.pm.get_project_path(project_name)
 
-        # 角色统计
+        # Nhân vật统计
         chars = project.get("characters", {})
         chars_total = len(chars)
         chars_done = sum(1 for c in chars.values() if self._safe_exists(project_dir, c.get("character_sheet", "")))
 
-        # 线索统计（所有线索，不限 major）
+        # Manh mốiThống kê (tất cả manh mối, không giới hạn chuyên ngành)
         clues = project.get("clues", {})
         clues_total = len(clues)
         clues_done = sum(1 for c in clues.values() if self._safe_exists(project_dir, c.get("clue_sheet", "")))
 
-        # 每集状态
+        # Tình trạng từng tập
         content_mode = project.get("content_mode", "narration")
         episodes_stats = []
         for ep in project.get("episodes", []):
@@ -215,10 +215,10 @@ class StatusCalculator:
 
     def enrich_project(self, project_name: str, project: dict) -> dict:
         """
-        为项目数据注入所有计算字段（用于详情 API）。
-        不修改原始 JSON 文件，仅用于 API 响应。
+        Tiêm tất cả các trường tính toán vào dữ liệu Dự án (dùng cho API chi tiết).
+        Không sửa file JSON gốc, chỉ dùng cho phản hồi API.
         """
-        # 计算每集明细（注入到 episode 对象）
+        # Tính toán chi tiết từng tập (tiêm vào đối tượng episode)
         content_mode = project.get("content_mode", "narration")
         episodes_stats = []
         for ep in project.get("episodes", []):
@@ -250,36 +250,36 @@ class StatusCalculator:
             ep.update(ep_stats)
             episodes_stats.append(ep_stats)
 
-        # 计算项目状态
+        # Tính toán trạng thái Dự án
         project["status"] = self.calculate_project_status(project_name, project)
         return project
 
     def enrich_script(self, script: dict) -> dict:
         """
-        为剧本数据注入计算字段
+        Tiêm các trường tính toán vào dữ liệu Kịch bản
 
-        不会修改原始 JSON 文件，仅用于 API 响应。
+        Không sửa file JSON gốc, chỉ dùng cho phản hồi API.
 
         Args:
-            script: 原始剧本数据
+            script: Dữ liệu Kịch bản gốc
 
         Returns:
-            注入计算字段后的剧本数据
+            Dữ liệu Kịch bản sau khi tiêm các trường tính toán
         """
         content_mode, items = self._select_content_mode_and_items(script)
         default_duration = 4 if content_mode == "narration" else 8
 
         total_duration = sum(i.get("duration_seconds", default_duration) for i in items)
 
-        # 注入 metadata 计算字段
+        # Tiêm các trường tính toán metadata
         if "metadata" not in script:
             script["metadata"] = {}
 
         script["metadata"]["total_scenes"] = len(items)
         script["metadata"]["estimated_duration_seconds"] = total_duration
-        script["duration_seconds"] = total_duration  # 读时注入，与 metadata 保持同步
+        script["duration_seconds"] = total_duration  # Tiêm khi đọc, đồng bộ với metadata
 
-        # 聚合 characters_in_episode 和 clues_in_episode（仅用于 API 响应，不存储）
+        # Tổng hợp characters_in_episode và clues_in_episode (chỉ dùng cho phản hồi API, không lưu trữ)
         chars_set = set()
         clues_set = set()
 

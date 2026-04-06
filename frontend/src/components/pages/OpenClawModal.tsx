@@ -1,6 +1,6 @@
 /**
- * OpenClaw 集成引导 Modal
- * 提示词区域（可复制，含动态 skill.md URL）、3 步使用说明、"获取 API 令牌"按钮
+ * OpenClaw Phương thức khởi động tích hợp
+ * PromptVùng (có thể sao chép, bao gồm URL Skill.md động), hướng dẫn 3 bước,"Nhận mã thông báo API"按钮
  */
 import { useCallback, useMemo, useState } from "react";
 import { copyText } from "@/utils/clipboard";
@@ -20,22 +20,22 @@ interface OpenClawModalProps {
   onClose: () => void;
 }
 
-// 使用步骤数据（静态，提升到组件外避免每次渲染重建）
+// Sử dụng dữ liệu bước (tĩnh, được quảng bá bên ngoài thành phần để tránh phải xây dựng lại mỗi lần kết xuất)
 const STEPS = [
   {
     step: "01",
-    title: "向你的 OpenClaw 发送上述提示词",
-    desc: "复制提示词，粘贴给 OpenClaw 发送",
+    title: "Gửi lời nhắc trên tới OpenClaw của Bạn",
+    desc: "Sao chép Lời nhắc và dán vào OpenClaw để gửi",
   },
   {
     step: "02",
-    title: "OpenClaw 从 Skill 文档学习能力",
-    desc: "OpenClaw 会自动读取 ArcReel Skill 文档，获取所有可用工具与 API 的使用方式",
+    title: "OpenClaw Học kỹ năng từ tài liệu kỹ năng",
+    desc: "OpenClaw Tài liệu ArcReel Skill sẽ được đọc tự động để có được tất cả các phương pháp sử dụng API và Công cụ có sẵn.",
   },
   {
     step: "03",
-    title: "OpenClaw 与 ArcReel 交互并创建视频",
-    desc: "描述你的创作需求，OpenClaw 将调用 ArcReel 完成项目管理、剧本生成和视频创作",
+    title: "OpenClaw Tương tác với ArcReel và TạoVideo",
+    desc: "Mô tảBạnĐối với nhu cầu sáng tạo, OpenClaw sẽ gọi ArcReel Hoàn thànhDựán quản lý, tạo kịch bản và tạo Video",
   },
 ] as const;
 
@@ -43,14 +43,14 @@ export function OpenClawModal({ onClose }: OpenClawModalProps) {
   const [, navigate] = useLocation();
   const [copied, setCopied] = useState(false);
 
-  // task 7.3：动态适配当前访问地址
+  // task 7.3：Tự động điều chỉnh Hiện tại địa chỉ truy cập
   const skillUrl = useMemo(
     () => `${window.location.origin}/skill.md`,
     [],
   );
 
   const systemPrompt = useMemo(
-    () => `学习 ${skillUrl} 然后遵循 skill，了解如何使用 ArcReel 创作视频`,
+    () => `Tìm hiểu ${skillUrl} Sau đó theo dõi kỹ năng học cách tạo Video bằng ArcReel`,
     [skillUrl],
   );
 
@@ -60,7 +60,7 @@ export function OpenClawModal({ onClose }: OpenClawModalProps) {
     setTimeout(() => setCopied(false), 2000);
   }, [systemPrompt]);
 
-  // task 7.4：跳转 API Key 管理页
+  // task 7.4：Chuyển đến trang quản lý API Key
   const handleGoToApiKeys = useCallback(() => {
     onClose();
     navigate("/app/settings?section=api-keys");
@@ -87,27 +87,27 @@ export function OpenClawModal({ onClose }: OpenClawModalProps) {
       onKeyDown={handleKeyDown}
     >
       <div className="relative flex w-full max-w-lg flex-col rounded-2xl border border-gray-800 bg-gray-900 shadow-2xl shadow-black/60 max-h-[90vh] overflow-y-auto">
-        {/* ——— 顶栏 ——— */}
+        {/* ——— Thanh trên cùng ———— */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-800 bg-gray-900 px-5 py-4">
           <div className="flex items-center gap-2.5">
             <LobsterIcon className="text-xl leading-none" />
             <div>
-              <h2 className="text-sm font-semibold text-gray-100">OpenClaw 集成指南</h2>
-              <p className="text-xs text-gray-500">将 ArcReel 接入 OpenClaw AI Agent</p>
+              <h2 className="text-sm font-semibold text-gray-100">OpenClaw Hướng dẫn tích hợp</h2>
+              <p className="text-xs text-gray-500">Kết nối ArcReel với OpenClaw AI Agent</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-800 hover:text-gray-300"
-            aria-label="关闭"
+            aria-label="Đóng"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         <div className="p-5 space-y-5">
-          {/* ——— Prompt 区域 ——— */}
+          {/* ——— Prompt Diện tích ———— */}
           <div>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs font-medium text-gray-400">Prompt</span>
@@ -135,7 +135,7 @@ export function OpenClawModal({ onClose }: OpenClawModalProps) {
               </pre>
             </div>
             <p className="mt-1.5 text-xs text-gray-600">
-              Skill 文档地址：
+              Skill Địa chỉ tài liệu:
               <a
                 href={skillUrl}
                 target="_blank"
@@ -148,9 +148,9 @@ export function OpenClawModal({ onClose }: OpenClawModalProps) {
             </p>
           </div>
 
-          {/* ——— 3 步说明 ——— */}
+          {/* ——— 3 Hướng dẫn các bước ———— */}
           <div>
-            <div className="mb-3 text-xs font-medium text-gray-400">使用步骤</div>
+            <div className="mb-3 text-xs font-medium text-gray-400">Các bước sử dụng</div>
             <div className="space-y-2">
               {STEPS.map(({ step, title, desc }) => (
                 <div
@@ -169,21 +169,21 @@ export function OpenClawModal({ onClose }: OpenClawModalProps) {
             </div>
           </div>
 
-          {/* ——— 操作按钮 ——— */}
+          {/* ——— Nút thao tác ———— */}
           <div className="flex gap-2 pt-1">
             <button
               type="button"
               onClick={onClose}
               className="flex-1 rounded-xl border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-700"
             >
-              关闭
+              Đóng
             </button>
             <button
               type="button"
               onClick={handleGoToApiKeys}
               className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
             >
-              获取 API 令牌
+              Nhận mã thông báo API
             </button>
           </div>
         </div>

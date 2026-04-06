@@ -8,12 +8,12 @@ export function NotFoundPage() {
       <p className="text-[8rem] font-extralight leading-none tracking-tighter text-gray-700">
         404
       </p>
-      <p className="mt-4 text-lg text-gray-400">页面未找到</p>
+      <p className="mt-4 text-lg text-gray-400">Không tìm thấy trang</p>
       <button
         onClick={() => navigate("/app/projects", { replace: true })}
         className="mt-8 rounded-lg border border-gray-700 px-5 py-2.5 text-sm text-gray-300 transition-colors hover:border-gray-500 hover:text-white"
       >
-        返回首页
+        Trở về trang chủ
       </button>
     </div>
   );

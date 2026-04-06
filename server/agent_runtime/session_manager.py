@@ -52,7 +52,7 @@ except ImportError:
 
 
 class SessionCapacityError(Exception):
-    """所有并发槽位已被 running 会话占满，无法创建新连接。"""
+    """Tất cả các vị trí đồng thời đều bị chiếm bởi các phiên đang chạy và không thể bắt đầu các kết nối mới."""
 
     pass
 
@@ -75,12 +75,12 @@ class PendingQuestion:
 class ManagedSession:
     """A managed ClaudeSDKClient session."""
 
-    session_id: str  # sdk_session_id（已有会话）或临时 UUID（新会话等待中）
+    session_id: str  # sdk_session_id（Đã có phiên) hoặc UUID tạm thời (Phiên mới đang chờ xử lý)
     client: Any  # ClaudeSDKClient
     status: SessionStatus = "idle"
-    project_name: str = ""  # 用于 _register_new_session
+    project_name: str = ""  # cho _register_new_session
     sdk_id_event: asyncio.Event = field(default_factory=asyncio.Event)
-    resolved_sdk_id: str | None = None  # consumer 设置，send_new_session 读取
+    resolved_sdk_id: str | None = None  # consumer Cài đặt，send_new_session đọc
     message_buffer: list[dict[str, Any]] = field(default_factory=list)
     subscribers: set[asyncio.Queue] = field(default_factory=set)
     consumer_task: asyncio.Task | None = None
@@ -309,21 +309,21 @@ class SessionManager:
                     self.max_turns = int(raw)
                     return
         except Exception:
-            logger.warning("从 DB 加载 assistant 配置失败，回退到环境变量", exc_info=True)
+            logger.warning("Tải trợ lý cấu hình Thất bại từ DB, dự phòng cho biến Môi trường", exc_info=True)
         # Fallback to env var
         self._load_config()
 
     _PERSONA_PROMPT = """\
-## 身份
+## danh tính
 
-你是 ArcReel 智能体，一个专业的 AI 视频内容创作助手。你的职责是将小说转化为可发布的短视频内容。
+Bạnlà Tác nhân ArcReel, Trợ lý sáng tạo nội dung Video AI chuyên nghiệp. Vai trò của Bạn là chuyển đổi tiểu thuyết thành nội dung video ngắn, có thể xuất bản được.
 
-## 行为准则
+## quy tắc ứng xử
 
-- 主动引导用户完成视频创作工作流，而不仅仅被动回答问题
-- 遇到不确定的创作决策时，向用户提出选项并给出建议，而不是自行决定
-- 涉及多步骤任务时，使用 TodoWrite 跟踪进度并向用户汇报
-- 你是用户的视频制作搭档，专业、友善、高效"""
+- Tích cực hướng dẫn người dùng Hoàn thành Quy trình tạo video thay vì chỉ trả lời thụ động Câu hỏi
+- Khi phải đối mặt với những quyết định sáng tạo không chắc chắn, hãy đưa ra các lựa chọn và đề xuất cho người dùng thay vì tự mình đưa ra quyết định
+- Khi thực hiện các tác vụ nhiều bước, hãy sử dụng TodoWrite để theo dõi tiến độ và báo cáo lại cho người dùng
+- BạnĐây là đối tác sản xuất video của người dùng, chuyên nghiệp, thân thiện và hiệu quả."""
 
     def _build_append_prompt(self, project_name: str) -> str:
         """Build the append portion for SystemPromptPreset.
@@ -363,30 +363,30 @@ class SessionManager:
             return ""
 
         parts = [
-            "## 当前项目上下文",
+            "## Hiện tạiDự ánbối cảnh",
             "",
         ]
 
-        # TODO: 当前定位是自部署服务，这里直接拼接项目元数据以保持实现简单。
-        # TODO: 若后续演进为 SaaS / 多租户服务，需要把 title/style/overview 等用户输入
-        # TODO: 按“非指令上下文”做边界化或转义，降低 prompt injection 风险。
-        parts.append(f"- 项目标识：{project_name}")
+        # TODO: Hiện tạiĐịnh vị là một dịch vụ tự triển khai và siêu dữ liệu Dự án được ghép trực tiếp vào đây để giúp việc triển khai đơn giản.
+        # TODO: Nếu sau đó nó được phát triển thành dịch vụ SaaS/nhiều người thuê thì cần phải thay đổi tên người dùng như tiêu đề/kiểu/tổng quan
+        # TODO: Ranh giới hoặc thoát theo "bối cảnh không có lệnh" để giảm nguy cơ bị tiêm nhắc nhở.
+        parts.append(f"- Dự ánNhận dạng:{project_name}")
         if title := config.get("title"):
-            parts.append(f"- 项目标题：{title}")
+            parts.append(f"- Dự ánTiêu đề:{title}")
         if mode := config.get("content_mode"):
-            parts.append(f"- 内容模式：{mode}")
+            parts.append(f"- Chế độ nội dung:{mode}")
         if style := config.get("style"):
-            parts.append(f"- 视觉风格：{style}")
+            parts.append(f"- Visual Phong cách:{style}")
         if style_desc := config.get("style_description"):
-            parts.append(f"- 风格描述：{style_desc}")
-        parts.append(f"- 项目目录（即当前工作目录 cwd）：{project_cwd}")
+            parts.append(f"- Mô tả phong cách：{style_desc}")
+        parts.append(f"- Dự ánThư mục (tức là Hiện tại thư mục làm việc cwd):{project_cwd}")
         parts.append(
-            "- Read/Edit/Write 等工具的 file_path 参数必须使用绝对路径，不要使用相对路径，也不要把项目标题当成目录名。"
+            "- Read/Edit/Write Tham số file_path của Công cụ phải sử dụng đường dẫn tuyệt đối, không sử dụng đường dẫn tương đối và không coi tiêu đề Dựán là tên thư mục."
         )
         parts.append(
-            "- Bash 调用 skill 脚本时必须使用相对路径（如 `python .claude/skills/.../script.py`），不要转换为绝对路径。"
+            "- Bash Đường dẫn tương đối phải được sử dụng khi gọi tập lệnh kỹ năng (ví dụ: `python .claude/skills/.../script.py`），Không chuyển đổi thành đường dẫn tuyệt đối."
         )
-        parts.append("- Bash 命令必须写在单行，禁止使用 `\\` 换行，JSON 参数使用紧凑格式。")
+        parts.append("- Bash Các lệnh phải được viết trên một dòng và không được phép sử dụng `\\` Ngắt dòng, tham số JSON sử dụng định dạng nhỏ gọn.")
 
         self._append_overview_section(parts, config.get("overview", {}))
 
@@ -398,15 +398,15 @@ class SessionManager:
         if not isinstance(overview, dict) or not overview:
             return
         parts.append("")
-        parts.append("### 项目概述")
+        parts.append("### Mô tả dự án")
         if synopsis := overview.get("synopsis"):
             parts.append(synopsis)
         if genre := overview.get("genre"):
-            parts.append(f"- 题材：{genre}")
+            parts.append(f"- Thể loại：{genre}")
         if theme := overview.get("theme"):
-            parts.append(f"- 主题：{theme}")
+            parts.append(f"- Chủ đề：{theme}")
         if world := overview.get("world_setting"):
-            parts.append(f"- 世界观：{world}")
+            parts.append(f"- Thế giới quan：{world}")
 
     def _build_options(
         self,
@@ -516,7 +516,7 @@ class SessionManager:
                     "hookSpecificOutput": {
                         "hookEventName": "PreToolUse",
                         "permissionDecision": "deny",
-                        "permissionDecisionReason": ("访问被拒绝：不允许访问当前项目和公共目录之外的路径"),
+                        "permissionDecisionReason": ("Truy cập bị từ chối: Không được phép truy cập vào các đường dẫn bên ngoài Hiện tại Dựán và các thư mục công cộng"),
                     },
                 }
 
@@ -569,7 +569,7 @@ class SessionManager:
             if tool_name == "Write":
                 simulated = tool_input.get("content")
                 logger.info(
-                    "JSON 校验 hook: tool=Write file=%s content_len=%s",
+                    "JSON Móc xác minh: tool=Write file=%s content_len=%s",
                     file_path,
                     len(simulated) if simulated else 0,
                 )
@@ -578,7 +578,7 @@ class SessionManager:
                 new_string = tool_input.get("new_string", "")
                 if not old_string:
                     logger.info(
-                        "JSON 校验 hook: tool=Edit file=%s skip=old_string为空",
+                        "JSON Móc xác minh: tool=Edit file=%s Skip=old_string trống",
                         file_path,
                     )
                     return {}
@@ -591,7 +591,7 @@ class SessionManager:
                 if _has_curly_quotes(new_string):
                     curly_found = [f"U+{ord(ch):04X}" for ch in new_string if ch in _CURLY_QUOTES]
                     logger.warning(
-                        "PreToolUse JSON 校验拦截(弯引号): file=%s curly=%s",
+                        "PreToolUse JSON Chặn xác minh (dấu ngoặc nhọn): file=%s xoăn=%s",
                         file_path,
                         curly_found[:5],
                     )
@@ -600,11 +600,11 @@ class SessionManager:
                             "hookEventName": "PreToolUse",
                             "permissionDecision": "deny",
                             "permissionDecisionReason": (
-                                "操作被阻止：new_string 包含弯引号"
-                                "（\u201c 或 \u201d），"
-                                "这会破坏 JSON 格式。"
-                                "请将所有弯引号替换为标准 ASCII "
-                                "双引号 (U+0022) 后重试。"
+                                "Thao tác bị chặn: new_string chứa dấu ngoặc kép"
+                                "（\u201c hoặc \u201d),"
+                                "Điều này phá vỡ định dạng JSON."
+                                "Vui lòng chuyển đổi tất cả dấu ngoặc kép Thay thế sang ASCII chuẩn "
+                                "Dấu ngoặc kép (U+0022) theo sau là Thử lại."
                             ),
                         },
                     }
@@ -615,7 +615,7 @@ class SessionManager:
                     current = resolved.read_text(encoding="utf-8")
                 except OSError as read_err:
                     logger.info(
-                        "JSON 校验 hook: tool=Edit file=%s skip=读取失败 error=%s",
+                        "JSON Móc xác minh: tool=Chỉnh sửa tập tin=%s bỏ qua=Đọc lỗi thất bại=%s",
                         file_path,
                         read_err,
                     )
@@ -628,7 +628,7 @@ class SessionManager:
                 if old_string not in current:
                     # Edit tool will fail on its own; no need to intervene.
                     logger.info(
-                        "JSON 校验 hook: tool=Edit file=%s skip=old_string未匹配 old_len=%d new_len=%d file_len=%d",
+                        "JSON Móc xác minh: tool=Edit file=%s Skip=old_string không khớp old_len=%d new_len=%d file_len=%d",
                         file_path,
                         len(old_string),
                         len(new_string),
@@ -643,7 +643,7 @@ class SessionManager:
                     simulated = current.replace(old_string, new_string, 1)
 
                 logger.info(
-                    "JSON 校验 hook: tool=Edit file=%s matched=True "
+                    "JSON Móc xác minh: tool=Chỉnh sửa tập tin=%s khớp=True "
                     "old_len=%d new_len=%d simulated_len=%d replace_all=%s",
                     file_path,
                     len(old_string),
@@ -658,14 +658,14 @@ class SessionManager:
             try:
                 json.loads(simulated)
                 logger.info(
-                    "JSON 校验 hook: tool=%s file=%s result=valid",
+                    "JSON Móc xác minh: tool=%s file=%s result=valid",
                     tool_name,
                     file_path,
                 )
                 return {}
             except json.JSONDecodeError as exc:
                 logger.warning(
-                    "PreToolUse JSON 校验拦截: file=%s tool=%s error=%s",
+                    "PreToolUse JSON Chặn quá trình xác minh: file=%s tool=%s error=%s",
                     file_path,
                     tool_name,
                     exc,
@@ -675,10 +675,10 @@ class SessionManager:
                         "hookEventName": "PreToolUse",
                         "permissionDecision": "deny",
                         "permissionDecisionReason": (
-                            f"操作被阻止：此次 {tool_name} 会导致 {file_path} "
-                            f"变成无效 JSON。错误：{exc}。"
-                            "请检查你的输入内容中是否包含未转义的双引号或其他"
-                            "JSON 语法问题，修正后重试。"
+                            f"Hoạt động bị chặn: lần này {tool_name} sẽ dẫn đến {file_path} "
+                            f"trở thành JSON không hợp lệ. Lỗi:{exc}。"
+                            "Vui lòng kiểm tra xem nội dung Đầu vào của Bạn có chứa dấu ngoặc kép không thoát hoặc Khác"
+                            "JSON Ngữ pháp Câu hỏi, đã được sửa đổi Thử lại."
                         ),
                     },
                 }
@@ -714,7 +714,7 @@ class SessionManager:
                     tool_use_id,
                 )
             except Exception:
-                logger.exception("PostToolUse JSON 校验 hook 异常")
+                logger.exception("PostToolUse JSON Ngoại lệ móc xác minh")
                 return {}
 
         async def _json_post_validation_impl(
@@ -742,7 +742,7 @@ class SessionManager:
             try:
                 json.loads(actual)
                 logger.info(
-                    "PostToolUse JSON 校验: tool=%s file=%s result=valid",
+                    "PostToolUse JSON Xác minh: tool=%s file=%s result=valid",
                     tool_name,
                     file_path,
                 )
@@ -756,20 +756,20 @@ class SessionManager:
                         backup_path.write_text(backup_content, encoding="utf-8")
                         restored = True
                         logger.warning(
-                            "PostToolUse JSON 校验拦截并恢复: file=%s tool=%s error=%s backup_restored=True",
+                            "PostToolUse JSON Xác minh việc chặn và khôi phục: file=%s tool=%s error=%s backup_restored=True",
                             file_path,
                             tool_name,
                             exc,
                         )
                     except OSError as write_err:
                         logger.error(
-                            "PostToolUse JSON 备份恢复失败: file=%s error=%s",
+                            "PostToolUse JSON Sao lưu và khôi phục Thất bại: file=%s error=%s",
                             file_path,
                             write_err,
                         )
                 else:
                     logger.warning(
-                        "PostToolUse JSON 校验拦截(无备份): file=%s tool=%s error=%s",
+                        "PostToolUse JSON Chặn xác minh (không có bản sao lưu): file=%s tool=%s error=%s",
                         file_path,
                         tool_name,
                         exc,
@@ -777,16 +777,16 @@ class SessionManager:
 
                 if restored:
                     ctx = (
-                        f"⚠ JSON 损坏已检测并回滚：{tool_name} 导致 "
-                        f"{file_path} 变成无效 JSON（{exc}）。"
-                        "文件已恢复到编辑前状态，请修正后重试。"
+                        f"⚠ JSON Tham nhũng được phát hiện và khôi phục:{tool_name} nguyên nhân "
+                        f"{file_path} trở thành JSON không hợp lệ ({exc}）。"
+                        "File đã được khôi phục về trạng thái sửa trước Chỉnh, vui lòng sửa lại sau khi Thử lại."
                     )
                 else:
                     ctx = (
-                        f"⚠ JSON 损坏已检测但无法恢复：{tool_name} 导致 "
-                        f"{file_path} 变成无效 JSON（{exc}）。"
-                        "文件当前仍为损坏状态（无可用备份或恢复写入失败），"
-                        "请先读取文件确认内容，再手动修正为合法 JSON。"
+                        f"⚠ JSON Tham nhũng được phát hiện nhưng không thể phục hồi:{tool_name} nguyên nhân "
+                        f"{file_path} trở thành JSON không hợp lệ ({exc}）。"
+                        "File Hiện tại vẫn ở trạng thái lỗi (không có bản sao lưu hoặc khôi phục để ghi Thất bại),"
+                        "Vui lòng đọc tệp trước để xác nhận nội dung, sau đó sửa thủ công thành JSON hợp pháp."
                     )
 
                 return {
@@ -854,12 +854,12 @@ class SessionManager:
         try:
             await managed.client.query(prompt)
         except Exception:
-            logger.exception("新会话消息发送失败")
+            logger.exception("Phiên mớiTin nhắnGửi thất bại")
             del self.sessions[temp_id]
             try:
                 await client.disconnect()
             except Exception as disconnect_err:
-                logger.warning("新会话断开连接失败: %s", disconnect_err)
+                logger.warning("Phiên mớiNgắt kết nối thất bại: %s", disconnect_err)
             raise
 
         managed.consumer_task = asyncio.create_task(self._consume_messages(managed))
@@ -868,7 +868,7 @@ class SessionManager:
         try:
             await asyncio.wait_for(managed.sdk_id_event.wait(), timeout=10.0)
         except TimeoutError:
-            logger.error("等待 sdk_session_id 超时 temp_id=%s", temp_id)
+            logger.error("Hết thời gian chờ sdk_session_id temp_id=%s", temp_id)
             managed.cancel_pending_questions("session creation timed out")
             if managed.consumer_task and not managed.consumer_task.done():
                 managed.consumer_task.cancel()
@@ -877,8 +877,8 @@ class SessionManager:
             try:
                 await client.disconnect()
             except Exception as disconnect_err:
-                logger.warning("超时清理断开连接失败: %s", disconnect_err)
-            raise TimeoutError("SDK 会话创建超时")
+                logger.warning("Hết thời gian dọn dẹp và ngắt kết nối Thất bại: %s", disconnect_err)
+            raise TimeoutError("SDK Hết thời gian tạo phiên")
 
         sdk_id = managed.resolved_sdk_id
         assert sdk_id is not None
@@ -913,20 +913,20 @@ class SessionManager:
             await self._ensure_capacity()
             options = self._build_options(
                 meta.project_name,
-                meta.id,  # SessionMeta.id 就是 sdk_session_id
+                meta.id,  # SessionMeta.id Đó là sdk_session_id
                 can_use_tool=await self._build_can_use_tool_callback(session_id),
             )
             client = ClaudeSDKClient(options=options)
             await client.connect()
 
             managed = ManagedSession(
-                session_id=meta.id,  # 现在就是 sdk_session_id
+                session_id=meta.id,  # Bây giờ là sdk_session_id
                 client=client,
                 status=meta.status if meta.status != "idle" else "idle",
                 project_name=meta.project_name,
-                resolved_sdk_id=meta.id,  # 标记为已注册，防止重复创建 DB 记录
+                resolved_sdk_id=meta.id,  # Đánh dấu là đã đăng ký để tránh trùng lặp bản ghi Tạo DB
             )
-            managed.sdk_id_event.set()  # 已有会话不需要等待
+            managed.sdk_id_event.set()  # Đã có buổi rồi, không cần phải chờ đợi
             self.sessions[session_id] = managed
             return managed
 
@@ -942,13 +942,13 @@ class SessionManager:
         """Send a message and start background consumer."""
         managed = await self.get_or_connect(session_id, meta=meta)
         managed.last_activity = time.monotonic()
-        # 取消待执行的 cleanup（会话恢复活跃）
+        # HủyĐang chờ dọn dẹp (phiên được kích hoạt lại)
         if managed._cleanup_task and not managed._cleanup_task.done():
             managed._cleanup_task.cancel()
             managed._cleanup_task = None
 
         if managed.status == "running":
-            raise ValueError("会话正在处理中，请等待当前回复完成后再发送新消息")
+            raise ValueError("Cuộc trò chuyện đang được xử lý, vui lòng đợi Hiện tại trả lời Hoàn thành trước khi gửi Tin nhắn mới")
 
         self._prune_transient_buffer(managed)
 
@@ -975,7 +975,7 @@ class SessionManager:
         try:
             await managed.client.query(prompt)
         except Exception:
-            logger.exception("会话消息处理失败")
+            logger.exception("Hội thoại Tin nhắn xử lý Thất bại")
             managed.pending_user_echoes.clear()
             managed.status = "error"
             await self.meta_store.update_status(session_id, "error")
@@ -1040,7 +1040,7 @@ class SessionManager:
             await self._mark_session_terminal(managed, "interrupted", "session interrupted")
             raise
         except Exception:
-            logger.exception("会话消费循环异常")
+            logger.exception("Ngoại lệ vòng lặp tiêu thụ phiên")
             await self._mark_session_terminal(managed, "error", "session error")
             raise
 
@@ -1114,11 +1114,11 @@ class SessionManager:
         self._schedule_cleanup(managed.session_id)
 
     def _schedule_cleanup(self, session_id: str) -> None:
-        """为非 running 会话调度延迟清理，延迟从配置读取。"""
+        """Lên lịch dọn dẹp lười biếng cho các phiên không chạy, với độ trễ đọc từ cấu hình."""
         managed = self.sessions.get(session_id)
         if managed is None:
             return
-        # 取消旧的 cleanup task
+        # Hủynhiệm vụ dọn dẹp cũ
         if managed._cleanup_task and not managed._cleanup_task.done():
             managed._cleanup_task.cancel()
 
@@ -1128,16 +1128,16 @@ class SessionManager:
             m = self.sessions.get(session_id)
             if m is None:
                 return
-            # 会话已恢复活跃 → 跳过
+            # Phiên đã hoạt động trở lại → Bỏ qua
             if m.status == "running":
                 return
-            logger.info("清理会话 session_id=%s status=%s", session_id, m.status)
-            # 清除自身引用，避免 _disconnect_session 尝试 cancel/gather 当前任务
+            logger.info("Làm sạch phiên session_id=%s status=%s", session_id, m.status)
+            # XóaTự tham khảo để tránh _disconnect_session cố gắng hủy/thu thập các tác vụ Hiện tại
             m._cleanup_task = None
             try:
                 await self._disconnect_session(session_id, reason="cleanup timer")
             except Exception:
-                logger.warning("清理会话失败 session_id=%s", session_id, exc_info=True)
+                logger.warning("Dọn dẹp phiên bị lỗi session_id=%s", session_id, exc_info=True)
 
         managed._cleanup_task = asyncio.create_task(_do_cleanup())
 
@@ -1182,7 +1182,7 @@ class SessionManager:
         except TimeoutError:
             return False
         except Exception:
-            logger.warning("等待 Claude 子进程退出失败", exc_info=True)
+            logger.warning("Đợi tiến trình con Claude thoát Thất bại", exc_info=True)
             return False
         return self._process_returncode(process) is not None
 
@@ -1197,7 +1197,7 @@ class SessionManager:
         """Force terminate lingering Claude CLI process."""
         if process is None:
             logger.error(
-                "会话断开失败且无法访问底层进程 session_id=%s cause=%s",
+                "Phiên bị ngắt kết nối Thất bại và không thể truy cập quy trình cơ bản session_id=%s Cause=%s",
                 session_id,
                 cause,
             )
@@ -1207,7 +1207,7 @@ class SessionManager:
             return True
 
         logger.warning(
-            "会话断开异常，尝试强制终止 Claude 子进程 session_id=%s pid=%s cause=%s",
+            "Ngoại lệ ngắt kết nối phiên, cố gắng chấm dứt mạnh mẽ tiến trình con Claude session_id=%s pid=%s Cause=%s",
             session_id,
             pid,
             cause,
@@ -1218,7 +1218,7 @@ class SessionManager:
             return True
         except Exception:
             logger.warning(
-                "发送 SIGTERM 失败 session_id=%s pid=%s",
+                "Gửi SIGTERM Thất bại session_id=%s pid=%s",
                 session_id,
                 pid,
                 exc_info=True,
@@ -1226,7 +1226,7 @@ class SessionManager:
         else:
             if await self._wait_for_process_exit(process, timeout=self._TERMINATE_WAIT_TIMEOUT):
                 logger.warning(
-                    "Claude 子进程已通过 SIGTERM 退出 session_id=%s pid=%s returncode=%s",
+                    "Claude Quá trình con đã thoát qua SIGTERM session_id=%s pid=%s returncode=%s",
                     session_id,
                     pid,
                     self._process_returncode(process),
@@ -1234,7 +1234,7 @@ class SessionManager:
                 return True
 
         logger.error(
-            "Claude 子进程在 SIGTERM 后仍存活，发送 SIGKILL session_id=%s pid=%s",
+            "Claude Tiến trình con tồn tại SIGTERM, gửi SIGKILL session_id=%s pid=%s",
             session_id,
             pid,
         )
@@ -1244,7 +1244,7 @@ class SessionManager:
             return True
         except Exception:
             logger.error(
-                "发送 SIGKILL 失败 session_id=%s pid=%s",
+                "Gửi SIGKILL Thất bại session_id=%s pid=%s",
                 session_id,
                 pid,
                 exc_info=True,
@@ -1253,7 +1253,7 @@ class SessionManager:
 
         if await self._wait_for_process_exit(process, timeout=self._KILL_WAIT_TIMEOUT):
             logger.warning(
-                "Claude 子进程已通过 SIGKILL 退出 session_id=%s pid=%s returncode=%s",
+                "Claude Quá trình con đã thoát qua SIGKILL session_id=%s pid=%s returncode=%s",
                 session_id,
                 pid,
                 self._process_returncode(process),
@@ -1261,7 +1261,7 @@ class SessionManager:
             return True
 
         logger.error(
-            "Claude 子进程在 SIGKILL 后仍未退出 session_id=%s pid=%s",
+            "Claude Quá trình con chưa thoát sau SIGKILL session_id=%s pid=%s",
             session_id,
             pid,
         )
@@ -1282,7 +1282,7 @@ class SessionManager:
         reason: str = "session closed",
         interrupt_running: bool = False,
     ) -> None:
-        """安全断开会话，确认子进程退出后再释放槽位。"""
+        """Ngắt kết nối phiên một cách an toàn và xác nhận rằng tiến trình con đã thoát trước khi giải phóng khe cắm."""
         if session_id in self._disconnecting:
             return
         managed = self.sessions.get(session_id)
@@ -1319,16 +1319,16 @@ class SessionManager:
                     timeout=self._INTERRUPT_TIMEOUT,
                 )
             except TimeoutError:
-                logger.warning("中断会话超时 session_id=%s", session_id)
+                logger.warning("Ngắt phiênHết thời gian phiên_id=%s", session_id)
             except Exception:
-                logger.warning("中断会话失败 session_id=%s", session_id, exc_info=True)
+                logger.warning("Ngắt phiênThất bại session_id=%s", session_id, exc_info=True)
 
             managed.status = "interrupted"
             try:
                 await self.meta_store.update_status(session_id, "interrupted")
             except Exception:
                 logger.warning(
-                    "更新会话中断状态失败 session_id=%s",
+                    "Cập nhật trạng thái ngắt phiên mới Thất bại session_id=%s",
                     session_id,
                     exc_info=True,
                 )
@@ -1339,7 +1339,7 @@ class SessionManager:
         process = self._get_client_process(managed.client)
         pid = self._process_pid(process)
         logger.info(
-            "开始断开会话 session_id=%s status=%s pid=%s reason=%s",
+            "Bắt đầu ngắt kết nối phiên session_id=%s status=%s pid=%s Reason=%s",
             session_id,
             managed.status,
             pid,
@@ -1362,13 +1362,13 @@ class SessionManager:
             closed = process is None or self._process_returncode(process) is not None
             if not closed:
                 logger.warning(
-                    "disconnect 返回后 Claude 子进程仍存活 session_id=%s pid=%s",
+                    "disconnect Sau khi trở về, tiến trình con của Claude vẫn còn tồn tại session_id=%s pid=%s",
                     session_id,
                     pid,
                 )
         else:
             logger.warning(
-                "优雅断开会话失败 session_id=%s pid=%s reason=%s error=%s",
+                "Ngắt kết nối phiên một cách duyên dáng Thất bại session_id=%s pid=%s Reason=%s error=%s",
                 session_id,
                 pid,
                 reason,
@@ -1392,43 +1392,43 @@ class SessionManager:
         self.sessions.pop(session_id, None)
         self._connect_locks.pop(session_id, None)
         logger.info(
-            "会话已断开 session_id=%s pid=%s returncode=%s",
+            "Phiên đã bị ngắt kết nối session_id=%s pid=%s returncode=%s",
             session_id,
             pid,
             self._process_returncode(process),
         )
 
     async def _get_cleanup_delay(self) -> int:
-        """返回会话清理延迟秒数，默认 300（5 分钟）。"""
+        """Trả về độ trễ dọn dẹp phiên tính bằng giây, mặc định là 300 (5 phút)."""
         try:
             async with async_session_factory() as session:
                 svc = ConfigService(session)
                 val = await svc.get_setting("agent_session_cleanup_delay_seconds", "300")
             return max(int(val), 10)
         except Exception:
-            logger.warning("读取 cleanup delay 配置失败，使用默认值", exc_info=True)
+            logger.warning("Đọc cấu hình trì hoãn dọn dẹp Thất bại và sử dụng giá trị mặc định", exc_info=True)
             return 300
 
     async def _get_max_concurrent(self) -> int:
-        """返回最大并发会话数，默认 5。"""
+        """Trả về số tối đa của phiên bản hiện tại, mặc định 5."""
         try:
             async with async_session_factory() as session:
                 svc = ConfigService(session)
                 val = await svc.get_setting("agent_max_concurrent_sessions", "5")
             return max(int(val), 1)
         except Exception:
-            logger.warning("读取 max_concurrent 配置失败，使用默认值", exc_info=True)
+            logger.warning("Đọc cấu hình max_concurrent Thất bại, sử dụng giá trị mặc định", exc_info=True)
             return 5
 
     async def _ensure_capacity(self) -> None:
-        """确保有空余并发槽位，必要时淘汰最久未活跃的非 running 会话。"""
+        """Đảm bảo có các vị trí đồng thời miễn phí và nếu cần, hãy loại bỏ các phiên không chạy đã không hoạt động trong thời gian dài nhất."""
         max_concurrent = await self._get_max_concurrent()
         active = [s for s in self.sessions.values() if s.client is not None and s.session_id not in self._disconnecting]
 
         if len(active) < max_concurrent:
             return
 
-        # 可淘汰的会话：非 running 状态（idle / completed / error / interrupted）
+        # Các phiên đủ điều kiện: trạng thái không chạy (không hoạt động/đã hoàn thành/lỗi/bị gián đoạn)
         evictable = sorted(
             [s for s in active if s.status != "running"],
             key=lambda s: s.last_activity or 0,
@@ -1437,7 +1437,7 @@ class SessionManager:
         if evictable:
             victim = evictable[0]
             logger.info(
-                "并发上限，淘汰 session_id=%s (status=%s)",
+                "Giới hạn đồng thời, loại bỏ session_id=%s (status=%s)",
                 victim.session_id,
                 victim.status,
             )
@@ -1448,20 +1448,20 @@ class SessionManager:
                 )
             except Exception as exc:
                 logger.error(
-                    "淘汰会话失败，无法释放并发槽位 session_id=%s",
+                    "Phá hủy phiên Thất bại, không thể giải phóng vị trí đồng thời session_id=%s",
                     victim.session_id,
                     exc_info=True,
                 )
-                raise SessionCapacityError("存在未能关闭的空闲会话，当前无法释放并发槽位，请稍后重试") from exc
+                raise SessionCapacityError("Có phiên nhàn rỗi không mở được, Hiện tại không thể nhả slot đồng thời, vui lòng đợi Thử lại") from exc
             return
 
-        # 所有会话都在 running → 拒绝
-        raise SessionCapacityError(f"当前有{len(active)}个正在进行的会话，已达到最大上限，请稍后重试")
+        # Tất cả các phiên đang chạy → Từ chối
+        raise SessionCapacityError(f"Hiện tại有{len(active)}phiên đang diễn ra, đã đạt giới hạn tối đa, vui lòng đợi Thử lại")
 
     _PATROL_INTERVAL = 300  # 5 分钟
 
     async def _patrol_once(self) -> None:
-        """单次巡检：清理所有超时的非 running 会话。"""
+        """Kiểm tra một lần: dọn sạch tất cả các phiên không chạy đã hết thời gian chờ."""
         cleanup_delay = await self._get_cleanup_delay()
         now = time.monotonic()
         for sid, managed in list(self.sessions.items()):
@@ -1469,27 +1469,27 @@ class SessionManager:
                 continue
             activity_age = now - (managed.last_activity or 0)
             if activity_age > cleanup_delay * 2:
-                logger.info("巡检兜底清理会话 session_id=%s status=%s", sid, managed.status)
+                logger.info("Kiểm tra và xóa phiên session_id=%s status=%s", sid, managed.status)
                 try:
                     await self._disconnect_session(sid, reason="patrol cleanup")
                 except Exception:
                     logger.warning(
-                        "巡检兜底清理失败 session_id=%s",
+                        "Kiểm tra và dọn dẹp lỗi session_id=%s",
                         sid,
                         exc_info=True,
                     )
 
     async def _patrol_loop(self) -> None:
-        """后台定期巡检循环。"""
+        """Chu kỳ kiểm tra lý lịch thường xuyên."""
         while True:
             await asyncio.sleep(self._PATROL_INTERVAL)
             try:
                 await self._patrol_once()
             except Exception:
-                logger.warning("巡检循环异常", exc_info=True)
+                logger.warning("Chu kỳ kiểm tra bất thường", exc_info=True)
 
     def start_patrol(self) -> None:
-        """启动巡检后台任务（应在应用 startup 时调用）。"""
+        """Bắt đầu tác vụ kiểm tra nền (nên được gọi khi ứng dụng khởi động)."""
         self._patrol_task = asyncio.create_task(self._patrol_loop())
 
     @staticmethod
@@ -1659,13 +1659,13 @@ class SessionManager:
             # by allowed_tools or settings.json allow rules.
             if PermissionResultDeny is not None:
                 hint = (
-                    f"未授权的工具调用: {tool_name}"
+                    f"Cuộc gọi công cụ trái phép: {tool_name}"
                     f"({json.dumps(input_data, ensure_ascii=False)[:200]})\n"
-                    "当前 Bash 白名单仅允许以下命令:\n"
-                    "  - python .claude/skills/<skill>/scripts/<script>.py <args>（必须用相对路径）\n"
+                    "Hiện tại Bash Danh sách trắng chỉ cho phép các lệnh sau:\n"
+                    "  - python .claude/skills/<skill>/scripts/<script>.py <args>（Phải sử dụng đường dẫn tương đối)\n"
                     "  - ffmpeg / ffprobe\n"
-                    "其他 Bash 命令均不可用。"
-                    "请检查命令格式是否匹配白名单规则。"
+                    "Khác Bash Không có lệnh nào có sẵn."
+                    "Vui lòng kiểm tra xem định dạng lệnh có phù hợp với quy tắc danh sách trắng hay không."
                 )
                 return PermissionResultDeny(message=hint)
             return PermissionResultAllow(updated_input=input_data)
@@ -1895,11 +1895,11 @@ class SessionManager:
         """Resolve AskUserQuestion answers for a running session."""
         managed = self.sessions.get(session_id)
         if managed is None:
-            raise ValueError("会话未运行或无待回答问题")
+            raise ValueError("Phiên không chạy hoặc không có câu trả lời nào đang chờ xử lýCâu hỏi")
         if managed.status != "running":
-            raise ValueError("会话未运行或无待回答问题")
+            raise ValueError("Phiên không chạy hoặc không có câu trả lời nào đang chờ xử lýCâu hỏi")
         if not managed.resolve_pending_question(question_id, answers):
-            raise ValueError("未找到待回答的问题")
+            raise ValueError("Câu hỏi cần được trả lời không tìm thấy")
 
     async def subscribe(self, session_id: str, replay_buffer: bool = True) -> asyncio.Queue:
         """Subscribe to session messages. Returns queue for SSE."""
@@ -1931,7 +1931,7 @@ class SessionManager:
 
     async def shutdown_gracefully(self, timeout: float = 30.0) -> None:
         """Gracefully shutdown all sessions."""
-        # 取消巡检任务
+        # HủyNhiệm vụ kiểm tra
         patrol = getattr(self, "_patrol_task", None)
         if patrol and not patrol.done():
             patrol.cancel()
@@ -1950,7 +1950,7 @@ class SessionManager:
                             await managed.client.interrupt()
                         except Exception:
                             logger.warning(
-                                "优雅关闭时中断会话失败 session_id=%s",
+                                "Elegant Đóng thời gian Phiên ngừng phiên bị lỗi_id=%s",
                                 session_id,
                                 exc_info=True,
                             )
@@ -1966,7 +1966,7 @@ class SessionManager:
                 )
             except Exception:
                 logger.warning(
-                    "优雅关闭会话失败 session_id=%s",
+                    "Elegant Đóng phiên Thất bại session_id=%s",
                     session_id,
                     exc_info=True,
                 )

@@ -4,13 +4,13 @@ import { UI_LAYERS } from "@/utils/ui-layers";
 import type { RefObject, ReactNode, CSSProperties } from "react";
 
 // ---------------------------------------------------------------------------
-// Popover — 统一弹出面板原语
+// Popover — Bảng điều khiển bật lên hợp nhất nguyên thủy
 // ---------------------------------------------------------------------------
-// 所有弹出面板必须使用此组件，而非手动组合 createPortal + useAnchoredPopover。
-// 它通过 portal 脱离父级层叠上下文（如 header 的 backdrop-blur），
-// 保证背景不透明并统一 z-index 管理。
+// Tất cả các bảng điều khiển popover phải sử dụng thành phần này thay vì kết hợp thủ công createPortal + useAnchoredPopover.
+// Nó thoát khỏi bối cảnh xếp tầng gốc (chẳng hạn như làm mờ phông nền của tiêu đề) thông qua cổng thông tin,
+// Đảm bảo độ mờ nền và quản lý chỉ mục z thống nhất.
 
-/** 面板默认背景色（gray-900 = rgb(17 24 39)） */
+/** Màu nền mặc định của bảng điều khiển (gray-900 = rgb(17 24 39)) */
 export const POPOVER_BG = "rgb(17 24 39)";
 
 type PopoverAlign = "start" | "center" | "end";
@@ -23,17 +23,17 @@ interface PopoverProps {
   children: ReactNode;
   /** Tailwind width class, e.g. "w-72", "w-96" */
   width?: string;
-  /** 额外 className（追加到面板根元素） */
+  /** Tên lớp bổ sung (được thêm vào phần tử gốc của bảng điều khiển) */
   className?: string;
-  /** 额外内联样式 */
+  /** Kiểu nội tuyến bổ sung */
   style?: CSSProperties;
-  /** 锚点偏移量（px），默认 8 */
+  /** Độ lệch điểm neo (px), mặc định 8 */
   sideOffset?: number;
-  /** 对齐方式，默认 "end" */
+  /** Căn chỉnh, mặc định "end" */
   align?: PopoverAlign;
-  /** z-index 层级，默认 "workspacePopover" */
+  /** z-index Cấp độ, mặc định "workspacePopover" */
   layer?: PopoverLayer;
-  /** 自定义背景色，默认 POPOVER_BG */
+  /** Màu nền tùy chỉnh, POPOVER_BG mặc định */
   backgroundColor?: string;
 }
 

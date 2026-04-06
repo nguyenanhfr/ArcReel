@@ -1,4 +1,4 @@
-"""ArkTextBackend — 火山方舟文本生成后端。"""
+"""ArkTextBackend — Hòm núi lửaVăn bảnTạo backend."""
 
 from __future__ import annotations
 
@@ -21,12 +21,12 @@ DEFAULT_MODEL = "doubao-seed-2-0-lite-260215"
 
 
 class ArkTextBackend:
-    """Ark (火山方舟) 文本生成后端。"""
+    """Ark (Hòm núi lửa) Văn bảnTạo backend."""
 
     def __init__(self, *, api_key: str | None = None, model: str | None = None):
         self._client = create_ark_client(api_key=api_key)
-        # Instructor 要求 openai.OpenAI 实例；Ark SDK client 类型不兼容，
-        # 但 Ark API 是 OpenAI 兼容的，因此额外创建原生 OpenAI 客户端供降级使用。
+        # Instructor Yêu cầu instance openai.OpenAI; loại client Ark SDK không tương thích,
+        # Nhưng Ark API tương thích OpenAI, do đó tạo thêm client OpenAI gốc để sử dụng khi giảm cấp.
         from openai import OpenAI
 
         self._openai_client = OpenAI(base_url=ARK_BASE_URL, api_key=resolve_ark_api_key(api_key))
@@ -34,7 +34,7 @@ class ArkTextBackend:
         self._capabilities: set[TextCapability] = self._resolve_capabilities()
 
     def _resolve_capabilities(self) -> set[TextCapability]:
-        """根据 PROVIDER_REGISTRY 中的模型声明构建能力集合。"""
+        """Xây dựng tập hợp khả năng dựa trên khai báo mô hình trong PROVIDER_REGISTRY."""
         from lib.config.registry import PROVIDER_REGISTRY
 
         base = {TextCapability.TEXT_GENERATION, TextCapability.VISION}
@@ -43,7 +43,7 @@ class ArkTextBackend:
             model_info = provider_meta.models.get(self._model)
             if model_info and TextCapability.STRUCTURED_OUTPUT in model_info.capabilities:
                 base.add(TextCapability.STRUCTURED_OUTPUT)
-        # 未注册模型不加 STRUCTURED_OUTPUT：宁可走 Instructor 降级也不调用会报错的原生 API
+        # Mô hình chưa đăng ký không thêm STRUCTURED_OUTPUT: thà đi theo giảm cấp Instructor cũng không gọi API gốc sẽ báo lỗi.
         return base
 
     @property
@@ -97,12 +97,12 @@ class ArkTextBackend:
                 )
                 return self._parse_chat_response(response)
             except Exception as exc:
-                logger.warning("原生 response_format 失败 (%s)，降级到 Instructor/json_object 路径", exc)
+                logger.warning("response_format gốc thất bại (%s), giảm cấp xuống đường dẫn Instructor/json_object", exc)
 
         return await self._structured_fallback(request, messages)
 
     async def _structured_fallback(self, request: TextGenerationRequest, messages: list[dict]) -> TextGenerationResult:
-        """Instructor / json_object 降级路径。"""
+        """Instructor / json_object Đường dẫn giảm cấp."""
         from lib.text_backends.instructor_support import generate_structured_via_instructor, inject_json_instruction
 
         if isinstance(request.response_schema, type):
@@ -121,7 +121,7 @@ class ArkTextBackend:
                 output_tokens=output_tokens,
             )
         else:
-            logger.info("response_schema 为 dict，回退到 json_object 模式")
+            logger.info("response_schema Dành cho dict, quay lại chế độ json_object")
             fb_messages = inject_json_instruction(messages)
             response = await asyncio.to_thread(
                 self._openai_client.chat.completions.create,

@@ -25,7 +25,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-950 text-gray-500">
-        加载中...
+        Đang tải...
       </div>
     );
   }
@@ -50,7 +50,7 @@ function StudioWorkspace() {
     if (!projectName) return;
     let cancelled = false;
 
-    // 清空上一个项目的 assistant 状态，确保会话隔离
+    // Xóa trạng thái trợ lý trước đó của Dự án để đảm bảo cách ly phiên
     const assistantState = useAssistantStore.getState();
     assistantState.setSessions([]);
     assistantState.setCurrentSessionId(null);

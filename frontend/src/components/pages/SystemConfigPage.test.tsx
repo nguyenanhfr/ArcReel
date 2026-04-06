@@ -96,47 +96,47 @@ describe("SystemConfigPage", () => {
 
   it("renders the page header", () => {
     renderPage();
-    expect(screen.getByText("设置")).toBeInTheDocument();
-    expect(screen.getByText("系统配置与 API 访问管理")).toBeInTheDocument();
+    expect(screen.getByText("Cài đặt")).toBeInTheDocument();
+    expect(screen.getByText("Hệ thốngQuản lý quyền truy cập cấu hình và API")).toBeInTheDocument();
   });
 
   it("renders all 5 sidebar sections", () => {
     renderPage();
-    expect(screen.getByRole("button", { name: /智能体/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /供应商/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /模型选择/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /用量统计/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /API 管理/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /đại lý/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /nhà cung cấp/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Lựa chọn mô hình/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Thống kê sử dụng/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /API quản lý/ })).toBeInTheDocument();
   });
 
-  it("defaults to the 智能体 section", () => {
+  it("defaults to the Phần đại lý", () => {
     renderPage();
-    const agentButton = screen.getByRole("button", { name: /智能体/ });
+    const agentButton = screen.getByRole("button", { name: /đại lý/ });
     // Active sidebar item has the indigo border class applied
     expect(agentButton.className).toContain("border-indigo-500");
   });
 
-  it("clicking 供应商 makes it the active section", async () => {
+  it("clicking Nhà cung cấp biến nó thành phần hoạt động", async () => {
     renderPage();
-    const providersButton = screen.getByRole("button", { name: /供应商/ });
+    const providersButton = screen.getByRole("button", { name: /nhà cung cấp/ });
     fireEvent.click(providersButton);
     await waitFor(() => {
       expect(providersButton.className).toContain("border-indigo-500");
     });
   });
 
-  it("clicking 模型选择 makes it the active section", async () => {
+  it("clicking Lựa chọn mô hình làm cho nó trở thành phần hoạt động", async () => {
     renderPage();
-    const mediaButton = screen.getByRole("button", { name: /模型选择/ });
+    const mediaButton = screen.getByRole("button", { name: /Lựa chọn mô hình/ });
     fireEvent.click(mediaButton);
     await waitFor(() => {
       expect(mediaButton.className).toContain("border-indigo-500");
     });
   });
 
-  it("clicking 用量统计 makes it the active section", async () => {
+  it("clicking Thống kê sử dụng làm cho nó trở thành phần hoạt động", async () => {
     renderPage();
-    const usageButton = screen.getByRole("button", { name: /用量统计/ });
+    const usageButton = screen.getByRole("button", { name: /Thống kê sử dụng/ });
     fireEvent.click(usageButton);
     await waitFor(() => {
       expect(usageButton.className).toContain("border-indigo-500");
@@ -153,10 +153,10 @@ describe("SystemConfigPage", () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText("以下必填配置尚未完成：")).toBeInTheDocument();
+      expect(screen.getByText("Cấu hình yêu cầu sau đây vẫn chưa được hoàn thành:")).toBeInTheDocument();
     });
     expect(
-      screen.getByRole("button", { name: /ArcReel 智能体 API Key/ }),
+      screen.getByRole("button", { name: /Tác nhân ArcReel API Key/ }),
     ).toBeInTheDocument();
   });
 
@@ -168,12 +168,12 @@ describe("SystemConfigPage", () => {
       expect(API.getProviders).toHaveBeenCalled();
     });
 
-    expect(screen.queryByText("以下必填配置尚未完成：")).not.toBeInTheDocument();
+    expect(screen.queryByText("Cấu hình yêu cầu sau đây vẫn chưa được hoàn thành:")).not.toBeInTheDocument();
   });
 
   it("renders the back link that navigates to projects", () => {
     renderPage();
-    const link = screen.getByRole("link", { name: "返回项目大厅" });
+    const link = screen.getByRole("link", { name: "Quay lại sảnh dự án" });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute("href", "/app/projects");
   });

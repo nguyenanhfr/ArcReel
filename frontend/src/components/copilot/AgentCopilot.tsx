@@ -25,7 +25,7 @@ const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB
 const MAX_TEXTAREA_HEIGHT_VH = 50;
 
 // ---------------------------------------------------------------------------
-// SessionSelector — 会话下拉选择器
+// SessionSelector — Bộ chọn thả xuống phiên
 // ---------------------------------------------------------------------------
 
 function SessionSelector({
@@ -40,7 +40,7 @@ function SessionSelector({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const currentSession = sessions.find((s) => s.id === currentSessionId);
-  const displayTitle = isDraftSession ? "新会话" : (currentSession?.title || formatTime(currentSession?.created_at));
+  const displayTitle = isDraftSession ? "Phiên mới" : (currentSession?.title || formatTime(currentSession?.created_at));
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -48,10 +48,10 @@ function SessionSelector({
         type="button"
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
-        title="切换会话"
+        title="Chuyển đổi phiên"
       >
         <MessageSquare className="h-3 w-3" />
-        <span className="max-w-24 truncate">{displayTitle || "无会话"}</span>
+        <span className="max-w-24 truncate">{displayTitle || "Không có phiên"}</span>
         <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
@@ -88,9 +88,9 @@ function SessionSelector({
                   </button>
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); if (confirm("确定要删除这个会话吗？此操作不可撤销。")) onDelete(session.id); }}
+                    onClick={(e) => { e.stopPropagation(); if (confirm("Bạn có chắc muốn xóa phiên này không? Thao tác này không thể hoàn tác.")) onDelete(session.id); }}
                     className="shrink-0 rounded p-0.5 text-gray-600 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
-                    title="删除会话"
+                    title="Xóa phiên"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
@@ -118,17 +118,17 @@ function StatusDot({ status }: { status: string }) {
 }
 
 function formatTime(isoStr: string | undefined): string {
-  if (!isoStr) return "新会话";
+  if (!isoStr) return "Phiên mới";
   try {
     const d = new Date(isoStr);
     return `${(d.getMonth() + 1).toString().padStart(2, "0")}/${d.getDate().toString().padStart(2, "0")} ${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
   } catch {
-    return "新会话";
+    return "Phiên mới";
   }
 }
 
 // ---------------------------------------------------------------------------
-// AgentCopilot — 主面板
+// AgentCopilot — Bảng điều khiển chính
 // ---------------------------------------------------------------------------
 
 export function AgentCopilot() {
@@ -158,10 +158,10 @@ export function AgentCopilot() {
   const inputDisabled = Boolean(pendingQuestion) || answeringQuestion || isRunning || sending;
   const attachDisabled = inputDisabled || attachedImages.length >= MAX_IMAGES;
   const inputPlaceholder = pendingQuestion
-    ? "请先回答上方问题"
+    ? "Vui lòng trả lời câu hỏi bên trên trước"
     : isRunning
-      ? "助手正在生成中，可点击停止中断"
-      : "输入消息，输入 / 查看可用技能";
+      ? "Trợ lý đang tạo, nhấp để dừng/ngắt"
+      : "Nhập tin nhắn, nhập / để xem kỹ năng có sẵn";
 
   const addImages = useCallback((files: File[]) => {
     setAttachError(null);
@@ -169,7 +169,7 @@ export function AgentCopilot() {
     for (const file of files) {
       if (!file.type.startsWith("image/")) continue;
       if (file.size > MAX_IMAGE_BYTES) {
-        setAttachError(`图片 "${file.name}" 超过 5MB，已跳过`);
+        setAttachError(`Ảnh "${file.name}" Trên 5 MB, bị bỏ qua`);
         continue;
       }
       const reader = new FileReader();
@@ -327,18 +327,18 @@ export function AgentCopilot() {
             type="button"
             onClick={toggleAssistantPanel}
             className="rounded p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
-            title="收起助手面板"
+            title="Thu gọn bảng trợ lý"
           >
             <PanelRightClose className="h-4 w-4" />
           </button>
           <Bot className="h-4 w-4 text-indigo-400" />
-          <span className="text-sm font-medium text-gray-300">ArcReel 智能体</span>
+          <span className="text-sm font-medium text-gray-300">Tác nhân ArcReel</span>
         </div>
         <div className="flex items-center gap-1">
           {isRunning && (
             <span className="flex items-center gap-1.5 text-xs text-indigo-400 mr-1">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-indigo-400" />
-              思考中
+              Đang suy nghĩ
             </span>
           )}
           <SessionSelector onSwitch={switchSession} onDelete={deleteSession} />
@@ -346,7 +346,7 @@ export function AgentCopilot() {
             type="button"
             onClick={createNewSession}
             className="rounded p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
-            title="新建会话"
+            title="Phiên mới"
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -361,9 +361,9 @@ export function AgentCopilot() {
         {allTurns.length === 0 && !messagesLoading && (
           <div className="flex h-full flex-col items-center justify-center text-center text-gray-500">
             <Bot className="mb-3 h-8 w-8 text-gray-600" />
-            <p className="text-sm">在下方输入消息开始对话</p>
+            <p className="text-sm">Nhập tin nhắn bên dưới để bắt đầu trò chuyện</p>
             <p className="mt-1 text-xs text-gray-600">
-              输入 / 可快速调用技能
+              Nhập / để gọi nhanh kỹ năng
             </p>
           </div>
         )}
@@ -400,11 +400,11 @@ export function AgentCopilot() {
                   type="button"
                   className="h-16 w-16 cursor-pointer border-0 bg-transparent p-0"
                   onClick={() => setLightboxSrc(img.dataUrl)}
-                  aria-label="点击放大图片"
+                  aria-label="Nhấp để phóng to ảnh"
                 >
                   <img
                     src={img.dataUrl}
-                    alt="附件预览"
+                    alt="Xem trước tệp đính kèm"
                     className="h-16 w-16 rounded-md object-cover border border-gray-600"
                   />
                 </button>
@@ -412,7 +412,7 @@ export function AgentCopilot() {
                   type="button"
                   onClick={() => removeImage(img.id)}
                   className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gray-900 text-gray-300 hover:bg-red-500 hover:text-white"
-                  aria-label="移除图片"
+                  aria-label="Xóa ảnh"
                 >
                   <X className="h-2.5 w-2.5" />
                 </button>
@@ -445,7 +445,7 @@ export function AgentCopilot() {
             onPaste={handlePaste}
             placeholder={inputPlaceholder}
             rows={1}
-            aria-label="助手输入"
+            aria-label="Nhập trợ lý"
             aria-expanded={showSlashMenu}
             aria-controls={showSlashMenu ? "slash-command-menu" : undefined}
             aria-activedescendant={slashMenuRef.current?.activeDescendantId}
@@ -460,8 +460,8 @@ export function AgentCopilot() {
             onClick={() => fileInputRef.current?.click()}
             disabled={attachDisabled}
             className="shrink-0 rounded p-1.5 text-gray-400 hover:bg-gray-700 hover:text-gray-200 disabled:opacity-30"
-            title={attachedImages.length >= MAX_IMAGES ? `最多附加 ${MAX_IMAGES} 张图片` : "附加图片"}
-            aria-label="附加图片"
+            title={attachedImages.length >= MAX_IMAGES ? `Tối đa $ bổ sung{MAX_IMAGES} ZhangẢnh` : "Đính kèm ảnh"}
+            aria-label="Đính kèm ảnh"
           >
             <Paperclip className="h-4 w-4" />
           </button>
@@ -470,8 +470,8 @@ export function AgentCopilot() {
             <button
               onClick={interrupt}
               className="shrink-0 rounded p-1.5 text-red-400 hover:bg-gray-700"
-              title="中断会话"
-              aria-label="中断会话"
+              title="Ngắt phiên"
+              aria-label="Ngắt phiên"
             >
               <Square className="h-4 w-4" />
             </button>
@@ -480,8 +480,8 @@ export function AgentCopilot() {
               onClick={handleSend}
               disabled={(!localInput.trim() && attachedImages.length === 0) || inputDisabled}
               className="shrink-0 rounded p-1.5 text-indigo-400 hover:bg-gray-700 disabled:opacity-30"
-              title="发送消息"
-              aria-label="发送消息"
+              title="Gửi tin nhắn"
+              aria-label="Gửi tin nhắn"
             >
               <Send className="h-4 w-4" />
             </button>
@@ -502,7 +502,7 @@ export function AgentCopilot() {
       {lightboxSrc && (
         <ImageLightbox
           src={lightboxSrc}
-          alt="附件预览"
+          alt="Xem trước tệp đính kèm"
           onClose={() => setLightboxSrc(null)}
         />
       )}

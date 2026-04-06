@@ -23,7 +23,7 @@ export function ImagePromptEditor({
       <AutoTextarea
         value={prompt.scene}
         onChange={(v) => onUpdate({ scene: v })}
-        placeholder="分镜图描述..."
+        placeholder="Mô tả ảnh phân cảnh..."
       />
 
       {/* Collapsible composition fields */}
@@ -35,13 +35,13 @@ export function ImagePromptEditor({
         <ChevronDown
           className={`h-3 w-3 transition-transform ${collapsed ? "-rotate-90" : ""}`}
         />
-        构图参数
+        Thông số bố cục
       </button>
 
       {!collapsed && (
         <div className="flex flex-col gap-2 pl-1">
           <DropdownPill
-            label="镜头"
+            label="Góc máy"
             value={prompt.composition.shot_type}
             options={SHOT_TYPES}
             onChange={(v: ShotType) =>
@@ -51,24 +51,24 @@ export function ImagePromptEditor({
             }
           />
           <CompactInput
-            label="光线"
+            label="Ánh sáng"
             value={prompt.composition.lighting}
             onChange={(v) =>
               onUpdate({
                 composition: { ...prompt.composition, lighting: v },
               })
             }
-            placeholder="光线描述..."
+            placeholder="Mô tả ánh sáng..."
           />
           <CompactInput
-            label="氛围"
+            label="Không khí"
             value={prompt.composition.ambiance}
             onChange={(v) =>
               onUpdate({
                 composition: { ...prompt.composition, ambiance: v },
               })
             }
-            placeholder="氛围描述..."
+            placeholder="Mô tả không khí..."
           />
         </div>
       )}

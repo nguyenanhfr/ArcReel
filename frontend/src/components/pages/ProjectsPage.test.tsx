@@ -36,7 +36,7 @@ describe("ProjectsPage", () => {
     );
 
     renderPage();
-    expect(screen.getByText("加载项目列表...")).toBeInTheDocument();
+    expect(screen.getByText("Đang tải danh sách dự án...")).toBeInTheDocument();
   });
 
   it("shows empty state when no projects exist", async () => {
@@ -44,9 +44,9 @@ describe("ProjectsPage", () => {
 
     renderPage();
 
-    expect(await screen.findByText("暂无项目")).toBeInTheDocument();
+    expect(await screen.findByText("Chưa có dự án")).toBeInTheDocument();
     expect(
-      screen.getByText("点击右上角「新建项目」或「导入 ZIP」开始创作"),
+      screen.getByText("Bấm vào "Dự án mới" hoặc "Nhập ZIP" ở góc trên bên phải để bắt đầu tạo"),
     ).toBeInTheDocument();
   });
 
@@ -72,7 +72,7 @@ describe("ProjectsPage", () => {
     renderPage();
 
     expect(await screen.findByText("Demo Project")).toBeInTheDocument();
-    expect(screen.getByText("Anime · 制作中")).toBeInTheDocument();
+    expect(screen.getByText("Anime · Đang sản xuất")).toBeInTheDocument();
     expect(screen.getByText("50%")).toBeInTheDocument();
   });
 
@@ -80,9 +80,9 @@ describe("ProjectsPage", () => {
     vi.spyOn(API, "listProjects").mockResolvedValue({ projects: [] });
 
     renderPage();
-    await screen.findByText("暂无项目");
+    await screen.findByText("Chưa có dự án");
 
-    fireEvent.click(screen.getByRole("button", { name: "新建项目" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dự án mới" }));
 
     await waitFor(() => {
       expect(useProjectsStore.getState().showCreateModal).toBe(true);
@@ -121,16 +121,16 @@ describe("ProjectsPage", () => {
         characters: {},
         clues: {},
       },
-      warnings: ["发现未识别的附加文件/目录: extras"],
+      warnings: ["Đã tìm thấy tệp/thư mục bổ sung không được nhận dạng: phần bổ sung"],
       conflict_resolution: "none",
       diagnostics: {
-        auto_fixed: [{ code: "missing_clues_field", message: "segments[0]: 补全缺失字段 clues_in_segment" }],
-        warnings: [{ code: "validation_warning", message: "发现未识别的附加文件/目录: extras" }],
+        auto_fixed: [{ code: "missing_clues_field", message: "segments[0]: Hoàn thành các trường còn thiếu manh mối_in_segment" }],
+        warnings: [{ code: "validation_warning", message: "Đã tìm thấy tệp/thư mục bổ sung không được nhận dạng: phần bổ sung" }],
       },
     });
 
     const { container, location } = renderPage();
-    await screen.findByText("暂无项目");
+    await screen.findByText("Chưa có dự án");
 
     const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(["zip"], "project.zip", { type: "application/zip" });
@@ -142,12 +142,12 @@ describe("ProjectsPage", () => {
     await waitFor(() => {
       expect(location.history?.at(-1)).toBe("/app/projects/imported-demo");
     });
-    expect(useAppStore.getState().toast?.text).toContain("导入警告");
+    expect(useAppStore.getState().toast?.text).toContain("Cảnh báo nhập khẩu");
   });
 
   it("shows a structured toast when import fails", async () => {
     vi.spyOn(API, "listProjects").mockResolvedValue({ projects: [] });
-    const error = new Error("导入包校验失败") as Error & {
+    const error = new Error("Xác thực gói nhập thất bại") as Error & {
       detail?: string;
       errors?: string[];
       warnings?: string[];
@@ -157,25 +157,25 @@ describe("ProjectsPage", () => {
         warnings: { code: string; message: string }[];
       };
     };
-    error.detail = "导入包校验失败";
-    error.errors = ["缺少 project.json", "缺少 scripts/episode_1.json", "缺少角色图"];
-    error.warnings = ["发现未识别的附加文件/目录: extras"];
+    error.detail = "Xác thực gói nhập thất bại";
+    error.errors = ["dự án.json bị thiếu", "thiếu tập lệnh/episode_1.json", "Thiếu sơ đồ nhân vật"];
+    error.warnings = ["Đã tìm thấy tệp/thư mục bổ sung không được nhận dạng: phần bổ sung"];
     error.diagnostics = {
       blocking: [
-        { code: "validation_error", message: "缺少 project.json" },
-        { code: "validation_error", message: "缺少 scripts/episode_1.json" },
+        { code: "validation_error", message: "dự án.json bị thiếu" },
+        { code: "validation_error", message: "thiếu tập lệnh/episode_1.json" },
       ],
       auto_fixable: [
-        { code: "missing_clues_field", message: "segments[0]: 补全缺失字段 clues_in_segment" },
+        { code: "missing_clues_field", message: "segments[0]: Hoàn thành các trường còn thiếu manh mối_in_segment" },
       ],
       warnings: [
-        { code: "validation_warning", message: "发现未识别的附加文件/目录: extras" },
+        { code: "validation_warning", message: "Đã tìm thấy tệp/thư mục bổ sung không được nhận dạng: phần bổ sung" },
       ],
     };
     vi.spyOn(API, "importProject").mockRejectedValue(error);
 
     const { container } = renderPage();
-    await screen.findByText("暂无项目");
+    await screen.findByText("Chưa có dự án");
 
     const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
     fireEvent.change(fileInput, {
@@ -183,12 +183,12 @@ describe("ProjectsPage", () => {
     });
 
     await waitFor(() => {
-      expect(useAppStore.getState().toast?.text).toContain("导入包校验失败");
+      expect(useAppStore.getState().toast?.text).toContain("Xác thực gói nhập thất bại");
     });
-    expect(screen.getByText("导入诊断")).toBeInTheDocument();
-    expect(screen.getByText("缺少 project.json")).toBeInTheDocument();
-    expect(screen.getByText("缺少 scripts/episode_1.json")).toBeInTheDocument();
-    expect(screen.getByText("segments[0]: 补全缺失字段 clues_in_segment")).toBeInTheDocument();
+    expect(screen.getByText("Nhập chẩn đoán")).toBeInTheDocument();
+    expect(screen.getByText("dự án.json bị thiếu")).toBeInTheDocument();
+    expect(screen.getByText("thiếu tập lệnh/episode_1.json")).toBeInTheDocument();
+    expect(screen.getByText("segments[0]: Hoàn thành các trường còn thiếu manh mối_in_segment")).toBeInTheDocument();
   });
 
   it("opens a secondary confirmation when import hits a duplicate project id", async () => {
@@ -211,15 +211,15 @@ describe("ProjectsPage", () => {
           },
         ],
       });
-    const conflictError = new Error("检测到项目编号冲突") as Error & {
+    const conflictError = new Error("Phát hiện xung đột mã dự án") as Error & {
       status?: number;
       detail?: string;
       errors?: string[];
       conflict_project_name?: string;
     };
     conflictError.status = 409;
-    conflictError.detail = "检测到项目编号冲突";
-    conflictError.errors = ["项目编号 'demo' 已存在"];
+    conflictError.detail = "Phát hiện xung đột mã dự án";
+    conflictError.errors = ["Dự án编号 'demo' Đã tồn tại"];
     conflictError.conflict_project_name = "demo";
 
     vi.spyOn(API, "importProject")
@@ -244,14 +244,14 @@ describe("ProjectsPage", () => {
       });
 
     const { container, location } = renderPage();
-    await screen.findByText("暂无项目");
+    await screen.findByText("Chưa có dự án");
 
     const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(["zip"], "project.zip", { type: "application/zip" });
     fireEvent.change(fileInput, { target: { files: [file] } });
 
-    expect(await screen.findByText("检测到项目编号重复")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "自动重命名导入" }));
+    expect(await screen.findByText("Đã phát hiện số Dựán trùng lặp")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Tự động đổi tên nhập khẩu" }));
 
     await waitFor(() => {
       expect(API.importProject).toHaveBeenNthCalledWith(1, file, "prompt");

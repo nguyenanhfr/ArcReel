@@ -1,5 +1,5 @@
 """
-任务队列与 SSE 路由。
+hàng đợi nhiệm vụVới định tuyến SSE.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def _parse_last_event_id(value: str | None) -> int | None:
 
 
 def _transform_task_event(raw_event: dict, stats: dict) -> dict:
-    """将原始 task_events 行转换为前端期望的 TaskStreamTaskPayload 结构。"""
+    """Chuyển các hàng task_events gốc thành cấu trúc TaskStreamTaskPayload mà frontend mong đợi."""
     event_type = raw_event.get("event_type", "")
     action = "created" if event_type == "queued" else "updated"
     return {

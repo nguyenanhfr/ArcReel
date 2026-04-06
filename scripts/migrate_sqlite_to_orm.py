@@ -85,28 +85,28 @@ async def _migrate(dry_run: bool) -> dict[str, int]:
     if OLD_TASK_DB.exists():
         with sqlite3.connect(OLD_TASK_DB) as conn:
             tasks, events, leases = _read_old_tasks(conn)
-        print(f"  读取旧任务队列: tasks={len(tasks)}, events={len(events)}, leases={len(leases)}")
+        print(f"  đọcHàng đợi nhiệm vụ cũ: tasks={len(tasks)}, events={len(events)}, leases={len(leases)}")
     else:
-        print(f"  跳过（不存在）: {OLD_TASK_DB}")
+        print(f"  Bỏ qua (không tồn tại): {OLD_TASK_DB}")
 
     api_calls = []
     if OLD_USAGE_DB.exists():
         with sqlite3.connect(OLD_USAGE_DB) as conn:
             api_calls = _read_old_usage(conn)
-        print(f"  读取旧 API 用量: api_calls={len(api_calls)}")
+        print(f"  đọcLượng sử dụng API cũ: api_calls={len(api_calls)}")
     else:
-        print(f"  跳过（不存在）: {OLD_USAGE_DB}")
+        print(f"  Bỏ qua (không tồn tại): {OLD_USAGE_DB}")
 
     sessions = []
     if OLD_SESSIONS_DB.exists():
         with sqlite3.connect(OLD_SESSIONS_DB) as conn:
             sessions = _read_old_sessions(conn)
-        print(f"  读取旧会话记录: sessions={len(sessions)}")
+        print(f"  đọcLịch sử phiên cũ: sessions={len(sessions)}")
     else:
-        print(f"  跳过（不存在）: {OLD_SESSIONS_DB}")
+        print(f"  Bỏ qua (không tồn tại): {OLD_SESSIONS_DB}")
 
     if dry_run:
-        print("\n[DRY RUN] 不写入数据库，不重命名旧文件。")
+        print("\n[DRY RUN] Không ghi vào cơ sở dữ liệu, không đổi tên tệp cũ.")
         return {
             "tasks": len(tasks),
             "events": len(events),
@@ -221,26 +221,26 @@ async def _migrate(dry_run: bool) -> dict[str, int]:
         if old_path.exists():
             bak_path = old_path.with_suffix(".db.bak")
             old_path.rename(bak_path)
-            print(f"  已重命名: {old_path.name} → {bak_path.name}")
+            print(f"  Đã đổi tên: {old_path.name} → {bak_path.name}")
 
     return stats
 
 
 def main():
     parser = argparse.ArgumentParser(description="Migrate old SQLite DBs to new ORM DB")
-    parser.add_argument("--dry-run", action="store_true", help="只读取，不写入")
+    parser.add_argument("--dry-run", action="store_true", help="Chỉ đọc, không ghi")
     args = parser.parse_args()
 
-    print("=== SQLite → ORM 数据迁移 ===\n")
-    print(f"模式: {'DRY RUN' if args.dry_run else '实际迁移'}\n")
+    print("=== SQLite → ORM Di chuyển dữ liệu ===")
+    print(f"模式: {'DRY RUN' if args.dry_run else 'Thực tế迁移'}\n")
 
     stats = asyncio.run(_migrate(args.dry_run))
 
-    print("\n=== 迁移统计 ===")
+    print("\n=== Thống kê di chuyển ===")
     for key, count in stats.items():
         print(f"  {key}: {count} 条")
 
-    print("\n迁移完成！")
+    print("\nDi chuyển hoàn tất!")
 
 
 if __name__ == "__main__":

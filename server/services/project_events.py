@@ -171,7 +171,7 @@ class ProjectEventService:
         channel.pending_sources.add(source)
         channel.scan_now.set()
         logger.debug(
-            "项目变更 hint project=%s source=%s paths=%s",
+            "Dự ánThay đổi hint project=%s source=%s paths=%s",
             project_name,
             source,
             changed_paths,
@@ -197,7 +197,7 @@ class ProjectEventService:
             channel.fingerprint = fingerprint
             channel.pending_sources.clear()
         except Exception:
-            logger.exception("构建显式项目事件快照失败 project=%s", project_name)
+            logger.exception("Xây dựng rõ ràng Ảnh chụp sự kiện Dự án Thất bại project=%s", project_name)
             return
 
         payload = {
@@ -218,7 +218,7 @@ class ProjectEventService:
                 except asyncio.CancelledError:
                     raise
                 except Exception:
-                    logger.exception("项目事件扫描失败 project=%s", project_name)
+                    logger.exception("Dự ánQuét sự kiện Thất bại project=%s", project_name)
                 finally:
                     channel.ready_event.set()
 
@@ -302,7 +302,7 @@ class ProjectEventService:
             channel.subscribers.discard(subscriber)
         if stale:
             logger.warning(
-                "项目事件订阅队列溢出，移除 %s 个订阅者 project=%s",
+                "Dự ánHàng đợi đăng ký sự kiện đầy, Xóa %s người đăng ký project=%s",
                 len(stale),
                 project_name,
             )
@@ -327,7 +327,7 @@ class ProjectEventService:
             try:
                 script = self.pm.load_script(project_name, script_path.name)
             except Exception:
-                logger.warning("跳过无法读取的剧本文件 project=%s file=%s", project_name, script_path.name)
+                logger.warning("Bỏ qua tệp Kịch bản không thể đọc project=%s file=%s", project_name, script_path.name)
                 continue
 
             episode = script.get("episode")
@@ -410,7 +410,7 @@ class ProjectEventService:
                 try:
                     script = self.pm.load_script(project_name, script_path.name)
                 except Exception:
-                    logger.warning("跳过无法解析的剧本快照 project=%s file=%s", project_name, script_path.name)
+                    logger.warning("Bỏ qua ảnh chụp Kịch bản không thể phân tích project=%s file=%s", project_name, script_path.name)
                     continue
                 scripts[script_path.name] = self._normalize_script_snapshot(script)
 
@@ -494,7 +494,7 @@ class ProjectEventService:
                     "entity_type": "project",
                     "action": "updated",
                     "entity_id": "project",
-                    "label": "项目设置",
+                    "label": "Dự ánCài đặt",
                     "focus": None,
                     "important": False,
                 }
@@ -505,7 +505,7 @@ class ProjectEventService:
                     "entity_type": "overview",
                     "action": "updated",
                     "entity_id": "overview",
-                    "label": "项目概览",
+                    "label": "Tổng quan dự án",
                     "focus": None,
                     "important": False,
                 }
@@ -541,7 +541,7 @@ class ProjectEventService:
                     entity_type=entity_type,
                     action="created",
                     entity_id=name,
-                    label=f"{'角色' if entity_type == 'character' else '线索'}「{name}」",
+                    label=f"{'Nhân vật' if entity_type == 'character' else 'Manh mối'}「{name}」",
                     focus={
                         "pane": pane,
                         "anchor_type": entity_type,
@@ -556,7 +556,7 @@ class ProjectEventService:
                     entity_type=entity_type,
                     action="deleted",
                     entity_id=name,
-                    label=f"{'角色' if entity_type == 'character' else '线索'}「{name}」",
+                    label=f"{'Nhân vật' if entity_type == 'character' else 'Manh mối'}「{name}」",
                     focus=None,
                     important=False,
                 )
@@ -569,7 +569,7 @@ class ProjectEventService:
                     entity_type=entity_type,
                     action="updated",
                     entity_id=name,
-                    label=f"{'角色' if entity_type == 'character' else '线索'}「{name}」",
+                    label=f"{'Nhân vật' if entity_type == 'character' else 'Manh mối'}「{name}」",
                     focus={
                         "pane": pane,
                         "anchor_type": entity_type,
@@ -595,7 +595,7 @@ class ProjectEventService:
                     entity_type="episode",
                     action="created",
                     entity_id=episode_key,
-                    label=f"第 {episode['episode']} 集",
+                    label=f"Không. {episode['episode']} 集",
                     script_file=episode.get("script_file"),
                     episode=episode["episode"],
                     focus=None,
@@ -611,7 +611,7 @@ class ProjectEventService:
                     entity_type="episode",
                     action="updated",
                     entity_id=episode_key,
-                    label=f"第 {episode['episode']} 集",
+                    label=f"Không. {episode['episode']} 集",
                     script_file=episode.get("script_file"),
                     episode=episode["episode"],
                     focus=None,
@@ -721,7 +721,7 @@ class ProjectEventService:
     @staticmethod
     def _build_script_item_label(item_id: str, script_meta: dict[str, Any]) -> str:
         content_mode = str(script_meta.get("content_mode") or "narration")
-        noun = "分镜" if content_mode == "narration" else "场景"
+        noun = "Phân cảnh" if content_mode == "narration" else "Cảnh"
         return f"{noun}「{item_id}」"
 
     def _build_script_item_change(

@@ -14,24 +14,24 @@ export function cn(...classes: (string | false | null | undefined)[]): string {
 export function getRoleLabel(role: string): string {
   switch (role) {
     case "assistant":
-      return "助手";
+      return "Trợ lý";
     case "user":
-      return "你";
+      return "Bạn";
     case "tool":
-      return "工具";
+      return "Công cụ";
     case "tool_result":
-      return "工具结果";
+      return "Kết quả công cụ";
     case "skill_content":
       return "Skill";
     case "result":
-      return "完成";
+      return "Hoàn thành";
     case "system":
-      return "系统";
+      return "Hệ thống";
     case "stream_event":
-      return "流式更新";
+      return "Cập nhật luồng";
     case "unknown":
-      return "消息";
+      return "Tin nhắn";
     default:
-      return role || "消息";
+      return role || "Tin nhắn";
   }
 }

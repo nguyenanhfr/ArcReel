@@ -3,13 +3,13 @@ import type { ProjectChange } from "@/types";
 const GROUP_NAME_LIMIT = 5;
 
 const ENTITY_LABELS: Record<ProjectChange["entity_type"], string> = {
-  project: "项目",
-  character: "角色",
-  clue: "线索",
-  segment: "分镜",
-  episode: "剧集",
-  overview: "项目概览",
-  draft: "预处理",
+  project: "Dự án",
+  character: "Nhân vật",
+  clue: "Manh mối",
+  segment: "Phân cảnh",
+  episode: "Tập phim",
+  overview: "Tổng quan dự án",
+  draft: "Tiền xử lý",
 };
 
 export interface GroupedProjectChange {
@@ -64,10 +64,10 @@ export function groupChangesByType(
 
 function getEntityLabel(group: GroupedProjectChange): string {
   if (group.action === "storyboard_ready") {
-    return "分镜图";
+    return "Ảnh phân cảnh";
   }
   if (group.action === "video_ready") {
-    return "视频";
+    return "Video";
   }
   return ENTITY_LABELS[group.entityType] ?? "内容";
 }
@@ -91,34 +91,34 @@ function summarizeGroupNames(group: GroupedProjectChange): string {
 
 function formatSingleNotificationText(change: ProjectChange): string {
   if (change.action === "storyboard_ready") {
-    return `${change.label}的分镜图已生成`;
+    return `${change.label}Phân cảnh Ảnh đã được tạo`;
   }
   if (change.action === "video_ready") {
-    return `${change.label}的视频已生成`;
+    return `${change.label}Video đã được tạo`;
   }
   if (change.action === "created") {
-    return `${change.label}已创建`;
+    return `${change.label}Đã tạo`;
   }
   if (change.action === "deleted") {
-    return `${change.label}已删除`;
+    return `${change.label}Đã Xóa`;
   }
   return `${change.label}已更新`;
 }
 
 function formatSingleDeferredText(change: ProjectChange): string {
   if (change.action === "storyboard_ready") {
-    return `AI 刚生成了 ${change.label} 的分镜图，点击查看`;
+    return `AI Vừa tạo ra ${change.label} Ảnh phân cảnh, bấm vào để xem`;
   }
   if (change.action === "video_ready") {
-    return `AI 刚生成了 ${change.label} 的视频，点击查看`;
+    return `AI Vừa tạo ra ${change.label} Video, bấm vào để xem`;
   }
   if (change.action === "created") {
-    return `AI 刚新增了 ${change.label}，点击查看`;
+    return `AI Vừa thêm ${change.label}，Bấm vào để xem`;
   }
   if (change.action === "deleted") {
-    return `AI 刚删除了 ${change.label}，点击查看`;
+    return `AI Chỉ cần xóa ${change.label}，Bấm vào để xem`;
   }
-  return `AI 刚更新了 ${change.label}，点击查看`;
+  return `AI Vừa cập nhật ${change.label}，Bấm vào để xem`;
 }
 
 export function formatGroupedNotificationText(
@@ -133,15 +133,15 @@ export function formatGroupedNotificationText(
   const summary = summarizeGroupNames(group);
 
   if (group.action === "storyboard_ready" || group.action === "video_ready") {
-    return `已生成 ${count} 个${entityLabel}：${summary}`;
+    return `Đã tạo ${count} ${entityLabel}：${summary}`;
   }
   if (group.action === "created") {
-    return `新增了 ${count} 个${entityLabel}：${summary}`;
+    return `Đã thêm ${count} ${entityLabel}：${summary}`;
   }
   if (group.action === "deleted") {
-    return `删除了 ${count} 个${entityLabel}：${summary}`;
+    return `XóaCó ${count} ${entityLabel}：${summary}`;
   }
-  return `更新了 ${count} 个${entityLabel}：${summary}`;
+  return `Đã cập nhật ${count} ${entityLabel}：${summary}`;
 }
 
 export function formatGroupedDeferredText(
@@ -156,13 +156,13 @@ export function formatGroupedDeferredText(
   const summary = summarizeGroupNames(group);
 
   if (group.action === "storyboard_ready" || group.action === "video_ready") {
-    return `AI 刚生成了 ${count} 个${entityLabel}：${summary}，点击查看`;
+    return `AI Vừa tạo ra ${count} ${entityLabel}：${summary}，Bấm vào để xem`;
   }
   if (group.action === "created") {
-    return `AI 刚新增了 ${count} 个${entityLabel}：${summary}，点击查看`;
+    return `AI Vừa thêm ${count} ${entityLabel}：${summary}，Bấm vào để xem`;
   }
   if (group.action === "deleted") {
-    return `AI 刚删除了 ${count} 个${entityLabel}：${summary}，点击查看`;
+    return `AI Chỉ cần xóa ${count} ${entityLabel}：${summary}，Bấm vào để xem`;
   }
-  return `AI 刚更新了 ${count} 个${entityLabel}：${summary}，点击查看`;
+  return `AI Vừa cập nhật ${count} ${entityLabel}：${summary}，Bấm vào để xem`;
 }

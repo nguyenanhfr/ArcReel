@@ -83,14 +83,14 @@ def _project_level_provider(project: dict, task_type: str) -> str | None:
 async def _extract_provider(task: dict[str, Any]) -> str:
     """Extract provider_id from a claimed task dict.
 
-    优先级：payload 显式值 > 项目级配置 > 全局默认。
+    Ưu tiên: payload giá trị rõ ràng > Dự án级配置 > Mặc định toàn cục.
     """
     payload = task.get("payload") or {}
-    # 兼容已入队的历史任务（payload 中显式携带 provider）
+    # Tương thích với các nhiệm vụ lịch sử đã vào hàng đợi (payload có rõ provider)
     provider = payload.get("video_provider") or payload.get("image_provider")
     if provider:
         return _normalize_provider_id(provider)
-    # 从项目配置 → 全局默认解析真实 provider
+    # Phân tích provider thực sự từ cấu hình dự án → mặc định toàn cục
     project_name = task.get("project_name")
     if not project_name:
         return DEFAULT_PROVIDER
@@ -103,7 +103,7 @@ async def _extract_provider(task: dict[str, Any]) -> str:
     if project_provider:
         return _normalize_provider_id(project_provider)
 
-    # 回退到全局默认
+    # Quay trở lại mặc định toàn cầu
     from lib.config.resolver import ConfigResolver
     from lib.db import async_session_factory
 
@@ -151,7 +151,7 @@ async def _load_pools_from_db() -> dict[str, ProviderPool]:
                 video_max=max(0, video_max),
             )
 
-        # 加载自定义供应商的池配置（使用与内置供应商相同的默认值）
+        # Tải cấu hình pool của nhà cung cấp tùy chỉnh (sử dụng giá trị mặc định giống với nhà cung cấp tích hợp)
         repo = CustomProviderRepository(session)
         for provider, models in await repo.list_providers_with_models():
             pid = provider.provider_id  # "custom-{id}"
@@ -163,7 +163,7 @@ async def _load_pools_from_db() -> dict[str, ProviderPool]:
             )
 
     logger.info(
-        "从 DB 加载供应商池配置: %s",
+        "Tải cấu hình pool nhà cung cấp từ DB: %s",
         {pid: (p.image_max, p.video_max) for pid, p in pools.items()},
     )
     return pools
@@ -172,8 +172,8 @@ async def _load_pools_from_db() -> dict[str, ProviderPool]:
 def _build_default_pools() -> dict[str, ProviderPool]:
     """Build pools from env vars / defaults (used before DB is available or in tests).
 
-    为 PROVIDER_REGISTRY 中所有供应商创建默认池，避免 DB 加载前的任务
-    因供应商未知而降级到 1 并发的 fallback 池。
+    Tạo pool mặc định cho tất cả nhà cung cấp trong PROVIDER_REGISTRY, tránh nhiệm vụ trước khi tải DB
+    Giảm cấp xuống pool fallback 1 đồng thời do nhà cung cấp không xác định
     """
     from lib.config.registry import PROVIDER_REGISTRY
 
@@ -205,7 +205,7 @@ class GenerationWorker:
 
         self._pools: dict[str, ProviderPool] = pools or _build_default_pools()
         logger.info(
-            "Worker 初始池配置: %s",
+            "Worker Cấu hình pool ban đầu: %s",
             {pid: (p.image_max, p.video_max) for pid, p in self._pools.items()},
         )
         self.lease_ttl = max(1.0, float(TASK_WORKER_LEASE_TTL_SEC))
@@ -264,7 +264,7 @@ class GenerationWorker:
             video_max=video_max,
         )
         self._pools[provider_id] = pool
-        logger.info("为供应商 %s 创建默认池 (image=%d, video=%d)", provider_id, image_max, video_max)
+        logger.info("Tạo pool mặc định cho nhà cung cấp %s (image=%d, video=%d)", provider_id, image_max, video_max)
         return pool
 
     def _any_pool_has_room(self, media_type: str) -> bool:
@@ -285,7 +285,7 @@ class GenerationWorker:
         try:
             new_pools = await _load_pools_from_db()
         except Exception:
-            logger.warning("从 DB 加载供应商配置失败，保持当前配置", exc_info=True)
+            logger.warning("Tải cấu hình nhà cung cấp từ DB thất bại, giữ nguyên cấu hình hiện tại", exc_info=True)
             return
 
         # Migrate inflight tasks to new pool objects
@@ -305,7 +305,7 @@ class GenerationWorker:
 
         self._pools = new_pools
         logger.info(
-            "已更新供应商池配置: %s",
+            "Đã cập nhật cấu hình pool nhà cung cấp: %s",
             {pid: (p.image_max, p.video_max) for pid, p in self._pools.items()},
         )
 
@@ -358,14 +358,14 @@ class GenerationWorker:
                 )
 
                 if self._owns_lease and not had_lease:
-                    logger.info("获得 worker lease (owner=%s)", self.owner_id)
+                    logger.info("Nhận quyền thuê worker (owner=%s)", self.owner_id)
                 if had_lease and not self._owns_lease:
-                    logger.warning("失去 worker lease (owner=%s)", self.owner_id)
+                    logger.warning("Mất quyền thuê worker (owner=%s)", self.owner_id)
 
                 await self._drain_finished_tasks()
 
-                # 仅在"新获得 lease 且本实例无在途任务"时回收 running 任务，
-                # 避免 lease 短暂抖动时把自己正在执行的任务错误回队。
+                # 仅在"Mới nhận quyền thuê và phiên bản này không có nhiệm vụ đang tiến hành"Khi thu hồi nhiệm vụ đang chạy,
+                # Tránh đưa sai nhiệm vụ đang thực thi vào hàng đợi do quyền thuê chập chờn tạm thời.
                 all_inflight = self._image_inflight or self._video_inflight
                 if self._owns_lease and not had_lease and not all_inflight:
                     await self.queue.requeue_running_tasks()
@@ -416,16 +416,16 @@ class GenerationWorker:
                     has_room = pool.has_video_room()
 
                 if max_capacity == 0:
-                    # 供应商不支持此媒体类型（容量为 0），直接失败而非无限 requeue
+                    # nhà cung cấpLoại phương tiện này không được hỗ trợ (dung lượng = 0), thất bại trực tiếp thay vì xếp lại hàng đợi vô hạn
                     logger.warning(
-                        "供应商 %s 不支持 %s 生成，任务 %s 标记失败",
+                        "nhà cung cấp %s Không hỗ trợ %s tạo, nhiệm vụ %s đánh dấu Thất bại",
                         provider_id,
                         media_type,
                         task["task_id"],
                     )
                     await self.queue.mark_task_failed(
                         task["task_id"],
-                        f"供应商 {provider_id} 不支持 {media_type} 生成",
+                        f"nhà cung cấp {provider_id} 不支持 {media_type} 生成",
                     )
                     claimed_any = True
                     continue
@@ -434,7 +434,7 @@ class GenerationWorker:
                     # Provider pool is full — requeue the task and stop
                     # claiming this media_type (FIFO means we'd get it again).
                     logger.info(
-                        "供应商 %s 的 %s 池已满，任务 %s 放回队列",
+                        "nhà cung cấp %s Hồ %s đã đầy, nhiệm vụ %s được đưa trở lại hàng đợi",
                         provider_id,
                         media_type,
                         task["task_id"],
@@ -477,9 +477,9 @@ class GenerationWorker:
                     )
                 )
                 await session.commit()
-            logger.debug("回队任务 %s (供应商池已满)", task_id)
+            logger.debug("Quay lại hàng đợi nhiệm vụ %s (hồ nhà cung cấp đã đầy)", task_id)
         except Exception:
-            logger.warning("回队任务 %s 失败", task_id, exc_info=True)
+            logger.warning("Quay lại hàng đợi nhiệm vụ %s Thất bại", task_id, exc_info=True)
 
     # ------------------------------------------------------------------
     # Task lifecycle
@@ -491,7 +491,7 @@ class GenerationWorker:
                 try:
                     await finished_task
                 except Exception:
-                    logger.debug("已处理的任务异常已在 _process_task 中记录")
+                    logger.debug("Nhiệm vụ đã xử lý bất thường đã được ghi lại trong _process_task")
 
     async def _wait_inflight_completion(self) -> None:
         pending_tasks = []
@@ -508,13 +508,13 @@ class GenerationWorker:
         task_id = task["task_id"]
         task_type = task.get("task_type", "unknown")
         provider_id = await _extract_provider(task)
-        logger.info("开始处理任务 %s (type=%s, provider=%s)", task_id, task_type, provider_id)
+        logger.info("Bắt đầu xử lý nhiệm vụ %s (type=%s, provider=%s)", task_id, task_type, provider_id)
         try:
             from server.services.generation_tasks import execute_generation_task
 
             result = await execute_generation_task(task)
             await self.queue.mark_task_succeeded(task_id, result)
-            logger.info("任务完成 %s (type=%s, provider=%s)", task_id, task_type, provider_id)
+            logger.info("Nhiệm vụ Hoàn thành %s (type=%s, provider=%s)", task_id, task_type, provider_id)
         except Exception as exc:
-            logger.exception("任务失败 %s (type=%s, provider=%s)", task_id, task_type, provider_id)
+            logger.exception("Nhiệm vụ Thất bại %s (type=%s, provider=%s)", task_id, task_type, provider_id)
             await self.queue.mark_task_failed(task_id, str(exc))

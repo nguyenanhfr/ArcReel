@@ -1,7 +1,7 @@
 """
-API Key 管理路由
+API Key Quản lý tuyến đường
 
-提供 API Key 的创建、列表查询和删除接口。
+Cung cấp giao diện Tạo, danh sách truy vấn và Xóa cho API Key.
 """
 
 import secrets
@@ -25,16 +25,16 @@ router = APIRouter()
 
 
 def _require_jwt_auth(user: CurrentUserInfo) -> None:
-    """确保请求通过 JWT 认证（非 API Key）。API Key 管理操作不允许由 API Key 本身执行。"""
+    """Đảm bảo yêu cầu thông qua xác thực JWT (không phải API Key). Thao tác quản lý API Key không được thực hiện bởi chính API Key."""
     if user.sub.startswith("apikey:"):
-        raise HTTPException(status_code=403, detail="API Key 无权执行此操作，请使用 JWT 认证")
+        raise HTTPException(status_code=403, detail="API Key Không có quyền thực hiện thao tác này, vui lòng sử dụng xác thực JWT")
 
 
 API_KEY_DEFAULT_EXPIRY_DAYS = 30
 
 
 def _generate_api_key() -> str:
-    """生成格式为 arc-<32位随机字符> 的 API Key。"""
+    """Tạo định dạng là arc-<32Vị trí ngẫu nhiên từ ký tự> Khóa API。"""
     random_part = secrets.token_hex(16)  # 32 hex chars
     return f"{API_KEY_PREFIX}{random_part}"
 
@@ -45,13 +45,13 @@ def _default_expires_at() -> datetime:
 
 class CreateApiKeyRequest(BaseModel):
     name: str
-    expires_days: int | None = Field(None, ge=0)  # None 使用默认 30 天，0 表示不过期
+    expires_days: int | None = Field(None, ge=0)  # None Sử dụng mặc định 30 ngày, 0 có nghĩa là không hết hạn
 
 
 class CreateApiKeyResponse(BaseModel):
     id: int
     name: str
-    key: str  # 完整 key，仅在创建时返回
+    key: str  # Khóa đầy đủ, chỉ trả về khi Tạo
     key_prefix: str
     created_at: str
     expires_at: str | None
@@ -71,7 +71,7 @@ async def create_api_key(
     body: CreateApiKeyRequest,
     _user: CurrentUser,
 ) -> CreateApiKeyResponse:
-    """创建新 API Key。完整 key 仅在响应中出现一次，之后无法再查看。"""
+    """TạoAPI Key mới. Khóa đầy đủ chỉ xuất hiện một lần trong phản hồi, sau đó không thể xem lại."""
     _require_jwt_auth(_user)
     key = _generate_api_key()
     key_hash = _hash_api_key(key)
@@ -95,7 +95,7 @@ async def create_api_key(
                     expires_at=expires_at,
                 )
     except IntegrityError:
-        raise HTTPException(status_code=409, detail=f"名称 '{body.name}' 已存在")
+        raise HTTPException(status_code=409, detail=f"Tên '{body.name}' Đã tồn tại")
 
     return CreateApiKeyResponse(
         id=row["id"],
@@ -111,7 +111,7 @@ async def create_api_key(
 async def list_api_keys(
     _user: CurrentUser,
 ) -> list[ApiKeyInfo]:
-    """查询所有 API Key 的元数据（不含完整 key）。"""
+    """Truy vấn tất cả metadata của API Key (không bao gồm khóa đầy đủ)."""
     _require_jwt_auth(_user)
     async with async_session_factory() as session:
         async with session.begin():
@@ -126,7 +126,7 @@ async def delete_api_key(
     key_id: int,
     _user: CurrentUser,
 ) -> None:
-    """删除（吊销）指定 API Key，并立即清除内存缓存。"""
+    """Xóa（Thu hồi）Chỉ định API Key và ngay lập tức Xóa bộ nhớ cache."""
     _require_jwt_auth(_user)
     async with async_session_factory() as session:
         async with session.begin():
@@ -135,8 +135,8 @@ async def delete_api_key(
             if row is None:
                 raise HTTPException(status_code=404, detail=f"API Key {key_id} 不存在")
             key_hash = row["key_hash"]
-            # 先失效缓存再删库：即使事务提交后崩溃，缓存也已清除，
-            # 不会出现 DB 已删但缓存仍有效的宽限窗口。
+            # Vô hiệu hóa cache trước khi xóa cơ sở dữ liệu: ngay cả khi giao dịch được cam kết rồi sập, cache vẫn Đã Xóa,
+            # Sẽ không xuất hiện cửa sổ trễ khi DB đã xóa nhưng cache vẫn còn hiệu lực.
             invalidate_api_key_cache(key_hash)
             deleted = await repo.delete(key_id)
 

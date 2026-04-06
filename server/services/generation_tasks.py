@@ -38,10 +38,10 @@ pm = ProjectManager(PROJECT_ROOT / "projects")
 rate_limiter = get_shared_rate_limiter()
 logger = logging.getLogger(__name__)
 
-# 按 (channel, provider_name, model) 缓存 Backend 实例，避免每次任务重建 API 客户端
+# Bộ nhớ đệm các instance Backend theo (kênh, provider_name, model) để tránh tái tạo API client cho mỗi tác vụ
 _backend_cache: dict[tuple[str, ...], Any] = {}
 
-# 各供应商默认视频分辨率
+# Độ phân giải Video mặc định của từng nhà cung cấp
 DEFAULT_VIDEO_RESOLUTION: dict[str, str] = {
     PROVIDER_GEMINI: "1080p",
     PROVIDER_ARK: "720p",
@@ -49,7 +49,7 @@ DEFAULT_VIDEO_RESOLUTION: dict[str, str] = {
     PROVIDER_OPENAI: "720p",
 }
 
-# 新 provider_id → 旧 backend registry name 的映射
+# Mapping provider_id mới → tên đăng ký backend cũ
 _PROVIDER_ID_TO_BACKEND: dict[str, str] = {
     "gemini-aistudio": PROVIDER_GEMINI,
     "gemini-vertex": PROVIDER_GEMINI,
@@ -65,12 +65,12 @@ def get_project_manager() -> ProjectManager:
 
 
 def invalidate_backend_cache() -> None:
-    """清空 VideoBackend 实例缓存。在配置变更后调用。"""
+    """Xóa bộ nhớ đệm các instance VideoBackend. Gọi sau khi thay đổi cấu hình."""
     _backend_cache.clear()
 
 
 async def _create_custom_backend(provider_name: str, model_id: str | None, media_type: str):
-    """自定义供应商的 backend 创建路径。"""
+    """nhà cung cấp tùy chỉnhĐường dẫn Tạo backend của"""
     from lib.custom_provider import parse_provider_id
     from lib.custom_provider.factory import create_custom_backend
     from lib.db import async_session_factory
@@ -81,9 +81,9 @@ async def _create_custom_backend(provider_name: str, model_id: str | None, media
         db_id = parse_provider_id(provider_name)
         provider = await repo.get_provider(db_id)
         if provider is None:
-            raise ValueError(f"自定义供应商 {provider_name} 不存在")
+            raise ValueError(f"nhà cung cấp tùy chỉnh {provider_name} 不存在")
         if model_id:
-            # 校验 model_id 仍存在且已启用，否则回退到默认模型
+            # Kiểm tra model_id vẫn tồn tại và đã được kích hoạt, nếu không thì quay về Mô hình mặc định
             from sqlalchemy import select
 
             from lib.db.models.custom_provider import CustomProviderModel
@@ -96,7 +96,7 @@ async def _create_custom_backend(provider_name: str, model_id: str | None, media
             )
             result = await session.execute(stmt)
             if result.scalar_one_or_none() is None:
-                logger.warning("自定义模型 %s/%s 已不存在或已禁用，回退到默认模型", provider_name, model_id)
+                logger.warning("Mô hình tùy chỉnh %s/%s không còn tồn tại hoặc đã bị tắt, quay về Mô hình mặc định", provider_name, model_id)
                 model_id = None
 
         if not model_id:
@@ -104,7 +104,7 @@ async def _create_custom_backend(provider_name: str, model_id: str | None, media
             if default_model:
                 model_id = default_model.model_id
             else:
-                raise ValueError(f"自定义供应商 {provider_name} 没有默认 {media_type} 模型")
+                raise ValueError(f"nhà cung cấp tùy chỉnh {provider_name} Không có mặc định {media_type} 模型")
         return create_custom_backend(provider=provider, model_id=model_id, media_type=media_type)
 
 
@@ -115,11 +115,11 @@ async def _get_or_create_video_backend(
     *,
     default_video_model: str | None = None,
 ):
-    """获取或创建 VideoBackend 实例（带缓存）。
+    """Lấy hoặc Tạo instance VideoBackend (có bộ nhớ đệm).
 
-    provider_name 可以是旧格式（gemini/seedance/grok）或新格式（gemini-aistudio/gemini-vertex）。
-    通过 resolver 按需加载供应商配置。
-    default_video_model: 全局默认视频模型，当 provider_settings 中无 model 时作为 fallback。
+    provider_name Có thể là định dạng cũ (gemini/seedance/grok) hoặc định dạng mới (gemini-aistudio/gemini-vertex).
+    Tải cấu hình nhà cung cấp theo nhu cầu thông qua resolver.
+    default_video_model: Mô hình video mặc định toàn cục, dùng làm fallback khi model không có trong provider_settings.
     """
     from lib.video_backends import create_backend
 
@@ -128,18 +128,18 @@ async def _get_or_create_video_backend(
     if cache_key in _backend_cache:
         return _backend_cache[cache_key]
 
-    # 自定义供应商走独立工厂路径
+    # nhà cung cấp tùy chỉnhĐi theo đường dẫn nhà máy riêng
     if is_custom_provider(provider_name):
         backend = await _create_custom_backend(provider_name, effective_model, "video")
         _backend_cache[cache_key] = backend
         return backend
 
-    # 解析 provider_id → backend registry name
+    # Phân tích provider_id → tên đăng ký backend
     backend_name = _PROVIDER_ID_TO_BACKEND.get(provider_name, provider_name)
 
     kwargs: dict = {}
     if backend_name == PROVIDER_GEMINI:
-        # 确定 backend_type（aistudio 或 vertex）
+        # Xác định backend_type (aistudio hoặc vertex)
         if provider_name == "gemini-vertex":
             kwargs["backend_type"] = "vertex"
         elif provider_name == "gemini-aistudio":
@@ -166,7 +166,7 @@ async def _fill_simple_provider_kwargs(
     kwargs: dict,
     effective_model: str | None,
 ) -> None:
-    """Ark/Grok/OpenAI 等简单供应商的通用配置填充。"""
+    """Ark/Grok/OpenAI Điền các cấu hình chung cho nhà cung cấp đơn giản."""
     db_config = await resolver.provider_config(backend_name)
     kwargs["api_key"] = db_config.get("api_key")
     kwargs["model"] = effective_model
@@ -181,7 +181,7 @@ async def _get_or_create_image_backend(
     *,
     default_image_model: str | None = None,
 ):
-    """获取或创建 ImageBackend 实例（带缓存）。"""
+    """Lấy hoặc Tạo instance ImageBackend (có bộ nhớ đệm)."""
     from lib.image_backends import create_backend
 
     effective_model = provider_settings.get("model") or default_image_model or None
@@ -189,7 +189,7 @@ async def _get_or_create_image_backend(
     if cache_key in _backend_cache:
         return _backend_cache[cache_key]
 
-    # 自定义供应商走独立工厂路径
+    # nhà cung cấp tùy chỉnhĐi theo đường dẫn nhà máy riêng
     if is_custom_provider(provider_name):
         backend = await _create_custom_backend(provider_name, effective_model, "image")
         _backend_cache[cache_key] = backend
@@ -222,18 +222,18 @@ async def _resolve_video_backend(
     resolver: ConfigResolver,
     payload: dict | None,
 ) -> tuple[Any | None, str, str]:
-    """解析视频后端，返回 (video_backend, video_backend_type, video_model)。
+    """Phân tích backend Video, trả về (video_backend, video_backend_type, video_model).
 
-    仅在 payload 存在时创建 VideoBackend，避免图片任务因视频配置缺失而报错。
-    注意：video_backend_type 仅在 video_backend 为 None（回退到 GeminiClient）时生效，
-    因此只需要在全局默认回退分支中设置。
+    Chỉ Tạo VideoBackend khi payload tồn tại, tránh lỗi nhiệm vụ Ảnh khi thiếu cấu hình Video.
+    Lưu ý: video_backend_type chỉ có hiệu lực khi video_backend là None (quay về GeminiClient).
+    Do đó chỉ cần cài đặt trong nhánh dự phòng mặc định toàn cục.
     """
     default_video_provider_id, video_model = await resolver.default_video_backend()
     video_backend = None
     video_backend_type = "aistudio"
 
     if payload:
-        # provider 统一从项目配置 → 全局默认解析，调用方无需传递
+        # provider Thống nhất từ Cấu hình Dự án → Phân giải mặc định toàn cục, bên gọi không cần truyền tham số
         project = get_project_manager().load_project(project_name)
         provider_name = project.get("video_provider")
         if not provider_name:
@@ -259,7 +259,7 @@ async def get_media_generator(
     user_id: str = DEFAULT_USER_ID,
     require_image_backend: bool = True,
 ) -> MediaGenerator:
-    """创建 MediaGenerator。仅按调用场景初始化所需的 backend。"""
+    """Tạo MediaGenerator。Chỉ khởi tạo backend cần thiết khi gọi Cảnh."""
     from lib.config.resolver import ConfigResolver
     from lib.db import async_session_factory
 
@@ -279,7 +279,7 @@ async def get_media_generator(
             default_image_model=image_model,
         )
 
-    # 解析 video backend（保持现有逻辑）
+    # Phân giải backend video (giữ logic hiện tại)
     video_backend, _, _ = await _resolve_video_backend(
         project_name,
         resolver,
@@ -431,7 +431,7 @@ def _resolve_script_episode(project_name: str, script_file: str | None) -> int |
 
 
 def _compute_affected_fingerprints(project_name: str, task_type: str, resource_id: str) -> dict[str, int]:
-    """计算受影响文件的 mtime 指纹"""
+    """Tính toán dấu vân tay mtime của các tệp bị ảnh hưởng"""
     try:
         project_path = get_project_manager().get_project_path(project_name)
     except Exception:
@@ -484,10 +484,10 @@ def _compute_affected_fingerprints(project_name: str, task_type: str, resource_i
 
 # (entity_type, action, label_tpl, include_script_episode)
 _TASK_CHANGE_SPECS: dict[str, tuple] = {
-    "storyboard": ("segment", "storyboard_ready", "分镜「{}」", True),
-    "video": ("segment", "video_ready", "分镜「{}」", True),
-    "character": ("character", "updated", "角色「{}」设计图", False),
-    "clue": ("clue", "updated", "线索「{}」设计图", False),
+    "storyboard": ("segment", "storyboard_ready", "Phân cảnh「{}」", True),
+    "video": ("segment", "video_ready", "Phân cảnh「{}」", True),
+    "character": ("character", "updated", "Nhân vật「{}」设计图", False),
+    "clue": ("clue", "updated", "Manh mối「{}」设计图", False),
 }
 
 
@@ -523,7 +523,7 @@ def _emit_generation_success_batch(
         emit_project_change_batch(project_name, [change], source="worker")
     except Exception:
         logger.exception(
-            "发送生成完成项目事件失败 project=%s task_type=%s resource_id=%s",
+            "Gửi sự kiện Hoàn thành Dự án thất bại project=%s task_type=%s resource_id=%s",
             project_name,
             task_type,
             resource_id,
@@ -629,7 +629,7 @@ async def execute_video_task(
     seed = payload.get("seed")
     service_tier = payload.get("video_provider_settings", {}).get("service_tier", "default")
 
-    # 模型级分辨率：从 video_model_settings.{model}.resolution 读取
+    # Độ phân giải cấp mô hình: từ video_model_settings.{model}.resolution đọc
     provider_name = payload.get("video_provider") or project.get("video_provider")
     if not provider_name:
         from lib.config.resolver import ConfigResolver
@@ -641,7 +641,7 @@ async def execute_video_task(
         except Exception:
             default_provider_id = "gemini-aistudio"
         provider_name = _PROVIDER_ID_TO_BACKEND.get(default_provider_id, default_provider_id)
-    # 将新 provider_id 映射为旧名称以查找分辨率
+    # Ánh xạ provider_id mới thành Tên cũ để tìm độ phân giải
     resolution_key = _PROVIDER_ID_TO_BACKEND.get(provider_name, provider_name)
     provider_settings = payload.get("video_provider_settings", {})
     model_name = provider_settings.get("model")
@@ -678,7 +678,7 @@ async def execute_video_task(
             asset_path=video_uri,
         )
 
-    # 提取视频首帧作为缩略图
+    # Trích xuất khung đầu tiên của Video làm ảnh thu nhỏ
     video_file = project_path / f"videos/scene_{resource_id}.mp4"
     thumbnail_file = project_path / f"thumbnails/scene_{resource_id}.jpg"
     if await extract_video_thumbnail(video_file, thumbnail_file):
@@ -690,7 +690,7 @@ async def execute_video_task(
             asset_path=f"thumbnails/scene_{resource_id}.jpg",
         )
     else:
-        # 提取失败时清除旧缩略图文件，避免展示与新视频不匹配的封面
+        # Khi thất bại, Xóa tệp ảnh thu nhỏ cũ để tránh hiển thị bìa không khớp với Video mới
         thumbnail_file.unlink(missing_ok=True)
 
     created_at = generator.versions.get_versions("videos", resource_id)["versions"][-1]["created_at"]

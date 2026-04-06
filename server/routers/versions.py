@@ -1,7 +1,7 @@
 """
-版本管理 API 路由
+Quản lý phiên bản API 路由
 
-处理版本查询和还原请求。
+Xử lý truy vấn phiên bản và yêu cầu khôi phục.
 """
 
 import logging
@@ -19,7 +19,7 @@ from server.auth import CurrentUser
 
 router = APIRouter()
 
-# 初始化项目管理器
+# Khởi tạo quản lý dự án
 pm = ProjectManager(PROJECT_ROOT / "projects")
 
 _RESOURCE_FILE_PATTERNS: dict[str, tuple[str, str]] = {
@@ -35,7 +35,7 @@ def get_project_manager() -> ProjectManager:
 
 
 def get_version_manager(project_name: str) -> VersionManager:
-    """获取项目的版本管理器"""
+    """Lấy Trình quản lý phiên bản của Dự án"""
     project_path = get_project_manager().get_project_path(project_name)
     return VersionManager(project_path)
 
@@ -45,10 +45,10 @@ def _resolve_resource_path(
     resource_id: str,
     project_path: Path,
 ) -> tuple[Path, str]:
-    """返回 (current_file_absolute, relative_file_path)，资源类型无效时抛出 HTTPException。"""
+    """Trả về (current_file_absolute, relative_file_path), ném HTTP khi loại tài nguyên không hợp lệPException。"""
     pattern = _RESOURCE_FILE_PATTERNS.get(resource_type)
     if pattern is None:
-        raise HTTPException(status_code=400, detail=f"不支持的资源类型: {resource_type}")
+        raise HTTPException(status_code=400, detail=f"Loại tài nguyên không được hỗ trợ: {resource_type}")
     subdir, name_tpl = pattern
     name = name_tpl.format(id=resource_id)
     return project_path / subdir / name, f"{subdir}/{name}"
@@ -76,7 +76,7 @@ def _sync_storyboard_metadata(
         except KeyError:
             continue
         except Exception as exc:
-            logger.warning("同步分镜元数据失败: %s", exc)
+            logger.warning("Đồng bộ hóa métadata phân cảnh thất bại: %s", exc)
             continue
 
 
@@ -87,24 +87,24 @@ def _sync_metadata(
     file_path: str,
     project_path: Path,
 ) -> None:
-    """还原后同步元数据，确保引用指向统一文件路径。"""
+    """Khôi phục xong đồng bộ hóa siêu dữ liệu, đảm bảo tham chiếu chỉ đến đường dẫn tệp thống nhất."""
     if resource_type == "characters":
         try:
             with project_change_source("webui"):
                 get_project_manager().update_project_character_sheet(project_name, resource_id, file_path)
         except KeyError:
-            pass  # 角色条目可能已从 project.json 删除，跳过元数据同步
+            pass  # Nhân vậtMục có thể đã bị xóa khỏi project.json, bỏ qua đồng bộ hóa siêu dữ liệu
     elif resource_type == "clues":
         try:
             with project_change_source("webui"):
                 get_project_manager().update_clue_sheet(project_name, resource_id, file_path)
         except KeyError:
-            pass  # 线索条目可能已从 project.json 删除，跳过元数据同步
+            pass  # Manh mốiMục có thể đã bị xóa khỏi project.json, bỏ qua đồng bộ hóa siêu dữ liệu
     elif resource_type == "storyboards":
         _sync_storyboard_metadata(project_name, resource_id, file_path, project_path)
 
 
-# ==================== 版本查询 ====================
+# ==================== Truy vấn phiên bản ====================
 
 
 @router.get("/projects/{project_name}/versions/{resource_type}/{resource_id}")
@@ -115,12 +115,12 @@ async def get_versions(
     _user: CurrentUser,
 ):
     """
-    获取资源的所有版本列表
+    Lấy danh sách tất cả các phiên bản của tài nguyên
 
     Args:
-        project_name: 项目名称
-        resource_type: 资源类型 (storyboards, videos, characters, clues)
-        resource_id: 资源 ID
+        project_name: Dự ánTên
+        resource_type: Loại tài nguyên (bảng phân cảnh, video, nhân vật, manh mối)
+        resource_id: ID tài nguyên
     """
     try:
         vm = get_version_manager(project_name)
@@ -133,11 +133,11 @@ async def get_versions(
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ==================== 版本还原 ====================
+# ==================== Khôi phục phiên bản ====================
 
 
 @router.post("/projects/{project_name}/versions/{resource_type}/{resource_id}/restore/{version}")
@@ -149,15 +149,15 @@ async def restore_version(
     _user: CurrentUser,
 ):
     """
-    切换到指定版本
+    Chuyển sang phiên bản được chỉ định
 
-    会将指定版本复制到当前路径，并把当前版本指针切换到该版本。
+    Sẽ sao chép phiên bản được chỉ định đến đường dẫn hiện tại và chuyển con trỏ phiên bản hiện tại sang phiên bản đó.
 
     Args:
-        project_name: 项目名称
-        resource_type: 资源类型
-        resource_id: 资源 ID
-        version: 要还原的版本号
+        project_name: Dự ánTên
+        resource_type: Loại tài nguyên
+        resource_id: ID tài nguyên
+        version: Số phiên bản cần khôi phục
     """
     try:
         vm = get_version_manager(project_name)
@@ -173,7 +173,7 @@ async def restore_version(
 
         _sync_metadata(resource_type, project_name, resource_id, file_path, project_path)
 
-        # 计算还原后文件的 fingerprint；视频还原时同步删除缩略图（内容已失效）
+        # Tính toán fingerprint của tệp sau khi khôi phục; khi khôi phục video đồng bộ xóa hình thu nhỏ (nội dung đã mất hiệu lực)
         asset_fingerprints: dict[str, int] = {}
         if current_file.exists():
             asset_fingerprints[file_path] = current_file.stat().st_mtime_ns
@@ -182,7 +182,7 @@ async def restore_version(
             thumbnail_path = project_path / "thumbnails" / f"scene_{resource_id}.jpg"
             thumbnail_key = f"thumbnails/scene_{resource_id}.jpg"
             thumbnail_path.unlink(missing_ok=True)
-            # fingerprint=0 通知前端该文件已失效（poster 消失直到重新生成）
+            # fingerprint=0 Thông báoTệp phía trước đã mất hiệu lực (poster biến mất cho đến khi tạo lại)
             asset_fingerprints[thumbnail_key] = 0
 
         return {
@@ -199,5 +199,5 @@ async def restore_version(
     except HTTPException:
         raise
     except Exception as e:
-        logger.exception("请求处理失败")
+        logger.exception("Xử lý yêu cầu Thất bại")
         raise HTTPException(status_code=500, detail=str(e))

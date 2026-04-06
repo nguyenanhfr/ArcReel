@@ -6,9 +6,9 @@ import { SlashCommandMenu } from "./SlashCommandMenu";
 import type { SlashCommandMenuHandle } from "./SlashCommandMenu";
 
 const SKILLS = [
-  { name: "manga-workflow", description: "完整工作流", scope: "project" as const, path: "/tmp/a" },
-  { name: "generate-script", description: "用 Gemini 生成 JSON 剧本", scope: "project" as const, path: "/tmp/b" },
-  { name: "generate-video", description: "用 Veo 生成视频片段", scope: "project" as const, path: "/tmp/c" },
+  { name: "manga-workflow", description: "Hoàn thành quy trình làm việc", scope: "project" as const, path: "/tmp/a" },
+  { name: "generate-script", description: "Tạo bản JSON với Gemini", scope: "project" as const, path: "/tmp/b" },
+  { name: "generate-video", description: "with Veo Tạo videoĐoạn", scope: "project" as const, path: "/tmp/c" },
 ];
 
 describe("SlashCommandMenu", () => {
@@ -33,7 +33,7 @@ describe("SlashCommandMenu", () => {
   });
 
   it("filters skills by Chinese label", () => {
-    render(<SlashCommandMenu filter="剧本" onSelect={onSelect} />);
+    render(<SlashCommandMenu filter="Kịch bản" onSelect={onSelect} />);
     expect(screen.getByText(/generate-script/)).toBeInTheDocument();
     expect(screen.queryByText(/manga-workflow/)).not.toBeInTheDocument();
   });
@@ -51,9 +51,9 @@ describe("SlashCommandMenu", () => {
 
   it("displays Chinese labels for known skills", () => {
     render(<SlashCommandMenu filter="" onSelect={onSelect} />);
-    expect(screen.getByText("视频工作流")).toBeInTheDocument();
-    expect(screen.getByText("生成剧本")).toBeInTheDocument();
-    expect(screen.getByText("生成视频")).toBeInTheDocument();
+    expect(screen.getByText("Quy trình làm video")).toBeInTheDocument();
+    expect(screen.getByText("Tạo kịch bản")).toBeInTheDocument();
+    expect(screen.getByText("Tạo video")).toBeInTheDocument();
   });
 
   it("shows distinct icons per skill", () => {

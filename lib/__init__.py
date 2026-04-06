@@ -1,7 +1,7 @@
 # AI Anime Generator Library
-# 共享 Python 库，用于 Gemini API 封装和项目管理
+# Chia sẻ thư viện Python, dùng cho bao đóng Gemini API và quản lý Dự án
 
-# 首先初始化环境（激活 .venv，加载 .env）
+# Trước tiên khởi tạo Môi trường (kích hoạt .venv, tải .env)
 from .data_validator import DataValidator, ValidationResult, validate_episode, validate_project
 from .env_init import PROJECT_ROOT
 from .project_manager import ProjectManager

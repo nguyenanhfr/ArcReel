@@ -1,22 +1,22 @@
-"""自定义供应商模块。"""
+"""nhà cung cấp tùy chỉnhModule."""
 
 CUSTOM_PROVIDER_PREFIX = "custom-"
 
 
 def make_provider_id(db_id: int) -> str:
-    """构造自定义供应商的 provider_id 字符串，如 'custom-3'。"""
+    """Xây dựng chuỗi provider_id của nhà cung cấp tùy chỉnh, ví dụ 'custom-3'。"""
     return f"{CUSTOM_PROVIDER_PREFIX}{db_id}"
 
 
 def parse_provider_id(provider_id: str) -> int:
-    """从 'custom-3' 格式的 provider_id 提取数据库 ID。
+    """从 'custom-3' định dạngprovider_id để trích xuất ID cơ sở dữ liệu.
 
     Raises:
-        ValueError: 如果格式不正确
+        ValueError: Nếu định dạng không đúng
     """
     return int(provider_id.removeprefix(CUSTOM_PROVIDER_PREFIX))
 
 
 def is_custom_provider(provider_id: str) -> bool:
-    """判断是否为自定义供应商的 provider_id。"""
+    """Xác định xem có phải là provider_id của nhà cung cấp tùy chỉnh."""
     return provider_id.startswith(CUSTOM_PROVIDER_PREFIX)

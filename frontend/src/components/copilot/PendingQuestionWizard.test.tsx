@@ -8,21 +8,21 @@ function makePendingQuestion(overrides: Partial<PendingQuestion> = {}): PendingQ
     question_id: "q-1",
     questions: [
       {
-        header: "输出",
-        question: "输出格式是什么？",
+        header: "Đầu ra",
+        question: "Đầu raĐịnh dạng là gì?",
         multiSelect: false,
         options: [
-          { label: "摘要", description: "简洁输出" },
-          { label: "详细", description: "完整说明" },
+          { label: "Tóm tắt", description: "Đầu ra đơn giản" },
+          { label: "Chi tiết", description: "mô tả đầy đủ" },
         ],
       },
       {
-        header: "章节",
-        question: "包含哪些部分？",
+        header: "chương",
+        question: "Bao gồm những bộ phận nào?",
         multiSelect: true,
         options: [
-          { label: "引言", description: "开场上下文" },
-          { label: "结论", description: "总结收束" },
+          { label: "Giới thiệu", description: "bối cảnh mở đầu" },
+          { label: "Kết luận", description: "Kết luận" },
         ],
       },
     ],
@@ -41,20 +41,20 @@ describe("PendingQuestionWizard", () => {
       />,
     );
 
-    expect(screen.getByText("问题 1/2")).toBeInTheDocument();
-    expect(screen.getByText("输出格式是什么？")).toBeInTheDocument();
-    expect(screen.queryByText("包含哪些部分？")).not.toBeInTheDocument();
+    expect(screen.getByText("Câu hỏi 1/2")).toBeInTheDocument();
+    expect(screen.getByText("Đầu raĐịnh dạng là gì?")).toBeInTheDocument();
+    expect(screen.queryByText("Bao gồm những bộ phận nào?")).not.toBeInTheDocument();
 
-    const nextButton = screen.getByRole("button", { name: "下一题" });
+    const nextButton = screen.getByRole("button", { name: "Câu tiếp theo" });
     expect(nextButton).toBeDisabled();
 
-    fireEvent.click(screen.getByLabelText("摘要"));
+    fireEvent.click(screen.getByLabelText("Tóm tắt"));
     expect(nextButton).toBeEnabled();
 
     fireEvent.click(nextButton);
-    expect(screen.getByText("问题 2/2")).toBeInTheDocument();
-    expect(screen.getByText("包含哪些部分？")).toBeInTheDocument();
-    expect(screen.queryByText("输出格式是什么？")).not.toBeInTheDocument();
+    expect(screen.getByText("Câu hỏi 2/2")).toBeInTheDocument();
+    expect(screen.getByText("Bao gồm những bộ phận nào?")).toBeInTheDocument();
+    expect(screen.queryByText("Đầu raĐịnh dạng là gì?")).not.toBeInTheDocument();
   });
 
   it("keeps answers when navigating backward", () => {
@@ -67,12 +67,12 @@ describe("PendingQuestionWizard", () => {
       />,
     );
 
-    fireEvent.click(screen.getByLabelText("详细"));
-    fireEvent.click(screen.getByRole("button", { name: "下一题" }));
-    fireEvent.click(screen.getByRole("button", { name: "上一步" }));
+    fireEvent.click(screen.getByLabelText("Chi tiết"));
+    fireEvent.click(screen.getByRole("button", { name: "Câu tiếp theo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Bước trước" }));
 
-    expect(screen.getByText("输出格式是什么？")).toBeInTheDocument();
-    expect(screen.getByLabelText("详细")).toBeChecked();
+    expect(screen.getByText("Đầu raĐịnh dạng là gì?")).toBeInTheDocument();
+    expect(screen.getByLabelText("Chi tiết")).toBeChecked();
   });
 
   it("validates custom other answers and joins multi-select payloads", () => {
@@ -83,12 +83,12 @@ describe("PendingQuestionWizard", () => {
         pendingQuestion={makePendingQuestion({
           questions: [
             {
-              header: "章节",
-              question: "包含哪些部分？",
+              header: "chương",
+              question: "Bao gồm những bộ phận nào?",
               multiSelect: true,
               options: [
-                { label: "引言", description: "开场上下文" },
-                { label: "结论", description: "总结收束" },
+                { label: "Giới thiệu", description: "bối cảnh mở đầu" },
+                { label: "Kết luận", description: "Kết luận" },
               ],
             },
           ],
@@ -99,21 +99,21 @@ describe("PendingQuestionWizard", () => {
       />,
     );
 
-    fireEvent.click(screen.getByLabelText("引言"));
-    fireEvent.click(screen.getByLabelText("其他"));
+    fireEvent.click(screen.getByLabelText("Giới thiệu"));
+    fireEvent.click(screen.getByLabelText("Khác"));
 
-    const submitButton = screen.getByRole("button", { name: "完成并提交" });
+    const submitButton = screen.getByRole("button", { name: "Hoàn thành và gửi" });
     expect(submitButton).toBeDisabled();
 
-    fireEvent.change(screen.getByPlaceholderText("请输入其他内容"), {
-      target: { value: "附录" },
+    fireEvent.change(screen.getByPlaceholderText("Vui lòng nhập nội dung khác"), {
+      target: { value: "Phụ lục" },
     });
     expect(submitButton).toBeEnabled();
 
     fireEvent.click(submitButton);
 
     expect(onSubmitAnswers).toHaveBeenCalledWith("q-1", {
-      "包含哪些部分？": "引言, 附录",
+      "Bao gồm những bộ phận nào?": "Giới thiệu, Phụ lục",
     });
   });
 
@@ -127,9 +127,9 @@ describe("PendingQuestionWizard", () => {
       />,
     );
 
-    fireEvent.click(screen.getByLabelText("摘要"));
-    fireEvent.click(screen.getByRole("button", { name: "下一题" }));
-    expect(screen.getByText("包含哪些部分？")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("Tóm tắt"));
+    fireEvent.click(screen.getByRole("button", { name: "Câu tiếp theo" }));
+    expect(screen.getByText("Bao gồm những bộ phận nào?")).toBeInTheDocument();
 
     rerender(
       <PendingQuestionWizard
@@ -140,10 +140,10 @@ describe("PendingQuestionWizard", () => {
       />,
     );
 
-    expect(screen.getByText("输出格式是什么？")).toBeInTheDocument();
-    expect(screen.queryByText("包含哪些部分？")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("摘要")).not.toBeChecked();
-    expect(screen.getByRole("button", { name: "下一题" })).toBeDisabled();
+    expect(screen.getByText("Đầu raĐịnh dạng là gì?")).toBeInTheDocument();
+    expect(screen.queryByText("Bao gồm những bộ phận nào?")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Tóm tắt")).not.toBeChecked();
+    expect(screen.getByRole("button", { name: "Câu tiếp theo" })).toBeDisabled();
   });
 
   it("keeps the action area visible by making question content scrollable", () => {
@@ -152,11 +152,11 @@ describe("PendingQuestionWizard", () => {
         pendingQuestion={makePendingQuestion({
           questions: [
             {
-              header: "超长问题",
-              question: "这是一个很长的问题。".repeat(120),
+              header: "Câu hỏi cực dài",
+              question: "Đây là một câu hỏi dài.".repeat(120),
               multiSelect: false,
               options: [
-                { label: "继续", description: "继续处理" },
+                { label: "继续", description: "Tiếp tục xử lý" },
               ],
             },
           ],
@@ -168,6 +168,6 @@ describe("PendingQuestionWizard", () => {
     );
 
     expect(screen.getByTestId("pending-question-scroll-area")).toHaveClass("overflow-y-auto");
-    expect(screen.getByRole("button", { name: "完成并提交" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Hoàn thành và gửi" })).toBeInTheDocument();
   });
 });

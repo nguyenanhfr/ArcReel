@@ -1,4 +1,4 @@
-"""ArkImageBackend — 火山方舟 Seedream 图片生成后端。"""
+"""ArkImageBackend — Hòm núi lửa Seedream ẢnhTạo backend."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class ArkImageBackend:
-    """Ark (火山方舟) Seedream 图片生成后端。"""
+    """Ark (Hòm núi lửa) Seedream ẢnhTạo backend."""
 
     DEFAULT_MODEL = "doubao-seedream-5-0-lite-260128"
 
@@ -52,30 +52,30 @@ class ArkImageBackend:
 
     @with_retry_async()
     async def generate(self, request: ImageGenerationRequest) -> ImageGenerationResult:
-        """异步生成图片（T2I / I2I）。"""
-        # 构建 SDK 参数
+        """Tạo ảnh bất đồng bộ (T2I / I2I)."""
+        # Xây dựng tham số SDK
         kwargs: dict = {
             "model": self._model,
             "prompt": request.prompt,
             "response_format": "b64_json",
         }
 
-        # I2I: 读取参考图并转为 base64 data URI
+        # I2I: đọcẢnh tham chiếuvà chuyển thành base64 data URI
         if request.reference_images:
             data_uris = [image_to_base64_data_uri(Path(ref.path)) for ref in request.reference_images]
-            # 单张传字符串，多张传列表
+            # Truyền chuỗi Đơn Trương, truyền danh sách Đa Trương
             kwargs["image"] = data_uris[0] if len(data_uris) == 1 else data_uris
 
         if request.seed is not None:
             kwargs["seed"] = request.seed
 
-        # 同步 SDK 通过 to_thread 包装
+        # SDK đồng bộ được đóng gói qua to_thread
         response = await asyncio.to_thread(
             self._client.images.generate,
             **kwargs,
         )
 
-        # 解码并保存
+        # Giải mã và Lưu
         image_data = base64.b64decode(response.data[0].b64_json)
         request.output_path.parent.mkdir(parents=True, exist_ok=True)
         request.output_path.write_bytes(image_data)

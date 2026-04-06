@@ -1,7 +1,7 @@
 """
-数据验证工具
+Công cụ xác thực dữ liệu
 
-验证 project.json 和 episode JSON 的数据结构完整性和引用一致性。
+Xác thực tính toàn vẹn cấu trúc dữ liệu và tính nhất quán tham chiếu của project.json và episode JSON.
 """
 
 from __future__ import annotations
@@ -15,34 +15,34 @@ from typing import Any
 
 @dataclass
 class ValidationResult:
-    """验证结果"""
+    """Kết quả xác thực"""
 
     valid: bool
-    errors: list[str] = field(default_factory=list)  # 错误列表（阻止继续）
-    warnings: list[str] = field(default_factory=list)  # 警告列表（仅提示）
+    errors: list[str] = field(default_factory=list)  # Danh sách lỗi (ngăn không tiếp tục)
+    warnings: list[str] = field(default_factory=list)  # Cảnh báodanh sách（Chỉ cảnh báo)
 
     def __str__(self) -> str:
         if self.valid:
-            msg = "验证通过"
+            msg = "Xác thực thành công"
             if self.warnings:
-                msg += f"\n警告 ({len(self.warnings)}):\n" + "\n".join(f"  - {warning}" for warning in self.warnings)
+                msg += f"\nCảnh báo ({len(self.warnings)}):\n" + "\n".join(f"  - {warning}" for warning in self.warnings)
             return msg
 
-        msg = f"验证失败 ({len(self.errors)} 个错误)"
-        msg += "\n错误:\n" + "\n".join(f"  - {error}" for error in self.errors)
+        msg = f"Xác thực thất bại ({len(self.errors)} Lỗi)"
+        msg += "\nLỗi:" + "\n".join(f"  - {error}" for error in self.errors)
         if self.warnings:
-            msg += f"\n警告 ({len(self.warnings)}):\n" + "\n".join(f"  - {warning}" for warning in self.warnings)
+            msg += f"\nCảnh báo ({len(self.warnings)}):\n" + "\n".join(f"  - {warning}" for warning in self.warnings)
         return msg
 
 
 class DataValidator:
-    """数据验证器"""
+    """Trình xác thực dữ liệu"""
 
     VALID_CONTENT_MODES = {"narration", "drama"}
     VALID_DURATIONS = {4, 6, 8}
     VALID_CLUE_TYPES = {"prop", "location"}
     VALID_CLUE_IMPORTANCE = {"major", "minor"}
-    VALID_SCENE_TYPES = {"剧情", "空镜"}
+    VALID_SCENE_TYPES = {"Cốt truyện", "Cảnh trống"}
     ID_PATTERN = re.compile(r"^E\d+S\d+(?:_\d+)?$")
     EXTERNAL_URI_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://")
     ALLOWED_ROOT_ENTRIES = {
@@ -65,10 +65,10 @@ class DataValidator:
 
     def __init__(self, projects_root: str | None = None):
         """
-        初始化验证器
+        Khởi tạo bộ xác thực
 
         Args:
-            projects_root: 项目根目录，默认为 projects/
+            projects_root: Dự ánThư mục gốc, mặc định là projects/
         """
         import os
 
@@ -77,7 +77,7 @@ class DataValidator:
         self.projects_root = Path(projects_root)
 
     def _load_json(self, file_path: Path) -> dict[str, Any] | None:
-        """加载 JSON 文件"""
+        """Tải tệp JSON"""
         try:
             with open(file_path, encoding="utf-8") as handle:
                 return json.load(handle)
@@ -97,7 +97,7 @@ class DataValidator:
     ) -> tuple[str | None, str | None]:
         normalized = str(raw_path).strip().replace("\\", "/")
         if not normalized:
-            return None, "路径不能为空"
+            return None, "Đường dẫn không được để trống"
 
         candidate_paths = [Path(normalized)]
         if default_dir and len(candidate_paths[0].parts) == 1:
@@ -115,12 +115,12 @@ class DataValidator:
                 resolved = (project_dir / candidate).resolve(strict=False)
                 resolved.relative_to(project_root)
             except ValueError:
-                return None, f"引用路径越界: {normalized}"
+                return None, f"Vượt quá phạm vi đường dẫn tham chiếu: {normalized}"
 
             if resolved.exists():
                 return candidate.as_posix(), None
 
-        return None, f"引用的文件不存在: {normalized}"
+        return None, f"Tệp được tham chiếu không tồn tại: {normalized}"
 
     def _validate_local_reference(
         self,
@@ -135,7 +135,7 @@ class DataValidator:
         if value in (None, ""):
             return None
         if not isinstance(value, str):
-            errors.append(f"{field_name} 必须是字符串")
+            errors.append(f"{field_name} Phải là chuỗi")
             return None
 
         raw_value = value.strip()
@@ -145,7 +145,7 @@ class DataValidator:
         if self.EXTERNAL_URI_PATTERN.match(raw_value):
             if allow_external:
                 return raw_value
-            errors.append(f"{field_name} 必须是项目内相对路径: {raw_value}")
+            errors.append(f"{field_name} Phải là đường dẫn tương đối trong Dự án: {raw_value}")
             return None
 
         resolved_path, error = self._resolve_existing_path(
@@ -164,77 +164,77 @@ class DataValidator:
         warnings: list[str],
     ) -> None:
         if not project.get("title"):
-            errors.append("缺少必填字段: title")
+            errors.append("Thiếu trường bắt buộc: title")
 
         content_mode = project.get("content_mode")
         if not content_mode:
-            errors.append("缺少必填字段: content_mode")
+            errors.append("Thiếu trường bắt buộc: content_mode")
         elif content_mode not in self.VALID_CONTENT_MODES:
-            errors.append(f"content_mode 值无效: '{content_mode}'，必须是 {self.VALID_CONTENT_MODES}")
+            errors.append(f"content_mode Giá trị không hợp lệ: '{content_mode}'，Phải là {self.VALID_CONTENT_MODES}")
 
         if not project.get("style"):
-            errors.append("缺少必填字段: style")
+            errors.append("Thiếu trường bắt buộc: style")
 
         episodes = project.get("episodes", [])
         if not isinstance(episodes, list):
-            errors.append("episodes 必须是数组")
+            errors.append("episodes Phải là mảng")
         else:
             for index, episode in enumerate(episodes):
                 prefix = f"episodes[{index}]"
                 if not isinstance(episode, dict):
-                    errors.append(f"{prefix}: 数据格式错误，应为对象")
+                    errors.append(f"{prefix}: Lỗi định dạng dữ liệu, phải là đối tượng")
                     continue
 
                 if not isinstance(episode.get("episode"), int):
-                    errors.append(f"{prefix}: 缺少必填字段 episode (整数)")
+                    errors.append(f"{prefix}: Thiếu trường bắt buộc: episode (số nguyên)")
                 if not episode.get("title"):
-                    errors.append(f"{prefix}: 缺少必填字段 title")
+                    errors.append(f"{prefix}: Thiếu trường bắt buộc: title")
 
                 script_file = episode.get("script_file")
                 if not script_file:
-                    errors.append(f"{prefix}: 缺少必填字段 script_file")
+                    errors.append(f"{prefix}: Thiếu trường bắt buộc: script_file")
                 elif not isinstance(script_file, str):
-                    errors.append(f"{prefix}: script_file 必须是字符串")
+                    errors.append(f"{prefix}: script_file Phải là chuỗi")
 
         characters = project.get("characters", {})
         if isinstance(characters, dict):
             for char_name, char_data in characters.items():
                 if not isinstance(char_data, dict):
-                    errors.append(f"角色 '{char_name}' 数据格式错误，应为对象")
+                    errors.append(f"Nhân vật '{char_name}' Lỗi định dạng dữ liệu, phải là đối tượng")
                     continue
                 if not char_data.get("description"):
-                    errors.append(f"角色 '{char_name}' 缺少必填字段: description")
+                    errors.append(f"Nhân vật '{char_name}' Thiếu trường bắt buộc: description")
 
         clues = project.get("clues", {})
         if isinstance(clues, dict):
             for clue_name, clue_data in clues.items():
                 if not isinstance(clue_data, dict):
-                    errors.append(f"线索 '{clue_name}' 数据格式错误，应为对象")
+                    errors.append(f"Manh mối '{clue_name}' Lỗi định dạng dữ liệu, phải là đối tượng")
                     continue
 
                 clue_type = clue_data.get("type")
                 if not clue_type:
-                    errors.append(f"线索 '{clue_name}' 缺少必填字段: type")
+                    errors.append(f"Manh mối '{clue_name}' Thiếu trường bắt buộc: type")
                 elif clue_type not in self.VALID_CLUE_TYPES:
-                    errors.append(f"线索 '{clue_name}' type 值无效: '{clue_type}'，必须是 {self.VALID_CLUE_TYPES}")
+                    errors.append(f"Manh mối '{clue_name}' type Giá trị không hợp lệ: '{clue_type}'，Phải là {self.VALID_CLUE_TYPES}")
 
                 if not clue_data.get("description"):
-                    errors.append(f"线索 '{clue_name}' 缺少必填字段: description")
+                    errors.append(f"Manh mối '{clue_name}' Thiếu trường bắt buộc: description")
 
                 importance = clue_data.get("importance")
                 if not importance:
-                    errors.append(f"线索 '{clue_name}' 缺少必填字段: importance")
+                    errors.append(f"Manh mối '{clue_name}' Thiếu trường bắt buộc: importance")
                 elif importance not in self.VALID_CLUE_IMPORTANCE:
                     errors.append(
-                        f"线索 '{clue_name}' importance 值无效: '{importance}'，必须是 {self.VALID_CLUE_IMPORTANCE}"
+                        f"Manh mối '{clue_name}' importance Giá trị không hợp lệ: '{importance}'，Phải là {self.VALID_CLUE_IMPORTANCE}"
                     )
 
     def validate_project(self, project_name: str) -> ValidationResult:
-        """验证 project.json"""
+        """Xác minh project.json"""
         return self.validate_project_dir(self.projects_root / project_name)
 
     def validate_project_dir(self, project_dir: Path) -> ValidationResult:
-        """验证指定目录中的 project.json。"""
+        """Xác minh project.json trong thư mục được chỉ định."""
         errors: list[str] = []
         warnings: list[str] = []
 
@@ -243,7 +243,7 @@ class DataValidator:
         if project is None:
             return ValidationResult(
                 valid=False,
-                errors=[f"无法加载 project.json: {project_path}"],
+                errors=[f"Không thể tải project.json: {project_path}"],
             )
 
         self._validate_project_payload(project, errors, warnings)
@@ -259,7 +259,7 @@ class DataValidator:
         if assets in (None, ""):
             return
         if not isinstance(assets, dict):
-            errors.append(f"{prefix}.generated_assets 必须是对象")
+            errors.append(f"{prefix}.generated_assets Phải là một đối tượng")
             return
 
         self._validate_local_reference(
@@ -295,9 +295,9 @@ class DataValidator:
         *,
         project_dir: Path | None = None,
     ) -> None:
-        """验证 segments（narration 模式）"""
+        """Xác minh các segments (chế độ narration)"""
         if not segments:
-            errors.append("segments 数组为空")
+            errors.append("segments Mảng trống")
             return
 
         for index, segment in enumerate(segments):
@@ -305,43 +305,43 @@ class DataValidator:
 
             segment_id = segment.get("segment_id")
             if not segment_id:
-                errors.append(f"{prefix}: 缺少必填字段 segment_id")
+                errors.append(f"{prefix}: Thiếu trường bắt buộc: segment_id")
             elif not self.ID_PATTERN.match(segment_id):
-                errors.append(f"{prefix}: segment_id 格式错误 '{segment_id}'，应为 E{{n}}S{{nn}}")
+                errors.append(f"{prefix}: segment_id định dạng错误 '{segment_id}'，Phải là E{{n}}S{{nn}}")
 
             duration = segment.get("duration_seconds")
             if duration is None:
-                warnings.append(f"{prefix}: 缺少 duration_seconds，将使用默认值 4")
+                warnings.append(f"{prefix}: Thiếu duration_seconds, sẽ sử dụng giá trị mặc định 4")
             elif duration not in self.VALID_DURATIONS:
-                errors.append(f"{prefix}: duration_seconds 值无效 '{duration}'，必须是 {self.VALID_DURATIONS}")
+                errors.append(f"{prefix}: duration_seconds Giá trị không hợp lệ '{duration}'，Phải là {self.VALID_DURATIONS}")
 
             if not segment.get("novel_text"):
-                errors.append(f"{prefix}: 缺少必填字段 novel_text")
+                errors.append(f"{prefix}: Thiếu đoạn bắt buộc novel_text")
 
             chars_in_segment = segment.get("characters_in_segment")
             if chars_in_segment is None:
-                errors.append(f"{prefix}: 缺少必填字段 characters_in_segment")
+                errors.append(f"{prefix}: Thiếu đoạn bắt buộc characters_in_segment")
             elif not isinstance(chars_in_segment, list):
-                errors.append(f"{prefix}: characters_in_segment 必须是数组")
+                errors.append(f"{prefix}: characters_in_segment Phải là mảng")
             else:
                 invalid = set(chars_in_segment) - project_characters
                 if invalid:
-                    errors.append(f"{prefix}: characters_in_segment 引用了不存在于 project.json 的角色: {invalid}")
+                    errors.append(f"{prefix}: characters_in_segment Tham chiếu đến Nhân vật không tồn tại trong project.json: {invalid}")
 
             clues_in_segment = segment.get("clues_in_segment")
             if clues_in_segment is None:
-                warnings.append(f"{prefix}: 缺少 clues_in_segment，将使用默认空数组")
+                warnings.append(f"{prefix}: Thiếu clues_in_segment, sẽ sử dụng mảng trống mặc định")
             elif not isinstance(clues_in_segment, list):
-                errors.append(f"{prefix}: clues_in_segment 必须是数组")
+                errors.append(f"{prefix}: clues_in_segment Phải là mảng")
             else:
                 invalid = set(clues_in_segment) - project_clues
                 if invalid:
-                    errors.append(f"{prefix}: clues_in_segment 引用了不存在于 project.json 的线索: {invalid}")
+                    errors.append(f"{prefix}: clues_in_segment Tham chiếu đến Manh mối không tồn tại trong project.json: {invalid}")
 
             if not segment.get("image_prompt"):
-                errors.append(f"{prefix}: 缺少必填字段 image_prompt")
+                errors.append(f"{prefix}: Thiếu đoạn bắt buộc image_prompt")
             if not segment.get("video_prompt"):
-                errors.append(f"{prefix}: 缺少必填字段 video_prompt")
+                errors.append(f"{prefix}: Thiếu đoạn bắt buộc video_prompt")
 
             if project_dir is not None:
                 self._validate_generated_assets(
@@ -361,9 +361,9 @@ class DataValidator:
         *,
         project_dir: Path | None = None,
     ) -> None:
-        """验证 scenes（drama 模式）"""
+        """Xác thực scenes (chế độ drama)"""
         if not scenes:
-            errors.append("scenes 数组为空")
+            errors.append("scenes Mảng trống")
             return
 
         for index, scene in enumerate(scenes):
@@ -371,46 +371,46 @@ class DataValidator:
 
             scene_id = scene.get("scene_id")
             if not scene_id:
-                errors.append(f"{prefix}: 缺少必填字段 scene_id")
+                errors.append(f"{prefix}: Thiếu đoạn bắt buộc scene_id")
             elif not self.ID_PATTERN.match(scene_id):
-                errors.append(f"{prefix}: scene_id 格式错误 '{scene_id}'，应为 E{{n}}S{{nn}}")
+                errors.append(f"{prefix}: scene_id định dạng错误 '{scene_id}'，Phải là E{{n}}S{{nn}}")
 
             scene_type = scene.get("scene_type")
             if not scene_type:
-                errors.append(f"{prefix}: 缺少必填字段 scene_type")
+                errors.append(f"{prefix}: Thiếu đoạn bắt buộc scene_type")
             elif scene_type not in self.VALID_SCENE_TYPES:
-                errors.append(f"{prefix}: scene_type 值无效 '{scene_type}'，必须是 {self.VALID_SCENE_TYPES}")
+                errors.append(f"{prefix}: scene_type Giá trị không hợp lệ '{scene_type}'，Phải là {self.VALID_SCENE_TYPES}")
 
             duration = scene.get("duration_seconds")
             if duration is None:
-                warnings.append(f"{prefix}: 缺少 duration_seconds，将使用默认值 8")
+                warnings.append(f"{prefix}: Thiếu duration_seconds, sẽ sử dụng giá trị mặc định 8")
             elif duration not in self.VALID_DURATIONS:
-                errors.append(f"{prefix}: duration_seconds 值无效 '{duration}'，必须是 {self.VALID_DURATIONS}")
+                errors.append(f"{prefix}: duration_seconds Giá trị không hợp lệ '{duration}'，Phải là {self.VALID_DURATIONS}")
 
             chars_in_scene = scene.get("characters_in_scene")
             if chars_in_scene is None:
-                errors.append(f"{prefix}: 缺少必填字段 characters_in_scene")
+                errors.append(f"{prefix}: Thiếu đoạn bắt buộc characters_in_scene")
             elif not isinstance(chars_in_scene, list):
-                errors.append(f"{prefix}: characters_in_scene 必须是数组")
+                errors.append(f"{prefix}: characters_in_scene Phải là mảng")
             else:
                 invalid = set(chars_in_scene) - project_characters
                 if invalid:
-                    errors.append(f"{prefix}: characters_in_scene 引用了不存在于 project.json 的角色: {invalid}")
+                    errors.append(f"{prefix}: characters_in_scene Tham chiếu đến Nhân vật không tồn tại trong project.json: {invalid}")
 
             clues_in_scene = scene.get("clues_in_scene")
             if clues_in_scene is None:
-                warnings.append(f"{prefix}: 缺少 clues_in_scene，将使用默认空数组")
+                warnings.append(f"{prefix}: Thiếu clues_in_scene, sẽ sử dụng mảng trống mặc định")
             elif not isinstance(clues_in_scene, list):
-                errors.append(f"{prefix}: clues_in_scene 必须是数组")
+                errors.append(f"{prefix}: clues_in_scene Phải là mảng")
             else:
                 invalid = set(clues_in_scene) - project_clues
                 if invalid:
-                    errors.append(f"{prefix}: clues_in_scene 引用了不存在于 project.json 的线索: {invalid}")
+                    errors.append(f"{prefix}: clues_in_scene Tham chiếu đến Manh mối không tồn tại trong project.json: {invalid}")
 
             if not scene.get("image_prompt"):
-                errors.append(f"{prefix}: 缺少必填字段 image_prompt")
+                errors.append(f"{prefix}: Thiếu đoạn bắt buộc image_prompt")
             if not scene.get("video_prompt"):
-                errors.append(f"{prefix}: 缺少必填字段 video_prompt")
+                errors.append(f"{prefix}: Thiếu đoạn bắt buộc video_prompt")
 
             if project_dir is not None:
                 self._validate_generated_assets(
@@ -432,10 +432,10 @@ class DataValidator:
         project_clues = set(project.get("clues", {}).keys())
 
         if not isinstance(episode.get("episode"), int):
-            errors.append("缺少必填字段: episode (整数)")
+            errors.append("Thiếu đoạn bắt buộc: episode (số nguyên)")
 
         if not episode.get("title"):
-            errors.append("缺少必填字段: title")
+            errors.append("Thiếu trường bắt buộc: title")
 
         content_mode = episode.get(
             "content_mode",
@@ -444,15 +444,15 @@ class DataValidator:
 
         characters_in_episode = episode.get("characters_in_episode")
         if characters_in_episode is not None:
-            warnings.append("characters_in_episode 字段已废弃（改为读时计算），可安全移除")
+            warnings.append("characters_in_episode từĐoạn đã lỗi thời (được tính toán khi đọc), có thể Xóa an toàn")
 
         clues_in_episode = episode.get("clues_in_episode")
         if clues_in_episode is not None:
-            warnings.append("clues_in_episode 字段已废弃（改为读时计算），可安全移除")
+            warnings.append("clues_in_episode từĐoạn đã lỗi thời (được tính toán khi đọc), có thể Xóa an toàn")
 
         novel = episode.get("novel")
         if novel is not None and not isinstance(novel, dict):
-            errors.append("novel 字段必须是对象")
+            errors.append("novel từĐoạn phải là đối tượng")
 
         if content_mode == "narration":
             self._validate_segments(
@@ -474,7 +474,7 @@ class DataValidator:
             )
 
     def validate_episode(self, project_name: str, episode_file: str) -> ValidationResult:
-        """验证 episode JSON"""
+        """Xác thực episode JSON"""
         return self.validate_episode_file(self.projects_root / project_name, episode_file)
 
     def validate_episode_file(
@@ -482,7 +482,7 @@ class DataValidator:
         project_dir: Path,
         episode_file: str | Path,
     ) -> ValidationResult:
-        """验证指定目录中的剧本文件。"""
+        """Xác thực tệp Kịch bản trong thư mục chỉ định."""
         errors: list[str] = []
         warnings: list[str] = []
 
@@ -492,7 +492,7 @@ class DataValidator:
         if project is None:
             return ValidationResult(
                 valid=False,
-                errors=[f"无法加载 project.json: {project_path}"],
+                errors=[f"Không thể tải project.json: {project_path}"],
             )
 
         resolved_episode_path, error = self._resolve_existing_path(
@@ -503,7 +503,7 @@ class DataValidator:
         if error or resolved_episode_path is None:
             return ValidationResult(
                 valid=False,
-                errors=[f"无法加载剧本文件: {project_dir / str(episode_file)}"],
+                errors=[f"Không thể tải tệp Kịch bản: {project_dir / str(episode_file)}"],
             )
 
         episode_path = project_dir / resolved_episode_path
@@ -511,7 +511,7 @@ class DataValidator:
         if episode is None:
             return ValidationResult(
                 valid=False,
-                errors=[f"无法加载剧本文件: {episode_path}"],
+                errors=[f"Không thể tải tệp Kịch bản: {episode_path}"],
             )
 
         self._validate_episode_payload(project_dir, project, episode, errors, warnings)
@@ -519,9 +519,9 @@ class DataValidator:
 
     def validate_project_tree(self, project_dir: str | Path) -> ValidationResult:
         """
-        验证完整项目目录。
+        Xác thực toàn bộ thư mục Dự án.
 
-        除 project.json / episode 结构外，还会验证本地文件引用和顶层附加文件。
+        Ngoài cấu trúc project.json / episode, còn xác thực cả tham chiếu tệp cục bộ và tệp bổ sung cấp cao.
         """
         project_dir = Path(project_dir)
         project_result = self.validate_project_dir(project_dir)
@@ -595,7 +595,7 @@ class DataValidator:
 
                 episode = self._load_json(project_dir / resolved_path)
                 if episode is None:
-                    errors.append(f"无法加载剧本文件: {project_dir / resolved_path}")
+                    errors.append(f"Không thể tải tệp Kịch bản: {project_dir / resolved_path}")
                     continue
 
                 episode_errors: list[str] = []
@@ -624,7 +624,7 @@ def validate_project(
     project_name: str,
     projects_root: str | None = None,
 ) -> ValidationResult:
-    """验证 project.json"""
+    """Xác minh project.json"""
     validator = DataValidator(projects_root)
     return validator.validate_project(project_name)
 
@@ -634,7 +634,7 @@ def validate_episode(
     episode_file: str,
     projects_root: str | None = None,
 ) -> ValidationResult:
-    """验证 episode JSON"""
+    """Xác thực episode JSON"""
     validator = DataValidator(projects_root)
     return validator.validate_episode(project_name, episode_file)
 
@@ -643,9 +643,9 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print("用法: python data_validator.py <project_name> [episode_file]")
-        print("  验证 project.json: python data_validator.py my_project")
-        print("  验证 episode JSON: python data_validator.py my_project episode_1.json")
+        print("Cách dùng: python data_validator.py <project_name> [episode_file]")
+        print("  Xác thực project.json: python data_validator.py my_project")
+        print("  Xác thực episode JSON: python data_validator.py my_project episode_1.json")
         sys.exit(1)
 
     project_name = sys.argv[1]

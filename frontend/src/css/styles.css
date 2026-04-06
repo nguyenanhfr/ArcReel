@@ -1,16 +1,16 @@
-/* 自定义样式 */
+/* Kiểu tùy chỉnh */
 
-/* 滚动条样式 — 极窄 + 滚动时渐显、停止后渐隐 */
+/* Kiểu thanh cuộn - cực kỳ hẹp + mờ dần khi cuộn, mờ dần sau khi dừng */
 
-/* 注册可动画的自定义属性（::-webkit-scrollbar-thumb 不支持 transition，
-   但 @property 注册的自定义属性可在元素自身上过渡，伪元素读取插值后的值） */
+/* Đăng ký các thuộc tính tùy chỉnh có thể hoạt hình (::-webkit-scrollbar-thumb không hỗ trợ chuyển đổi,
+   Tuy nhiên, các thuộc tính tùy chỉnh được đăng ký bởi @property có thể được chuyển đổi trên chính phần tử đó và phần tử giả sẽ đọc giá trị được nội suy) */
 @property --scrollbar-opacity {
     syntax: '<number>';
     inherits: true;
     initial-value: 0;
 }
 
-/* 放入 @layer base，避免 transition 简写覆盖 Tailwind utilities 层的过渡属性 */
+/* Đặt cơ sở @layer để ngăn chữ viết tắt chuyển đổi ghi đè các thuộc tính chuyển tiếp của lớp tiện ích Tailwind */
 @layer base {
     * {
         --scrollbar-opacity: 0;
@@ -37,17 +37,17 @@
     border-radius: 9999px;
 }
 
-/* 悬停在滑块上：提亮 */
+/* Di chuột qua thanh trượt: Sáng */
 [data-scrolling]::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.25);
 }
 
-/* 卡片悬停效果 — 仅颜色过渡，禁止位移 */
+/* Hiệu ứng di chuột qua thẻ - chỉ chuyển màu, không dịch chuyển */
 .project-card {
     transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
-/* 模态框动画 */
+/* Hoạt hình hộp phương thức */
 .modal-enter {
     opacity: 0;
     transform: scale(0.95);
@@ -59,13 +59,13 @@
     transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
 
-/* Tab 激活状态 */
+/* Tab Trạng thái kích hoạt */
 .tab-active {
     border-bottom: 2px solid #3b82f6;
     color: #3b82f6;
 }
 
-/* 文件拖拽区域 */
+/* Vùng kéo tập tin */
 .drop-zone {
     border: 2px dashed #3a3a3a;
     transition: border-color 0.2s, background-color 0.2s;
@@ -76,7 +76,7 @@
     background-color: rgba(59, 130, 246, 0.1);
 }
 
-/* 图片预览 */
+/* ẢnhXem trước */
 .image-preview {
     position: relative;
     overflow: hidden;
@@ -90,14 +90,14 @@
     opacity: 0.85;
 }
 
-/* 场景网格 */
+/* Cảnhlưới */
 .scene-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 1rem;
 }
 
-/* 视频预览 */
+/* VideoXem trước */
 .video-preview {
     position: relative;
 }
@@ -118,7 +118,7 @@
     opacity: 1;
 }
 
-/* 进度环 */
+/* Vòng lặp tiến trình */
 .progress-ring {
     transform: rotate(-90deg);
 }
@@ -128,7 +128,7 @@
     transform-origin: 50% 50%;
 }
 
-/* 分析进度条动画 */
+/* Phân tích hoạt ảnh của thanh tiến trình */
 @keyframes progress-indeterminate {
   0% { width: 0%; margin-left: 0%; }
   50% { width: 40%; margin-left: 30%; }
@@ -139,7 +139,7 @@
   animation: progress-indeterminate 2s ease-in-out infinite;
 }
 
-/* 响应式调整 */
+/* Điều chỉnh đáp ứng */
 @media (max-width: 640px) {
     .scene-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -149,31 +149,31 @@
     }
 }
 
-/* ==================== 说书模式样式 ==================== */
+/* ==================== Phong cách chế độ kể chuyện ====================== */
 
-/* 9:16 竖屏比例 */
+/* 9:16 Tỷ lệ màn hình dọc */
 .aspect-portrait {
     aspect-ratio: 9 / 16;
 }
 
-/* 3:4 竖版比例（角色设计图） */
+/* 3:4 Tỷ lệ dọc (Ảnh thiết kế nhân vật) */
 .aspect-portrait-3-4 {
     aspect-ratio: 3 / 4;
 }
 
-/* 片段卡片网格 */
+/* Đoạnlưới thẻ */
 .segment-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 1rem;
 }
 
-/* 片段卡片 — 仅颜色过渡，禁止位移 */
+/* ĐoạnThẻ - chỉ chuyển màu, không dịch chuyển */
 .segment-card {
     transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
-/* 多宫格图展示区 */
+/* Khu vực hiển thị nhiều lưới */
 .grid-preview-section {
     margin-bottom: 1.5rem;
     padding: 1rem;
@@ -181,12 +181,12 @@
     border-radius: 0.5rem;
 }
 
-/* 灰色 750（介于 700 和 800 之间） */
+/* Xám 750 (từ 700 đến 800) */
 .bg-gray-750 {
     background-color: #222222;
 }
 
-/* ==================== Markdown 渲染样式 ==================== */
+/* ==================== Markdown Kiểu kết xuất ====================== */
 
 .markdown-body h1 {
     font-size: 1.75rem;

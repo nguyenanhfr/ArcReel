@@ -1,15 +1,15 @@
 """
-Gemini 共享工具模块
+Gemini Chia sẻ mô-đun Công cụ
 
-从 gemini_client.py 提取的非 GeminiClient 工具，供 image_backends / video_backends /
-providers / media_generator 等模块复用，避免循环依赖。
+Công cụ không phải GeminiClient được trích xuất từ gemini_client.py, dùng cho image_backends / video_backends /
+providers / media_generator các module khác tái sử dụng, tránh phụ thuộc vòng lặp.
 
-包含：
+Bao gồm:
 - VERTEX_SCOPES — Vertex AI OAuth scopes
-- RETRYABLE_ERRORS — Gemini 专用可重试错误类型（扩展自 BASE_RETRYABLE_ERRORS）
-- RateLimiter — 多模型滑动窗口限流器
+- RETRYABLE_ERRORS — Gemini Loại lỗi có thể Thử lại chuyên dụng (mở rộng từ BASE_RETRYABLE_ERRORS)
+- RateLimiter — Bộ giới hạn trượt nhiều mô hình
 - _rate_limiter_limits_from_env / get_shared_rate_limiter / refresh_shared_rate_limiter
-- with_retry_async — 从 lib.retry re-export 的通用重试装饰器
+- with_retry_async — Trình trang trí Thử lại chung được tái xuất từ lib.retry
 """
 
 import asyncio
@@ -34,16 +34,16 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
-# Vertex AI 服务账号所需 OAuth scopes（共享常量，供 gemini_client / video_backends / providers 复用）
+# Vertex AI Các phạm vi OAuth cần thiết cho tài khoản dịch vụ (hằng số chia sẻ, dùng cho gemini_client / video_backends / providers)
 VERTEX_SCOPES = [
     "https://www.googleapis.com/auth/cloud-platform",
     "https://www.googleapis.com/auth/generative-language",
 ]
 
-# Gemini 专用可重试错误类型（扩展基础集合）
+# Gemini Loại lỗi có thể Thử lại chuyên dụng (mở rộng tập hợp cơ bản)
 RETRYABLE_ERRORS: tuple[type[Exception], ...] = BASE_RETRYABLE_ERRORS
 
-# 尝试导入 Google API 错误类型
+# Cố gắng nhập Loại lỗi API Google
 try:
     from google import genai  # Import genai to access its errors
     from google.api_core import exceptions as google_exceptions
@@ -62,27 +62,27 @@ except ImportError:
 
 class RateLimiter:
     """
-    多模型滑动窗口限流器
+    Bộ giới hạn trượt nhiều mô hình
     """
 
     def __init__(self, limits_dict: dict[str, int] = None, *, request_gap: float = 3.1):
         """
         Args:
-            limits_dict: {model_name: rpm} 字典。例如 {"gemini-3-pro-image-preview": 20}
-            request_gap: 最小请求间隔（秒），默认 3.1
+            limits_dict: {model_name: rpm} từVí dụ. Ví dụ {"gemini-3-pro-image-preview": 20}
+            request_gap: Khoảng cách yêu cầu tối thiểu (giây), mặc định 3.1
         """
         self.limits = limits_dict or {}
         self.request_gap = request_gap
-        # 存储请求时间戳：{model_name: deque([timestamp1, timestamp2, ...])}
+        # Lưu dấu thời gian yêu cầu:{model_name: deque([timestamp1, timestamp2, ...])}
         self.request_logs: dict[str, deque] = {}
         self.lock = threading.Lock()
 
     def acquire(self, model_name: str):
         """
-        阻塞直到获得令牌
+        Chặn cho đến khi nhận được token
         """
         if model_name not in self.limits:
-            return  # 该模型无限流配置
+            return  # Cấu hình luồng vô hạn của mô hình
 
         limit = self.limits[model_name]
         if limit <= 0:
@@ -97,39 +97,39 @@ class RateLimiter:
             while True:
                 now = time.time()
 
-                # 清理超过 60 秒的旧记录
+                # Xóa các bản ghi cũ vượt quá 60 giây
                 while log and now - log[0] > 60:
                     log.popleft()
 
-                # 强制增加请求间隔（用户要求 > 3s）
-                # 即使获得了令牌，也要确保距离上一次请求至少 3s
-                # 获取最新的请求时间（可能是其他线程刚刚写入的）
+                # Cưỡng bức tăng khoảng cách giữa các yêu cầu (theo yêu cầu của người dùng) > 3s）
+                # Ngay cả khi nhận được token, cũng phải đảm bảo ít nhất 3 giây kể từ lần yêu cầu trước
+                # Lấy thời gian yêu cầu mới nhất (có thể là do thread khác vừa ghi)
                 min_gap = self.request_gap
                 if log:
                     last_request = log[-1]
                     gap = time.time() - last_request
                     if gap < min_gap:
                         time.sleep(min_gap - gap)
-                        # 更新时间，重新检查
+                        # Cập nhật thời gian, kiểm tra lại
                         continue
 
                 if len(log) < limit:
-                    # 获取令牌成功
+                    # Nhận token thành công
                     log.append(time.time())
                     return
 
-                # 达到限制，计算等待时间
-                # 等待直到最早的记录过期
-                wait_time = 60 - (now - log[0]) + 0.1  # 多加 0.1s 缓冲
+                # Đạt giới hạn, tính toán thời gian chờ
+                # Chờ cho đến khi bản ghi sớm nhất hết hạn
+                wait_time = 60 - (now - log[0]) + 0.1  # Thêm thêm 0,1 giây đệm
                 if wait_time > 0:
                     time.sleep(wait_time)
 
     async def acquire_async(self, model_name: str):
         """
-        异步阻塞直到获得令牌
+        Chặn bất đồng bộ cho đến khi nhận được token
         """
         if model_name not in self.limits:
-            return  # 该模型无限流配置
+            return  # Cấu hình luồng vô hạn của mô hình
 
         limit = self.limits[model_name]
         if limit <= 0:
@@ -144,7 +144,7 @@ class RateLimiter:
 
                 log = self.request_logs[model_name]
 
-                # 清理超过 60 秒的旧记录
+                # Xóa các bản ghi cũ vượt quá 60 giây
                 while log and now - log[0] > 60:
                     log.popleft()
 
@@ -154,23 +154,23 @@ class RateLimiter:
                     last_request = log[-1]
                     gap = now - last_request
                     if gap < min_gap:
-                        # 释放锁后异步等待
+                        # Chờ bất đồng bộ sau khi giải phóng khóa
                         wait_needed = min_gap - gap
 
                 if len(log) >= limit:
-                    # 达到限制，计算等待时间
+                    # Đạt giới hạn, tính toán thời gian chờ
                     wait_needed = max(wait_needed, 60 - (now - log[0]) + 0.1)
 
                 if wait_needed == 0 and len(log) < limit:
-                    # 获取令牌成功
+                    # Nhận token thành công
                     log.append(now)
                     return
 
-            # 在锁外异步等待
+            # Chờ bất đồng bộ ngoài khóa
             if wait_needed > 0:
                 await asyncio.sleep(wait_needed)
             else:
-                await asyncio.sleep(0.1)  # 短暂让出控制权
+                await asyncio.sleep(0.1)  # Tạm thời nhường quyền kiểm soát
 
 
 _SHARED_IMAGE_MODEL_NAME = cost_calculator.DEFAULT_IMAGE_MODEL
@@ -213,12 +213,12 @@ def get_shared_rate_limiter(
     request_gap: float | None = None,
 ) -> "RateLimiter":
     """
-    获取进程内共享的 RateLimiter
+    Lấy RateLimiter được chia sẻ trong tiến trình
 
-    首次调用时根据参数或环境变量创建实例，后续调用返回同一实例。
+    Gọi lần đầu tiên sẽ tạo instance theo tham số hoặc biến môi trường, các lần gọi sau trả về cùng một instance.
 
-    - image_rpm / video_rpm：每分钟请求数限制（None 时从环境变量读取）
-    - request_gap：最小请求间隔（None 时从环境变量 GEMINI_REQUEST_GAP 读取，默认 3.1）
+    - image_rpm / video_rpm：Giới hạn số lần yêu cầu mỗi phút (None thì đọc từ biến môi trường)
+    - request_gap：Khoảng cách tối thiểu giữa các yêu cầu (None thì đọc từ biến môi trường GEMINI_REQUEST_GAP, mặc định 3.1)
     """
     global _shared_rate_limiter
     if _shared_rate_limiter is not None:
